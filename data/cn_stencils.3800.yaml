@@ -1328,6 +1328,7 @@
   chinese: 酒劲大。
   english:
     - It's strong.
+  comment: What is strong? The alcohol?
 
 - type: chinese
   chinese: 我喝醉了。
@@ -1364,6 +1365,7 @@
   chinese: 我不该喝这么多的。
   english:
     - I should have drunk less.
+  comment: Should this be 我不该喝什么多的？
 
 - type: chinese
   chinese: 头天的酒还没醒。

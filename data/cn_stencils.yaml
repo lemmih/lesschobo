@@ -1439,7 +1439,7 @@
     - What do you mean?
 
 - type: chinese
-  chinese: 你要说什么？
+  chinese: 你要|说什么？
   english:
     - What do you want to say?
 
@@ -2035,7 +2035,7 @@
     - Please call me.
 
 - type: chinese
-  chinese: 我给你回电话
+  chinese: 我给你回|电话
   english:
     - I'll call you back
 
