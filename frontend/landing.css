@@ -1,0 +1,70 @@
+.call-to-action {
+  text-align: center;
+}
+.call-to-action .course-container {
+  margin-left: auto;
+  margin-right: auto;
+}
+.call-to-action .course {
+  border: 1px solid black;
+  max-width: 15em;
+  margin-left: auto;
+  margin-right: auto;
+  background: white;
+}
+.call-to-action .course:hover {
+  background: #eee;
+}
+.call-to-action .course .media {
+  min-height: 150px;
+  font-size: 500%;
+  padding-top: 60px;
+}
+.call-to-action .course button {
+  width: 100%;
+  border: 0px;
+}
+.call-to-action .course a {
+  text-decoration: none;
+  color: black;
+}
+.call-to-action .course span {
+  background-color: #ccc;
+  display: block;
+}
+.call-to-action .course-list-preview {
+  margin-bottom: 1em;
+}
+.call-to-action .browse {
+  margin-top: 4em;
+}
+.call-to-action .browse button {
+}
+
+section.call-to-action {
+  margin-bottom: 50px;
+  padding-bottom: 20px;
+  padding-top: 50px;
+  position: relative;
+}
+section.card {
+  margin-bottom: 50px;
+  border-top: 2px solid #eee;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 20px;
+  padding-top: 50px;
+  position: relative;
+  background-color: white;
+}
+section.card:nth-child(even) {
+  /*background-color: #ccc;*/
+}
+
+.navbar-footer {
+  margin-top: 2em;
+  margin-bottom: 0px;
+}
+
+body {
+  background-color: #fefdf9;
+}

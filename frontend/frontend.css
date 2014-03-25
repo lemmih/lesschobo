@@ -1,0 +1,133 @@
+/* CSS declarations go here */
+
+* {
+  box-sizing:border-box;
+  -moz-box-sizing:border-box; /* Firefox */
+}
+ul.dict-list {
+  height: 5em;
+  overflow: scroll;
+}
+.dict-list li {
+}
+#nextCardButton {
+  margin: 2em auto;
+  display: block;
+  width: 10em;
+}
+div.answer {
+  font-size: 150%;
+}
+.order:hover {
+}
+.time:hover {
+}
+.target-line .entry {
+  font-size: 150%;
+}
+.exercise {
+  /*border: 1px solid black;*/
+  width: 40em;
+  margin: 2em auto;
+}
+.exercise .block {
+  /*border: 1px solid red;*/
+  padding-bottom: 1em;
+}
+.exercise .block .task {
+  width: 59%;
+  /*border: 1px solid blue;*/
+  border-right: 1px solid #ccc;
+  display: inline-block;
+  position: relative;
+}
+.exercise .block .english {
+  float: right;
+  width: 39%;
+  /*border: 1px solid green;*/
+  color: #ccc;
+}
+.exercise .block .task .word {
+  display: block;
+  float: left;
+  padding-left: 5px;
+  padding-right: 5px;
+  text-align: center;
+  height: 6em;
+}
+.exercise .block .task .word input {
+  font-size: 150%;
+  width: 3em;
+  border: 0px;
+  border-bottom: 1px solid black;
+  text-align: center;
+  margin: 0px;
+  padding: 0px;
+}
+.exercise .block .task .word input:focus {
+  border-bottom: 1px solid blue;
+  outline: 0;
+}
+/*.exercise .block .task .dialog {
+  position: absolute;
+  left: -7em;
+}*/
+.exercise .block .task .word .chinese {
+  display: block;
+}
+.exercise .block .task .word .chinese ul {
+  text-align: left;
+  margin: 0px;
+}
+.exercise .block .task .word .chinese li {
+  list-style-type: none;
+}
+.exercise .block .task .word .chinese li a {
+  padding-left: 1em;
+  padding-right: 1em;
+  color: black;
+  text-decoration: none;
+  display: block;
+}
+.exercise .block .task .word .chinese li.option:hover {
+  background-color: #ccc;
+}
+.exercise .block .task .word .chinese a.entry {
+  font-size: 150%;
+  line-height: 150%;
+}
+.exercise .block .task .word .chinese span {
+  font-size: 150%;
+  line-height: 150%;
+}
+.exercise .block .task .word .chinese div {
+}
+.exercise .block .task .word .pinyin {
+  display: block;
+  color: #777;
+}
+.exercise .block .task .word .literal {
+  display: block;
+  color: #ccc;
+  white-space:nowrap;
+  overflow: hidden;
+  /*opacity: 0;*/
+  /*width: 0;*/
+}
+.entry {
+  color: black;
+}
+.entry:hover {
+  text-decoration: none;
+}
+
+.activityBar {
+  padding: 2em;
+  background: lightblue;
+  text-align: center;
+}
+.activityBar input {
+  border: 1px solid black;
+  width: 20em;
+  height: 2em;
+}
