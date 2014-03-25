@@ -361,7 +361,7 @@
 - type: chinese
   chinese: 开饭啦!
   english:
-    - Come and get it!
+    - Come and eat!
 
 - type: chinese
   chinese: 该吃饭啦!
@@ -838,7 +838,7 @@
     - I have a lot of money on me now.
 
 - type: chinese
-  chinese: 我可没有时间闲呆着。
+  chinese: 我可没有|时间闲呆着。
   english:
     - I can't afford to be lazy.
 
@@ -949,7 +949,7 @@
     - When can I come over?
 
 - type: chinese
-  chinese: 你定时间吧。
+  chinese: 你定|时间吧。
   english:
     - You decide when.
 
@@ -1105,7 +1105,7 @@
     - I was moved. (emotionally)
 
 - type: chinese
-  chinese: 我买两张10月3号的票。
+  chinese: 我买两张十月三号的票。
   english:
     - I'd like two tickets for October 3rd, please.
 
@@ -1136,7 +1136,7 @@
     - Where can I buy a ticket?
 
 - type: chinese
-  chinese: 这位子有人吗?
+  chinese: 这|位子有人吗?
   english:
     - Is this seat taken?
 
@@ -1169,7 +1169,7 @@
 - type: chinese
   chinese: 愿意和我一起打高尔夫球吗?
   english:
-    - Do you want to join me?
+    - Do you want to join me for golf?
 
 - type: chinese
   chinese: 这附近有高尔夫球场地吗?
@@ -1177,12 +1177,12 @@
     - Are there any golf courses around here?
 
 - type: chinese
-  chinese: 1个人多少钱?
+  chinese: 一个人多少钱?
   english:
     - How much is it per person?
 
 - type: chinese
-  chinese: 1天多少钱?
+  chinese: 一天多少钱?
   english:
     - How much is it per day?
 
@@ -1444,10 +1444,11 @@
 # 我不会 唱 新 歌。
 
 
-- type: chinese
-  chinese: 我五音不全 。
-  english:
-    - I'm tone-deaf.
+# - type: chinese
+#   chinese: 我五音不全 。
+#   english:
+#     - I'm tone-deaf.
+#   comment: Hm, this does not seem very useful.
 
 - type: chinese
   chinese: 你唱卡拉OK有什么拿手的歌吗?
@@ -1539,10 +1540,11 @@
   english:
     - Are you feeling okay?
 
-- type: chinese
-  chinese: 你怎么了?
-  english:
-    - What's wrong?
+# - type: chinese
+#   chinese: 你怎么了?
+#   english:
+#     - What's wrong?
+#   comment: Duplicate in cn_stencils.yaml
 
 - type: chinese
   chinese: 你的脸色真不好。
@@ -1555,7 +1557,7 @@
     - I don't feel well.
 
 - type: chinese
-  chinese: 你好像不太舒服。
+  chinese: 你|好像不太舒服。
   english:
     - You don't look well.
 
@@ -1728,10 +1730,11 @@
   english:
     - I burned my hand.
 
-- type: chinese
-  chinese: 我崴脚了。
-  english:
-    - I sprained my ankle.
+# - type: chinese
+#   chinese: 我崴脚了。
+#   english:
+#     - I sprained my ankle.
+#   comment: Is this really correct? Or typo?
 
 - type: chinese
   chinese: 你把感冒传染给我了。
@@ -1898,7 +1901,7 @@
     - I can't handle a girl like her.
 
 - type: chinese
-  chinese: 我非常想见到她。
+  chinese: 我非常想|见到她。
   english:
     - I'm dying to see her.
 
@@ -2003,7 +2006,7 @@
     - Don't play hard to get.
 
 - type: chinese
-  chinese: 我还不想太认真。
+  chinese: 我还不|想太认真。
   english:
     - I don't want to get serious yet.
 
@@ -2028,7 +2031,7 @@
     - You make me happy.
 
 - type: chinese
-  chinese: 能认识你我非常幸福。
+  chinese: 能认识你|我非常幸福。
   english:
     - I'm happy to have known you.
 
@@ -2094,7 +2097,7 @@
     - I'm yours.
 
 - type: chinese
-  chinese: 没有你我无法活下去。
+  chinese: 没有你|我无法活下去。
   english:
     - I can't live without you.
 
@@ -2124,7 +2127,7 @@
     - I like your dress.
 
 - type: chinese
-  chinese: 为你我在所不惜。
+  chinese: 为你|我在所不惜。
   english:
     - Nothing is too good for you.
 
@@ -2207,12 +2210,12 @@
     - Will you marry me?
 
 - type: chinese
-  chinese: 我还不想订婚。
+  chinese: 我还不|想订婚。
   english:
     - I don't want to get engaged yet.
 
 - type: chinese
-  chinese: 我还不想结婚。
+  chinese: 我还不|想结婚。
   english:
     - I don't want to get married yet.
 
@@ -2227,7 +2230,7 @@
     - I love you but I can't marry you.
 
 - type: chinese
-  chinese: 我还 下 不了 决 心 和她结 婚 。
+  chinese: 我还下不了决心和她结婚。
   english:
     - I hesitate to marry her.
 
@@ -2237,7 +2240,7 @@
     - He's a newlywed.
 
 - type: chinese
-  chinese: 婚后生活怎么样?
+  chinese: 婚后|生活怎么样?
   english:
     - How's your married life?
     - How's married life?
@@ -2263,7 +2266,7 @@
     - We're a well-matched couple.
 
 - type: chinese
-  chinese: 我是个顾家的人。
+  chinese: 我是个顾家|的人。
   english:
     - I'm a family-centered person.
 
@@ -2409,7 +2412,7 @@
     - You are late again.
 
 - type: chinese
-  chinese: 我只迟到了5分钟。
+  chinese: 我只迟到了五分钟。
   english:
     - I was only late by five minutes.
 
@@ -2433,7 +2436,7 @@
     - Let me check my schedule.
 
 - type: chinese
-  chinese: 我有好多事要干。
+  chinese: 我有好多|事要干。
   english:
     - I've got so much to do.
 
@@ -2534,7 +2537,7 @@
     - It's almost lunchtime.
 
 - type: chinese
-  chinese: 我们有1小时的午休时间。
+  chinese: 我们有一小时的午休时间。
   english:
     - We took an hour lunch break.
 
@@ -2613,7 +2616,7 @@
     - I'm a workaholic.
 
 - type: chinese
-  chinese: 我不知道这张表怎么填。
+  chinese: 我不|知道这张表怎么填。
   english:
     - I don't know how to fill out this form.
 
@@ -2721,7 +2724,7 @@
     - When is the paper due?
 
 - type: chinese
-  chinese: 我有很多事要做。
+  chinese: 我有很多|事要做。
   english:
     - I've got so much to do.
 
@@ -2796,7 +2799,7 @@
     - May I interrupt you?
 
 # - type: chinese
-#   chinese: 史密斯先生在1号线听电话。
+#   chinese: 史密斯先生在一号线听电话。
 #   english:
 #     - Mr. Smith is on line one.
 #   comment: What to do about names?
@@ -2853,7 +2856,7 @@
     - She ignored me.
 
 - type: chinese
-  chinese: 我不知道他在想什么。
+  chinese: 我不|知道他在想什么。
   english:
     - I don't know what he's really thinking.
 
@@ -2868,7 +2871,7 @@
     - I don't like brownnosers.
 
 - type: chinese
-  chinese: 我是个不顾家的人。
+  chinese: 我是个不顾家|的人。
   english:
     - I'm neglecting my family.
 
@@ -2994,7 +2997,7 @@
     - He's overweight.
 
 - type: chinese
-  chinese: 你真有胆量。
+  chinese: 你真有|胆量。
   english:
     - You have a lot of nerve.
 
@@ -3096,7 +3099,7 @@
 - type: chinese
   chinese: 他很好色。
   english:
-    - He's fresh.
+    - He's very lecherous.
 
 - type: chinese
   chinese: 他的嘴甜着呢。
@@ -3256,7 +3259,7 @@
 - type: chinese
   chinese: |
     Q: 今天几号?
-    A: 8月 13日。
+    A: 八月 十三日。
   english:
     - |
       What's today's date?
@@ -3283,7 +3286,7 @@
 - type: chinese
   chinese: |
     Q: 现在几点?
-    A: 现在1点钟了。
+    A: 现在一|点钟了。
   english:
     - |
       Do you have the time?
@@ -3292,7 +3295,7 @@
 - type: chinese
   chinese: |
     Q: 现在几点?
-    A: 1点45分。
+    A: 一点四十五分。
   english:
     - |
       Do you have the time?
@@ -3301,7 +3304,7 @@
 - type: chinese
   chinese: |
     Q: 现在几点?
-    A: 1点5分。
+    A: 一点五分。
   english:
     - |
       Do you have the time?
@@ -3337,7 +3340,7 @@
 
 
 - type: chinese
-  chinese: 那只表慢5分钟。
+  chinese: 那只表慢五分钟。
   english:
     - The clock is five minutes slow.
 
@@ -3376,7 +3379,7 @@
 # wǒ méi yǒu shí jiān 。 我没有时间。
 
 - type: chinese
-  chinese: 你的再等5天。
+  chinese: 你的再等五天。
   english:
     - You must wait for five more days.
 
@@ -3391,7 +3394,7 @@
     - I wasted a whole day.
 
 - type: chinese
-  chinese: 到时间了。
+  chinese: 到|时间了。
   english:
     - The time has come.
 
@@ -3406,7 +3409,7 @@
     - I killed two hours watching TV.
 
 - type: chinese
-  chinese: 没有时间了。
+  chinese: 没有|时间了。
   english:
     - The time is up.
 
@@ -3756,7 +3759,7 @@
     - I have to go.
 
 - type: chinese
-  chinese: 祝你好运!
+  chinese: 祝你|好运!
   english:
     - Good luck!
 
@@ -3816,7 +3819,7 @@
 # zhēn shě bù dé zǒu , dàn shì ... ... 真 舍不得走,但是......
 
 - type: chinese
-  chinese: 认识你我非常高兴。
+  chinese: 认识你|我非常高兴。
   english:
     - It was nice meeting you.
 
@@ -3915,7 +3918,7 @@
     - Give me a call sometime.
 
 - type: chinese
-  chinese: 我们什么时候再聚吧。
+  chinese: 我们什么时候再聚聚吧。
   english:
     - Let's get together again sometime.
 

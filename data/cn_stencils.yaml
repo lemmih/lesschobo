@@ -90,7 +90,7 @@
   english:
     - Beijing is the capital of China
 - type: chinese
-  chinese: 那是一本书
+  chinese: 那|是一本书
   english:
     - That is a book
     - That's a book
@@ -795,7 +795,7 @@
     - The same day a month ago
 
 - type: chinese
-  chinese: 全靠你我才有今天
+  chinese: 全靠你|我才有今天
   english:
     - It all thanks to you that I'm standing where I am today.
     - I owe you everything in life.
@@ -1074,7 +1074,7 @@
 
 - type: chinese
   chinese: |
-    {大卫}： 玛丽，那是谁的书？是你的书吗？
+    {大卫}： 玛丽，那|是谁的书？是你的书吗？
     {玛丽}： 不是，是我同屋的书。
     {大卫}： 是汉语课本吗？
     {玛丽}： 不是，是汉日词典。
@@ -1181,7 +1181,7 @@
     - I want to go and see you!
 
 - type: chinese
-  chinese: 我想见你！
+  chinese: 我想|见你！
   english:
     - I want to meet you!
 
@@ -1241,7 +1241,7 @@
     - It's obvious.
 
 - type: chinese
-  chinese: 我不知道
+  chinese: 我不|知道
   english:
     - I don't know.
 
@@ -1529,7 +1529,7 @@
     - I don't believe it!
 
 - type: chinese
-  chinese: 那是谎话！
+  chinese: 那|是谎话！
   english:
     - That's a lie!
 
@@ -1574,7 +1574,7 @@
     - I agree with you.
 
 - type: chinese
-  chinese: 我不同意
+  chinese: 我不|同意
   english:
     - I don't agree with you.
 
@@ -1730,7 +1730,7 @@
     - What's your address?
 
 - type: chinese
-  chinese: 情写下来
+  chinese: 请写下来
   english:
     - Please write it down.
 
@@ -2358,35 +2358,35 @@
 #   english:
 #   comment: chinesepod023
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 请按门铃
+  english:
+    - Please use the doorbell.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 门铃坏了。请尝试敲门。
+  english:
+    - The doorbell doesn't work. Please try knocking.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 明天你想跟我野餐吗？
+  english:
+    - Would you like to have a picnic with me tomorrow?
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 我建议我们在我家庆祝你的生日。
+  english:
+    - I suggest we celebrate your birthday at my place.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 那是一匹斑马，不是一匹马。
+  english:
+    - That is a zebra, not a horse.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 我弄丢我的斑马，怎么办！
+  english:
+    - I've lost my zebra, oh noes!
 
 # - type: chinese
 #   chinese:
