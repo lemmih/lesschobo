@@ -1,6 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE OverloadedStrings  #-}
-{-# LANGUAGE TemplateHaskell #-}
+{-# LANGUAGE TemplateHaskell    #-}
 module LessChobo.Stencils
     ( StencilId
     , Chinese
@@ -16,18 +16,18 @@ import           LessChobo.Features
 import           LessChobo.Users
 
 import           Control.Applicative
-import           Data.Aeson          (FromJSON (..), ToJSON (..), Value,
-                                      withObject, (.!=), (.:), (.:?))
-import qualified Data.Aeson          as Aeson
-import           Data.Aeson.Types    (Pair)
-import           Data.Set            (Set)
-import qualified Data.Set as Set
-import           Data.Text
-import           Data.Typeable
-import           Data.Chinese.CCDict          as CCDict
 import           Control.Monad.Reader
-import Data.Time
-import Data.SafeCopy
+import           Data.Aeson           (FromJSON (..), ToJSON (..), Value,
+                                       withObject, (.!=), (.:), (.:?))
+import qualified Data.Aeson           as Aeson
+import           Data.Aeson.Types     (Pair)
+import           Data.Chinese.CCDict  as CCDict
+import           Data.SafeCopy
+import           Data.Set             (Set)
+import qualified Data.Set             as Set
+import           Data.Text
+import           Data.Time
+import           Data.Typeable
 
 data Stencil
   = Chinese        Chinese [English]

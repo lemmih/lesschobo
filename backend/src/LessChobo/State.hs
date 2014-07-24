@@ -106,6 +106,8 @@ deleteUnitStore unitId store = store
 listUnitStore :: UnitStore -> [(UnitId, Unit)]
 listUnitStore = Map.toList . unitStoreById
 
+
+
 data Unit = Unit
   { unitTitle    :: Title
   , unitCategory :: Category

@@ -2358,6 +2358,20 @@
 #   english:
 #   comment: chinesepod023
 
+
+
+
+
+
+
+
+#####################################################################
+## Extra vocab to support Chinese Reading Practice.
+#####################################################################
+
+
+
+
 - type: chinese
   chinese: 请按门铃
   english:
@@ -2388,6 +2402,281 @@
   english:
     - I've lost my zebra, oh noes!
 
+- type: chinese
+  chinese: 我全家喜欢土豆饭。
+  english:
+    - My entire family loves potato dishes.
+
+- type: chinese
+  chinese: 为了庆祝过年我要台湾看望我的女朋友。
+  english:
+    - To celebrate the new year, I will visit my girlfriend in Taiwan.
+
+- type: chinese
+  chinese: 请不吃猪！它很可爱。
+  english:
+    - Please don’t eat pigs! They are very cute.
+
+- type: chinese
+  chinese: 今天早上我跟我的朋友吃早饭。后来我们去看一场电影。
+  english:
+    - This morning I had breakfast with my friend. Later we went to see a movie.
+
+- type: chinese
+  chinese: 请告诉我为什么你买了一艘小船。
+  english:
+    - Please tell me why you bought a boat.
+
+- type: chinese
+  chinese: 你喜欢苹果吗？
+  english:
+    - Do you like apples?
+
+- type: chinese
+  chinese: 我在哪里可以买报纸？
+  english:
+    - Where can I buy a newspaper?
+
+- type: chinese
+  chinese: 你如果给小孩子糖，他们就全天乱跳。
+  english:
+    - If you give candy to children, they will bounce around all day.
+
+- type: chinese
+  chinese: 啊呀，许多的糖果在我的帽子里！
+  english:
+    - Oh my, there’s a lot of candy in my hat!
+
+- type: chinese
+  chinese: |
+    Riddle: 有面没有口，有脚没有手，虽有四只脚，自己不会走。
+    Answer: 桌子
+  english:
+    - |
+      Riddle: It has a face but no mouth, it has feet but no hands, though it has four feet, it can’t walk by itself.
+      Answer: A table.
+
+- type: chinese
+  chinese: 你坏人！你没有一点爱心吗？
+  english:
+    - You evil person! Do you not have any compassion?
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
+
+# - type: chinese
+#   chinese:
+#   english:
+#     -
 # - type: chinese
 #   chinese:
 #   english:

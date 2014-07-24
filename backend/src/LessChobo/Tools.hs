@@ -137,7 +137,8 @@ testSatisfy = do
     stencils <- concat <$> mapM loadStencils paths
     --text <- T.readFile "../data/cn_story.pigs_picnic.txt"
     --text <- T.readFile "../data/cn_story.doctor_monkey.txt"
-    text <- T.readFile "../data/cn_story.foolish_affair.txt"
+    --text <- T.readFile "../data/cn_story.foolish_affair.txt"
+    text <- T.readFile "../data/cn_story.silver_hair.txt"
     print $ length $ nub $ lefts $ satisfyWithStencils text stencils
     print $ length $ nub $ rights $ satisfyWithStencils text stencils
     mapM_ T.putStrLn $ nub [ word | Left word <- satisfyWithStencils text stencils ]
