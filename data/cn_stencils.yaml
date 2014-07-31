@@ -587,6 +587,12 @@
     - They are friends
     - He and she are friends
 
+- type: chinese
+  chinese: 他与她是朋友。
+  english:
+    - They are friends
+    - He and she are friends
+
 # 中国 | 在 | 建设 | 和谐 | 社会。
 # China/middle kingdom | in/at | to construct/to build | harmony/accord | society
 # China is building Harmonious Society.
@@ -2461,128 +2467,132 @@
   english:
     - You evil person! Do you not have any compassion?
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 我是全家中最年轻的。
+  english:
+    - I am the youngest in the family.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 我成了汉语课里最好学生。
+  english:
+    - I became the best student in the Chinese class.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 我扭伤了脚踝而不得不弃权了比赛.
+  english:
+    -  I sprained my ankle and had to abstain from the race.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 我数数，你记时，好吗？
+  english:
+    - |
+      (In the context of doing some activity, like jumping jacks)
+      I count and you record the time, ok?
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 我小时候喜欢跳绳。
+  english:
+    - When I was little I liked to jump rope.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 我喜欢你的打扮.
+  english:
+    - I like the way you dress.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 我期待着再见到你.
+  english:
+    - I look forward to seeing you again.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 我的花园里有两朵花。
+  english:
+    - There are two flowers in my garden.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 我与你一起去游泳.
+  english:
+    - We will go swimming together.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 她的音乐打动了我。
+  english:
+    - Her music moved me (emotionally).
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 我要住在美丽的国家.
+  english:
+    - I want to live in a beautiful country.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 我肯定要和你见面.
+  english:
+    - I definitely want to meet you.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 我絕對要和你见面.
+  english:
+    - I definitely want to meet you.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 中国没有野生狮子.
+  english:
+    - There are no wild lions in China.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 何其有幸可以遇見你.
+  english:
+    - How lucky I am to meet you!
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 我先做作业再吃晚饭。
+  english:
+    - I first do my homework and then eat dinner.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 我想念同学但是我不想念作业。
+  english:
+    - I miss my classmates but I do not miss the homework.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 我听见窗外吵闹的孩子。
+  english:
+    - I hear noisy children outside my window.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 你喜欢我们互相陪伴吗?
+  english:
+    - Would you like for us to spend time together?
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 这些话是白色的。
+  english:
+    - These flowers are white.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 这些话是黄色的。
+  english:
+    - These flowers are yellow.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 这些话是紫色的。
+  english:
+    - These flowers are purple.
 
-# - type: chinese
-#   chinese:
-#   english:
-#     -
+- type: chinese
+  chinese: 这些话是灰色的。
+  english:
+    - These flowers are gray.
+
+- type: chinese
+  chinese: 你的女朋友叫什么名字？
+  english:
+    - What is the name of your girlfriend?
+
+- type: chinese
+  chinese: 你有很多好朋友吗?
+  english:
+    - Do you have a lot of good friends?
 
 # - type: chinese
 #   chinese:
