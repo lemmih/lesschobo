@@ -4,6 +4,13 @@
   box-sizing:border-box;
   -moz-box-sizing:border-box; /* Firefox */
 }
+a.study-link:hover {
+  text-decoration: none;
+}
+a.study-link a.toggle-info:hover {
+  text-decoration: none;
+}
+
 ul.dict-list {
   height: 5em;
   overflow: scroll;

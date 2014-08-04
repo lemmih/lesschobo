@@ -47,4 +47,8 @@ Router.map(function () {
       };
     }
   });
+
+  this.route('browseCourses', {
+    path: '/courses/'
+  });
 });

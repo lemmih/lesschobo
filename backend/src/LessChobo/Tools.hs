@@ -19,6 +19,8 @@ import qualified Data.Text.IO                 as T
 import           Data.Yaml                    as Yaml
 import           LessChobo.SimulatedAnnealing
 import           System.Random.MWC
+import System.FilePath
+import Text.Printf
 
 loadStencils :: FilePath -> IO [Stencil]
 loadStencils path = do
@@ -125,6 +127,41 @@ sortAllStencils iterations = do
           loop (n-1) sorted
     loop iterations byCost
   where
+    paths =
+      ["../data/cn_stencils.yaml"
+      ,"../data/cn_stencils.3800.yaml"
+      ,"../data/cn_stencils.chinesepod.basic.yaml"
+      ,"../data/cn_stencils.rocket.yaml"
+      ,"../data/cn_stencils.livelingua.yaml" ]
+
+-- Create Chinese stencils covering the concepts in a short story or poem.
+-- The stencils are written in YAML to {input-file}.yaml
+mkStoryStencils :: FilePath -> IO ()
+mkStoryStencils inputFile = do
+    putStrLn "Loading Chinese stencils..."
+    stencils <- concat <$> mapM loadStencils paths
+    text <- T.readFile inputFile
+    let cover = nub $ satisfyWithStencils text stencils
+        totalWords = length cover
+        coveredWords = length $ rights cover
+        coveredWordsP = (coveredWords*100) `div` totalWords
+        missingWords = length $ lefts cover
+        textWords = nub [ entry | KnownWord entry <- tokenizer ccDict text ]
+        textWordsN = length textWords
+        stencilWords = nub
+          [ entry | Chinese chinese _english <- rights cover
+          , KnownWord entry <- tokenizer ccDict chinese ]
+        superfluousWords = length (stencilWords \\ textWords)
+        superfluousWordsP =
+          ((superfluousWords)*100) `div` textWordsN
+    printf "Word coverage:     %3d%% (missing %d)\n" coveredWordsP missingWords
+    printf "Superfluous words: %3d%% (%d)\n" superfluousWordsP superfluousWords
+    putStrLn "Sorting stencils..."
+    let sorted = map fst $ sortStencilsByCost $ rights cover
+    Yaml.encodeFile outputFile sorted
+    putStrLn $ "Stencils written to: " ++ outputFile
+  where
+    outputFile = inputFile <.> "yaml"
     paths =
       ["../data/cn_stencils.yaml"
       ,"../data/cn_stencils.3800.yaml"

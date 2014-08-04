@@ -20,18 +20,21 @@ if (Meteor.isClient) {
 if (!Meteor.isClient) {
   Meteor.methods({
     fetchCards: function (courseId) {
-      var ret = HTTP.call('GET', 'http://localhost:8000/users/351/units/' + courseId + '/cards');
+      var ret = HTTP.call('GET', 'http://localhost:8000/users/' + Meteor.userId() + '/units/' + courseId + '/cards');
       return JSON.parse(ret.content);
     },
     fetchAnnotatedStencils: function (courseId) {
-      var ret = HTTP.call('GET', 'http://localhost:8000/users/351/units/' + courseId + '/stencils/');
+      console.log('userId', Meteor.userId());
+      var ret = HTTP.call('GET', 'http://localhost:8000/users/' + Meteor.userId() + '/units/' + courseId + '/stencils/');
       return JSON.parse(ret.content);
     },
     postResponse: function(response) {
+      response.userId = Meteor.userId();
+
       return HTTP.call('POST', 'http://localhost:8000/responses', {data: response, params: {key: 'value'}});
     },
     listUnits: function() {
-      var ret = HTTP.call('GET', 'http://localhost:8000/users/351/units/');
+      var ret = HTTP.call('GET', 'http://localhost:8000/users/' + Meteor.userId() + '/units/');
       return JSON.parse(ret.content);
     }
   });
@@ -274,7 +277,6 @@ if (Meteor.isClient) {
         Template.interface.withActive(function (activeBlock) {
           var userAnswer = $('.activeInputInline').val();
           var response = {stencilId: Session.get('stencilId'),
-                          userId: 351,
                           content: {
                             type: 'MandarinTextAnswer',
                             shownAnswer: Template.interface.doShowAnswer(),
@@ -341,6 +343,18 @@ if (Meteor.isClient) {
       }
     }
   });
+
+  Template.layout.events({
+    'click #logout': function () {
+      console.log('logout');
+      Meteor.logout();
+    }
+  });
+  Template.layout.isOnPage = function (page) {
+    var curPage = Router.current().route.name;
+    if( page === curPage ) return 'active';
+    return null;
+  };
 }
 
 if (Meteor.isServer) {

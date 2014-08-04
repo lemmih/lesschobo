@@ -3,6 +3,7 @@
 {-# LANGUAGE ParallelListComp #-}
 module Main where
 
+import           LessChobo.Tools
 import           LessChobo.State
 import           LessChobo.Responses
 
@@ -55,9 +56,10 @@ main = do
                 now <- liftIO getCurrentTime
                 cards <- query' global $ DrawCards now userId unitId
                 ok $ toResponse $ toJSON cards
-              , dir "stencils" $ do
+                , dir "stencils" $ do
                 method GET
                 trailingSlash
+                update' global (EnsureUser userId)
                 annStencils <- query' global (ListAnnotatedStencils userId unitId)
                 ok $ toResponse $ toJSON
                   [ object [ "id"       .= stencilId

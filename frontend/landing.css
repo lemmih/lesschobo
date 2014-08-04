@@ -5,6 +5,9 @@
   margin-left: auto;
   margin-right: auto;
 }
+.call-to-action .course-container div.cn {
+  background-image: url('flag_cn.svg');
+}
 .call-to-action .course {
   border: 1px solid black;
   max-width: 15em;
@@ -51,10 +54,16 @@ section.card {
   margin-bottom: 50px;
   border-top: 2px solid #eee;
   border-bottom: 2px solid #eee;
-  padding-bottom: 20px;
-  padding-top: 50px;
+  padding-bottom: 30px;
+  padding-top: 30px;
   position: relative;
   background-color: white;
+}
+section.card img.media-svg {
+  height: 9em;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 section.card:nth-child(even) {
   /*background-color: #ccc;*/
@@ -66,5 +75,5 @@ section.card:nth-child(even) {
 }
 
 body {
-  background-color: #fefdf9;
+  /* background-color: #fefdf9; */
 }

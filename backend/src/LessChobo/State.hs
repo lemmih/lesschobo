@@ -382,11 +382,18 @@ requireUnit unitId = do
     Nothing   -> error $ "Unit not found: " ++ show unitId
     Just unit -> return unit
 
-addUser :: Alias -> Update Global UserId
-addUser alias = do
-  userId <- newUnique
+-- FIXME: Check if the user exists.
+addUser :: UserId -> Alias -> Update Global ()
+addUser userId alias = do
   globalUsers %= insertUserStore userId emptyUser{ userAlias = alias }
-  return userId
+
+-- Guarantee that a user id exists in the system.
+ensureUser :: UserId -> Update Global ()
+ensureUser userId = do
+  userStore <- liftQuery $ view globalUsers
+  case lookupUserStore userId userStore of
+    Nothing -> addUser userId ""
+    Just{}  -> return ()
 
 addSimpleUnit :: Title -> [Stencil] -> Update Global UnitId
 addSimpleUnit title stencils = do
@@ -435,6 +442,7 @@ makeAcidic ''Global [ 'addStencil
                     , 'listAnnotatedStencils
                     , 'updateStencilSchedules
                     , 'addUser
+                    , 'ensureUser
                     , 'addSimpleUnit
                     , 'updSimpleUnit
                     , 'deleteUnit

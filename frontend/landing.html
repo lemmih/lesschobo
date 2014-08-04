@@ -1,19 +1,29 @@
 <template name="landing">
-  <nav class="navbar navbar-header">
+  <!-- <nav class="navbar navbar-header">
     <div class="navbar-inner">
       <a href="/" class="brand">人LessChobo</a>
       <ul class="nav pull-right">
-        <li><a href="/about">About</a></li>
+        <li><a href="{{pathFor 'home'}}">Home</a></li>
         <li><a href="/courses/">Courses</a></li>
-        <li><a>Sign in</a></li>
+        <li><a>{{> loginButtons align="right"}}</a></li>
       </ul>
     </div>
-  </nav>
+  </nav> -->
   <article>
+    <section class="logo">
+      <div class="container">
+        <div class="row">
+          <div class="span6 offset3">
+            <h1>What would you like to learn?</h1>
+          </div>
+        </div>
+      </div>
+    </section>
+    
     <section class="call-to-action">
       <div class="container">
         <div class="row-fluid course-list-preview">
-          <div class="span4 offset2 course-container">
+          <div class="span4 offset2 course-container cn">
             <div class="course">
               <a href="/courses//">
                 <div class="media">中文</div>
@@ -50,7 +60,7 @@
         </div>
         <div class="row browse">
           <div class="span4 offset4">
-            <button>Or browse course index</button>
+            <button>View all courses</button>
           </div>
         </div>
       </div>
@@ -62,10 +72,6 @@
         <div class="row-fluid">
           <div class="span6 offset1">
             <h2>人LessChobo</h2>
-          </div>
-        </div>
-        <div class="row-fluid">
-          <div class="span6 offset1">
             <p>
               One-on-one tutoring is far more effective than classroom teaching.
               LessChobo offers the advantages of individualized and adaptive tutoring
@@ -73,8 +79,8 @@
             </p>
             <a>Read more.</a>
           </div>
-          <div class="span4 offset1">
-            MEDIA
+          <div class="span2 offset1">
+            <img class="media-svg fill-blue" src="renren.svg"/>
           </div>
         </div>
       </div>
@@ -85,18 +91,14 @@
         <div class="row-fluid">
           <div class="span6 offset1">
             <h2>Inclusive</h2>
-          </div>
-        </div>
-        <div class="row-fluid">
-          <div class="span6 offset1">
             <p>
               Get the most out of your time by combining text book study, tutor lessons,
               and deliberate practice.
             </p>
             <a>Read more.</a>
           </div>
-          <div class="span4 offset1">
-            MEDIA
+          <div class="span2 offset1">
+            <img class="media-svg" src="molecular.svg"/>
           </div>
         </div>
       </div>
@@ -104,21 +106,22 @@
 
     <section class="card">
       <div class="container">
-        <div class="row-fluid">
+        <!-- <div class="row-fluid">
           <div class="span6 offset1">
             <h2>Empirical</h2>
           </div>
-        </div>
+        </div> -->
         <div class="row-fluid">
           <div class="span6 offset1">
+            <h2>Empirical</h2>
             <p>
               Deliberate practice, active recall, spaced repetition, two-sigma problem,
               skill building and skill mastery.
             </p>
             <a>Read more.</a>
           </div>
-          <div class="span4 offset1">
-            MEDIA
+          <div class="span2 offset1">
+            <img class="media-svg" src="science.svg"/>
           </div>
         </div>
       </div>
