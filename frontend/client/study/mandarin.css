@@ -1,0 +1,46 @@
+div.mandarin-sentence {
+}
+div.mandarin-task {
+  border-right: 1px dotted blue;
+  padding-left: 0px;
+}
+div.mandarin-translation {
+  color: #ccc;
+}
+div.mandarin-block {
+  display: inline;
+  float: left;
+  padding-left: 10px;
+}
+div.mandarin-block > div {
+  text-align: center;
+  white-space: nowrap;
+}
+div.mandarin-pinyin {
+  color: #777;
+}
+div.mandarin-literal {
+  color: #ccc;
+}
+a.mandarin-target:hover {
+  text-decoration: none;
+}
+a.mandarin-target:focus {
+  text-decoration: none;
+}
+div.mandarin-chinese {
+  font-size: 150%;
+}
+input.mandarin-input {
+  width: 3em;
+  border: 0px;
+  border-bottom: 1px solid black;
+  text-align: center;
+  margin: 0px;
+  padding: 0px;
+}
+input.mandarin-input:focus {
+  border-bottom: 1px solid blue;
+  outline: 0;
+}
+

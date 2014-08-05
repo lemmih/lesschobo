@@ -1,0 +1,72 @@
+<template name="studyMandarinCard">
+  <!-- Container for the target word and continue button -->
+  <div style="border-bottom: 1px solid #eee; text-align:center;">
+    {{#if isCompleted}}
+      <button autofocus class="mandarin-continue btn btn-success btn-lg">
+        Continue
+      </button>
+    {{else}}
+      <div class="dropdown" style="display: inline-block;">
+        <a class="mandarin-target" data-toggle="dropdown" href="#">
+          <h1><mark>{{characters}}</mark></h1>
+        </a>
+        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+          <li>
+            Dictionary entry for target word.
+          </li>
+        </ul>
+      </div>
+    {{/if}}
+  </div>
+
+
+  <div class="container" style="width: 800px; padding-top: 2em;">
+    {{#each card.sentences}}
+      <div class="mandarin-sentence row">
+
+        <!-- Chinese text on the left side. Main focus is here -->
+        <div class="mandarin-task col-xs-8">
+          {{#each blocks}}
+            <div class="mandarin-block">
+              <div class="mandarin-chinese">
+                {{#if isGap}}
+                  {{#if isActive}}
+                    <input autofocus class="mandarin-input" size="{{len}}"/>
+                  {{else}}
+                    <input disabled class="mandarin-input" size="{{len}}"/>
+                  {{/if}}
+                {{else}}
+                  {{#if isEscaped}}
+                    {{text}}
+                  {{else}}
+                    {{chinese}}
+                  {{/if}}
+                {{/if}}
+              </div>
+              <div class="mandarin-pinyin">
+                {{#if showPinyin}}
+                  {{selectedPinyin}}
+                {{else}}
+                  &nbsp;
+                {{/if}}
+              </div>
+              <div class="mandarin-literal">
+                {{#if literal}}
+                  {{literal}}
+                {{else}}
+                  &nbsp;
+                {{/if}}
+              </div>
+            </div>
+          {{/each}}
+        </div>
+
+        <!-- English translation on the right hand side. -->
+        <div class="mandarin-translation col-xs-4">
+          Show/Hide. {{english}}
+        </div>
+      </div>
+    {{/each}}
+    
+  </div>
+</template>

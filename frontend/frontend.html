@@ -103,10 +103,7 @@
   </table>
 </template>
 
-<template name="study">
-  Study. Go <a href="{{pathFor 'home'}}">home.</a>
-  {{> interface}}
-</template>
+
 
 <template name="browseCourses">
   Browes courses.
@@ -143,7 +140,7 @@
     {{#each sentences}}
       <div class="block">
         <div class="task">
-          {{#each blocks}}
+            {{#each blocks}}
             {{#if isEscaped}}
               <span class="word">
                 <span class="chinese">
