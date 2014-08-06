@@ -1,3 +1,15 @@
+if ( Meteor.isClient ) {
+  Handlebars.registerHelper('key_value', function(context, options) {
+    var result = [];
+    _.each(context, function(value, key, list){
+      result.push({key:key, value:value});
+    })
+    return result;
+  });
+}
+
+
+
 if (Meteor.isClient) {
   jQuery.fn.animateAuto = function(prop, speed, callback){
       var elem, height, width;

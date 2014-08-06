@@ -1,20 +1,37 @@
 <template name="studyMandarinCard">
   <!-- Container for the target word and continue button -->
-  <div style="border-bottom: 1px solid #eee; text-align:center;">
+  <div style="min-height: 4em;">
     {{#if isCompleted}}
-      <button autofocus class="mandarin-continue btn btn-success btn-lg">
-        Continue
-      </button>
+      <div style="text-align:center;">
+        <button autofocus class="mandarin-continue btn btn-success btn-lg">
+          Continue
+        </button>
+      </div>
     {{else}}
+      <div style="text-align:center;"
+        class="mandarin-header-{{headerStyle}}">
       <div class="dropdown" style="display: inline-block;">
-        <a class="mandarin-target" data-toggle="dropdown" href="#">
-          <h1><mark>{{characters}}</mark></h1>
-        </a>
-        <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-          <li>
-            Dictionary entry for target word.
-          </li>
+        <span class="mandarin-target" data-toggle="dropdown" href="#"
+          style="font-size: 200%;" >
+          {{activeBlock.chinese}}
+        </span>
+        {{#if showAnswer }}
+          <span>&nbsp;&nbsp; Answer is: {{answer}}</span>
+        {{/if}}
+        {{! This dictionary dropdown doesn't include pinyin }}
+        <ul class="dropdown-menu mandarin-dict"
+            role="menu" aria-labelledby="dLabel">
+          {{#each activeBlock.definitions}}
+            <li>Meaning:
+            {{#each english}}
+              <li>
+                <a>{{this}}</a>
+              </li>
+            {{/each}}
+            </li>
+          {{/each}}
         </ul>
+      </div>
       </div>
     {{/if}}
   </div>
@@ -24,7 +41,7 @@
     {{#each card.sentences}}
       <div class="mandarin-sentence row">
 
-        <!-- Chinese text on the left side. Main focus is here -->
+        {{! Chinese text on the left side. Main focus is here }}
         <div class="mandarin-task col-xs-8">
           {{#each blocks}}
             <div class="mandarin-block">
@@ -39,7 +56,32 @@
                   {{#if isEscaped}}
                     {{text}}
                   {{else}}
-                    {{chinese}}
+                    <div class="dropdown">
+                    <span class="dropdown-toggle"
+                            id="dropdownMenu{{chinese}}"
+                            data-toggle="dropdown" href="#">
+                      {{chinese}}
+                    </span>
+                    <ul class="dropdown-menu mandarin-dict" role="menu"
+                        aria-labelledby="dropdownMenu{{chinese}}">
+                      {{#each key_value definitions}}
+                        <li>{{value.pinyin}}
+                          {{#each key_value value.english}}
+                            <li>
+                              <a class="mandarin-dict-select"
+                                 data-sentence-id="{{../../sentenceId}}"
+                                 data-block-id="{{../../blockId}}"
+                                 data-pinyin-idx="{{ ../key }}"
+                                 data-english-idx="{{ key }}"
+                                 href="#">
+                                {{value}}
+                              </a>
+                            </li>
+                          {{/each}}
+                        </li>
+                      {{/each}}
+                    </ul>
+                    </div>
                   {{/if}}
                 {{/if}}
               </div>
@@ -61,9 +103,9 @@
           {{/each}}
         </div>
 
-        <!-- English translation on the right hand side. -->
+        {{! English translation on the right hand side. }}
         <div class="mandarin-translation col-xs-4">
-          Show/Hide. {{english}}
+          {{english}}
         </div>
       </div>
     {{/each}}

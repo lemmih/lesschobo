@@ -18,7 +18,7 @@
         <li>
           <a>Help</a>
         </li>
-        <li><a>Show answer</a></li>
+        <li><a href="#" class="study-show-answer">Show answer</a></li>
       </ul>
       <hr/>
       Course sections are listed here
@@ -27,9 +27,8 @@
     <div style="padding-left: 170px;">
       <!-- FIXME: switch based on card type -->
       {{> studyProgress }}
-      <div style="">
-        {{> studyMandarinCard }}
-      </div>
+      {{! studyMandarinCard }}
+      {{> UI.dynamic template=cardTemplate }}
     </div>
   </div>
   <!-- {{> interface}} -->
@@ -49,4 +48,13 @@
       </div>
     </div>
   </div>
+</template>
+
+<template name="studySprintCompleted">
+    Done with the sprint. Continue to the next.
+    <button autofocus class="sprint-continue btn btn-primary">Continue</button>
+</template>
+
+<template name="studyLoading">
+  Loading
 </template>
