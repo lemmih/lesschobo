@@ -10,7 +10,6 @@ function empty(collection) {
 }
 
 fetchMoreCards = function(courseId) {
-  Meteor.setTimeout(function() {
   Meteor.call('fetchCards', courseId, function (err, data) {
       console.log('Got data', data);
       instantiateCards(data);
@@ -26,7 +25,6 @@ fetchMoreCards = function(courseId) {
           cardsPrefetched.insert(data[i]);
       }
     });
-  }, 1000);
 }
 // fetchMoreCards must have been called first.
 activateNextCardSet = function (courseId) {
