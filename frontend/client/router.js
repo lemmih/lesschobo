@@ -12,6 +12,7 @@ Router.map(function () {
     waitOn: function() {
       return Meteor.call('listUnits', function (err, data) {
         console.log('Got unit list', data);
+        // XXX: Use an anonymous collection instead of a session variable.
         Session.set('units', data);
         // return {units: data};
       });
