@@ -1,0 +1,26 @@
+<template name="home">
+  {{#each units}}
+    <div class="panel panel-default">
+      <!-- <div class="panel-heading"> -->
+        <a class="panel-heading study-link" style="display: block"
+           href="{{pathFor 'study' id=this.id slug=this.unit.slug}}">
+          <a class="toggle-info"
+             data-toggle="collapse" href="#collapse_{{unit.slug}}">
+            <span class="glyphicon glyphicon-chevron-down"></span>
+          </a>
+          {{unit.title}}
+          <span class="label pull-right label-info">50%</span>
+        </a>
+      <!-- </div> -->
+      <div id="collapse_{{unit.slug}}" class="panel-collapse collapse">
+        <div class="panel-body">
+          Body
+          <a class="btn btn-primary " role="botton"
+             href="{{pathFor 'viewCourse' id=this.id slug=this.unit.slug}}">
+             View details.
+           </a>
+        </div>
+      </div>
+    </div>
+  {{/each}}
+</template>
