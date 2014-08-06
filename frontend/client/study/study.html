@@ -26,6 +26,13 @@
     </aside>
     <div style="padding-left: 170px;">
       <!-- FIXME: switch based on card type -->
+      {{#unless currentUser}}
+        <div class="alert alert-warning">
+          You are using LessChobo anonymously. Sign in or create an account
+          to save your progress.<br/>
+          <center>{{> loginButtons }}</center>
+        </div>
+      {{/unless}}
       {{> studyProgress }}
       {{! studyMandarinCard }}
       {{> UI.dynamic template=cardTemplate }}
