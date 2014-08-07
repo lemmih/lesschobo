@@ -138,10 +138,15 @@ testSatisfy = do
     --text <- T.readFile "../data/cn_story.pigs_picnic.txt"
     --text <- T.readFile "../data/cn_story.doctor_monkey.txt"
     --text <- T.readFile "../data/cn_story.foolish_affair.txt"
-    text <- T.readFile "../data/cn_story.silver_hair.txt"
+    text <- T.readFile "../data/cn_story.umbrella_flowers.txt"
+    let cover = satisfyWithStencils text stencils
     print $ length $ nub $ lefts $ satisfyWithStencils text stencils
     print $ length $ nub $ rights $ satisfyWithStencils text stencils
     mapM_ T.putStrLn $ nub [ word | Left word <- satisfyWithStencils text stencils ]
+    -- mapM_ T.putStrLn $ nub [ chinese | Right (Chinese chinese _) <- cover ]
+    seed <- withSystemRandom $ asGenIO save
+    let sorted = sortStencilsWithSA seed (nub $ rights cover)
+    -- mapM_ T.putStrLn $ nub [ chinese | Chinese chinese _ <- sorted ]
     return ()
   where
     paths =
@@ -155,9 +160,10 @@ satisfyWithStencils :: Chinese -> [Stencil] -> [Either Chinese Stencil]
 satisfyWithStencils text stencils =
     [ case Map.lookup entry keyMap of
         Nothing       -> Left (entryChinese entry)
-        Just stencils -> Right (head $ Set.toList stencils)
+        Just stencils -> Right (selectCheapest $ Set.toList stencils)
     | KnownWord entry <- tokenizer ccDict text ]
   where
+    selectCheapest = fst . head . sortStencilsByCost
     keyMap = Map.fromListWith Set.union
       [ (entry, Set.singleton stencil)
       | stencil@(Chinese chinese _english) <- stencils
@@ -200,5 +206,3 @@ satisfyWithStencils text stencils =
 --    hasChinese = any isChineseWord . tokenizer ccDict
 --    isChineseWord KnownWord{} = True
 --    isChineseWord UnknownWord{} = False
-
-
