@@ -1202,10 +1202,9 @@
     - Where is the toilet?
 
 - type: chinese
-  chinese: 洗手间在那儿？
+  chinese: 洗手间在哪儿？
   english:
     - Where is the washroom?
-  comment: This should be 在哪儿?
 
 - type: chinese
   chinese: 这是什么？
