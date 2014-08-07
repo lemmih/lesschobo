@@ -1205,6 +1205,7 @@
   chinese: 洗手间在那儿？
   english:
     - Where is the washroom?
+  comment: This should be 在哪儿?
 
 - type: chinese
   chinese: 这是什么？
