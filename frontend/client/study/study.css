@@ -1,0 +1,13 @@
+span.progress-blocked {
+  color: #ccc;
+}
+span.progress-active {
+  background-color: green;
+}
+span.progress-missed {
+  color: yellow;
+}
+span.progress-perfect {
+  color: green;
+}
+

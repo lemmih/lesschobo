@@ -1,0 +1,77 @@
+div.mandarin-sentence {
+  margin-bottom: 1em;
+}
+div.mandarin-task {
+  border-right: 1px dotted blue;
+  padding-left: 0px;
+}
+div.mandarin-translation {
+  color: #ccc;
+}
+div.mandarin-block {
+  display: inline;
+  float: left;
+  padding-left: 10px;
+}
+div.mandarin-block > div {
+  text-align: center;
+  white-space: nowrap;
+}
+div.mandarin-pinyin {
+  color: #777;
+}
+div.mandarin-literal {
+  color: #ccc;
+}
+div.mandarin-chinese {
+  font-size: 150%;
+}
+div.mandarin-header-active {
+  transition: background 1s;
+  background: aliceblue;
+}
+div.mandarin-header-failed {
+  transition: background 0.5s;
+  background: orange;
+}
+input.mandarin-input {
+  border: 0px;
+  border-bottom: 1px solid black;
+  text-align: center;
+  margin: 0px;
+  padding: 0px;
+  /* This hack is needed to counter act the border-bottom. Without it,
+     the input box is one pixel too high. */
+  margin-bottom: -1px;
+}
+input.mandarin-input:disabled {
+  border-bottom: 0px solid black;
+  margin-bottom: 0px;
+}
+input.mandarin-input:focus {
+  border-bottom: 1px solid blue;
+  outline: 0;
+}
+
+
+.mandarin-chinese a {
+  text-decoration: none;
+}
+ul.mandarin-dict {
+  text-align: left;
+  margin: 0px;
+}
+ul.mandarin-dict li {
+  list-style-type: none;
+}
+ul.mandarin-dict li a {
+  padding-left: 1em;
+  padding-right: 1em;
+  color: black;
+  text-decoration: none;
+  display: block;
+}
+ul.mandarin-dict li li:hover {
+  background-color: #ccc;
+}
+

@@ -1,47 +1,47 @@
 <template name="landing">
-  <nav class="navbar navbar-header">
-    <div class="navbar-inner">
-      <a href="/" class="brand">人LessChobo</a>
-      <ul class="nav pull-right">
-        <li><a href="/about">About</a></li>
-        <li><a href="/courses/">Courses</a></li>
-        <li><a>Sign in</a></li>
-      </ul>
-    </div>
-  </nav>
-  <article>
+  <article style="background: aliceblue; padding-bottom: 50px;">
+    <section class="logo">
+      <div class="container">
+        <div class="row">
+          <div class="col-sm-6 col-sm-offset-3">
+            <h1>What would you like to learn?</h1>
+          </div>
+        </div>
+      </div>
+    </section>
+    
     <section class="call-to-action">
       <div class="container">
-        <div class="row-fluid course-list-preview">
-          <div class="span4 offset2 course-container">
+        <div class="row course-list-preview">
+          <div class="col-sm-4 col-sm-offset-2 course-container cn">
             <div class="course">
-              <a href="/courses//">
+              <a href="{{pathFor 'study' id=1910 slug='comprehensive_mandarin'}}">
                 <div class="media">中文</div>
                 <span>Learn Mandarin</span>
               </a>
             </div>
           </div>
-          <div class="span4 course-container">
+          <div class="col-sm-4 course-container">
             <div class="course">
-              <a href="/courses//">
+              <a href="{{pathFor 'study' id=41 slug='umbrella_flowers'}}">
                 <div class="media">故事</div>
-                <span>Learn Mandarin Short Story</span>
+                <span>Learn Mandarin Short Stories</span>
               </a>
             </div>
           </div>
         </div>
-        <div class="row-fluid course-list-preview">
-          <div class="span4 offset2 course-container">
+        <div class="row course-list-preview">
+          <div class="col-sm-4 col-sm-offset-2 course-container">
             <div class="course">
-              <a href="/courses/blah/">
+              <a href="{{pathFor 'home'}}">
                 <div class="media">∏ ∑</div>
                 <span>Learn Mental Arithmetic</span>
               </a>
             </div>
           </div>
-          <div class="span4 course-container">
+          <div class="col-sm-4 course-container">
             <div class="course">
-              <a href="/courses//">
+              <a href="{{pathFor 'home'}}">
                 <div class="media">♠♥♦♣</div>
                 <span>Learn Poker Skills</span>
               </a>
@@ -49,8 +49,9 @@
           </div>
         </div>
         <div class="row browse">
-          <div class="span4 offset4">
-            <button>Or browse course index</button>
+          <div class="col-sm-4 col-sm-offset-4">
+            <a class="btn btn-primary"
+              href="{{pathFor 'browseCourses'}}">View more courses</a>
           </div>
         </div>
       </div>
@@ -59,13 +60,12 @@
     <!-- The Why of LC. Describe the problem. -->
     <section class="card">
       <div class="container">
-        <div class="row-fluid">
-          <div class="span6 offset1">
-            <h2>人LessChobo</h2>
+        <div class="row">
+          <div class="col-sm-2 col-sm-push-7 col-sm-offset-1">
+            <img class="media-svg" src="renren.svg"/>
           </div>
-        </div>
-        <div class="row-fluid">
-          <div class="span6 offset1">
+          <div class="col-sm-6 col-sm-offset-1 col-sm-pull-3">
+            <h2>人LessChobo</h2>
             <p>
               One-on-one tutoring is far more effective than classroom teaching.
               LessChobo offers the advantages of individualized and adaptive tutoring
@@ -73,66 +73,52 @@
             </p>
             <a>Read more.</a>
           </div>
-          <div class="span4 offset1">
-            MEDIA
-          </div>
         </div>
       </div>
     </section>
 
     <section class="card">
       <div class="container">
-        <div class="row-fluid">
-          <div class="span6 offset1">
-            <h2>Inclusive</h2>
+        <div class="row">
+          <div class="col-sm-2 col-sm-offset-1 col-sm-push-7">
+            <img class="media-svg" src="molecular.svg"/>
           </div>
-        </div>
-        <div class="row-fluid">
-          <div class="span6 offset1">
+          <div class="col-sm-6 col-sm-offset-1 col-sm-pull-3">
+            <h2>Inclusive</h2>
             <p>
               Get the most out of your time by combining text book study, tutor lessons,
               and deliberate practice.
             </p>
             <a>Read more.</a>
           </div>
-          <div class="span4 offset1">
-            MEDIA
-          </div>
         </div>
       </div>
     </section>
 
     <section class="card">
       <div class="container">
-        <div class="row-fluid">
-          <div class="span6 offset1">
-            <h2>Empirical</h2>
+        <div class="row">
+          <div class="col-sm-2 col-sm-offset-1 col-sm-push-7">
+            <img class="media-svg" src="science.svg"/>
           </div>
-        </div>
-        <div class="row-fluid">
-          <div class="span6 offset1">
+          <div class="col-sm-6 col-sm-offset-1 col-sm-pull-3">
+            <h2>Empirical</h2>
             <p>
               Deliberate practice, active recall, spaced repetition, two-sigma problem,
               skill building and skill mastery.
             </p>
             <a>Read more.</a>
           </div>
-          <div class="span4 offset1">
-            MEDIA
-          </div>
         </div>
       </div>
     </section>
 
   </article>
-
-  <nav class="navbar navbar-footer">
-    <div class="navbar-inner">
-      <span class="navbar-text">&copy; Lemminian Foundation</span>
-      <ul class="nav pull-right">
+  <footer class="jumbotron" style="margin-bottom: 0px;">
+    <span class="">&copy; Lemminian Foundation</span>
+      <ul class="pull-right">
         <li><a>blog</a></li>
         <li><a>contact</a></li>
       </ul>
-    </div>
-  </nav>
+  </footer>
 </template>

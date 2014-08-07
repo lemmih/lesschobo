@@ -1,24 +1,27 @@
+.logo {
+  text-align: center;
+}
 .call-to-action {
   text-align: center;
 }
 .call-to-action .course-container {
-  margin-left: auto;
-  margin-right: auto;
+  padding: 1em;
 }
 .call-to-action .course {
   border: 1px solid black;
+  border-radius: 4px;
   max-width: 15em;
   margin-left: auto;
   margin-right: auto;
   background: white;
 }
 .call-to-action .course:hover {
-  background: #eee;
+  background: #DDDDDD;
 }
 .call-to-action .course .media {
   min-height: 150px;
   font-size: 500%;
-  padding-top: 60px;
+  padding-top: 25px;
 }
 .call-to-action .course button {
   width: 100%;
@@ -27,13 +30,14 @@
 .call-to-action .course a {
   text-decoration: none;
   color: black;
+  /* z-index: -1; */
 }
 .call-to-action .course span {
-  background-color: #ccc;
+  /*background-color: #ccc;*/
   display: block;
 }
 .call-to-action .course-list-preview {
-  margin-bottom: 1em;
+  /* margin-bottom: 1em; */
 }
 .call-to-action .browse {
   margin-top: 4em;
@@ -45,26 +49,25 @@ section.call-to-action {
   margin-bottom: 50px;
   padding-bottom: 20px;
   padding-top: 50px;
-  position: relative;
 }
 section.card {
   margin-bottom: 50px;
   border-top: 2px solid #eee;
   border-bottom: 2px solid #eee;
-  padding-bottom: 20px;
-  padding-top: 50px;
-  position: relative;
+  padding-bottom: 30px;
+  padding-top: 30px;
   background-color: white;
+}
+section.card:last-child {
+  margin-bottom: 0px;
+}
+section.card img.media-svg {
+  height: 9em;
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
 }
 section.card:nth-child(even) {
   /*background-color: #ccc;*/
 }
 
-.navbar-footer {
-  margin-top: 2em;
-  margin-bottom: 0px;
-}
-
-body {
-  background-color: #fefdf9;
-}

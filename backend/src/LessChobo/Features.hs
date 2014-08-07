@@ -69,7 +69,7 @@ applyResponse Response{..} feature rep =
       factor         = 5
       -- Ignore responses given when the recall probability is higher than this.
       -- This happens when the above factor is increased.
-      spuriousCutoff = 0.5
+      spuriousCutoff = 0.9
       -- Penalty for giving an incorrect answer.
       guessPenalty   = 0.9
 

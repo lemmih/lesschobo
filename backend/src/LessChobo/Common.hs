@@ -4,7 +4,7 @@ import           Data.Text
 
 type UniqueId  = Int
 type UnitId    = UniqueId
-type UserId    = UniqueId
+type UserId    = Text
 type StencilId = UniqueId
 type ResponseId = UniqueId
 

@@ -5,11 +5,16 @@
 
 standard-app-packages
 autopublish
-preserve-inputs
-bootstrap
 jquery
 jquery-ui
 coffeescript
 backbone
 http
 iron-router
+accounts-base
+accounts-github
+accounts-google
+accounts-ui
+email
+accounts-password
+bootstrap-3

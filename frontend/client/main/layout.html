@@ -1,0 +1,53 @@
+<head>
+  <title>LessChobo</title>
+</head>
+
+
+<template name="layout">
+  <header>
+  </header>
+  <div style="padding: 10px; margin: 0 auto; width: 970px; min-height: 500px;">
+    <aside style="position: fixed; width: 150px; ">
+      <a href="/">
+        <img src="/renren.svg"
+           style="display:block; height: 50px; margin: 0 auto"/>
+      </a>
+      <ul class="nav nav-pills nav-stacked">
+        <li class="disabled">
+          <a href="/study/">
+            Review
+            <span class="badge pull-right">0</span>
+          </a>
+        </li>
+        <li class="{{isOnPage 'home'}}">
+          <a href="{{pathFor 'home'}}">My Courses</a>
+        </li>
+        <li class="{{isOnPage 'browseCourses'}}">
+          <a href="{{pathFor 'browseCourses'}}">Browse Courses</a>
+        </li>
+        <li class="disabled"><a>Metrics</a></li>
+        {{#if currentUser}}
+        <li><a href="" id="logout">Log out</a></li>
+        {{/if}}
+        
+        
+      </ul>
+    </aside>
+    <div style="padding-left: 170px; ">
+      {{#if currentUser}}
+      {{else}}
+        <div class="alert alert-warning">
+          You are using LessChobo anonymously. Sign in or create an account
+          to save your progress.<br/>
+          <center>{{> loginButtons }}</center>
+        </div>
+      {{/if}}
+      {{> yield}}
+    </div>
+  </div>
+  <footer style="clear: both;">Footer</footer>
+</template>
+
+<template name="loading">
+  Loading data...
+</template>

@@ -1202,7 +1202,7 @@
     - Where is the toilet?
 
 - type: chinese
-  chinese: 洗手间在那儿？
+  chinese: 洗手间在哪儿？
   english:
     - Where is the washroom?
 
@@ -2545,7 +2545,7 @@
     - How lucky I am to meet you!
 
 - type: chinese
-  chinese: 我先做作业再吃晚饭。
+  chinese: 我先做|作业再吃晚饭。
   english:
     - I first do my homework and then eat dinner.
 
