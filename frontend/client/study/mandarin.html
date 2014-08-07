@@ -13,7 +13,7 @@
       <div class="dropdown" style="display: inline-block;">
         <span class="mandarin-target" data-toggle="dropdown" href="#"
           style="font-size: 200%;" >
-          {{activeBlock.chinese}}
+          {{! activeBlock.chinese}}
         </span>
         {{#if showAnswer }}
           <span>&nbsp;&nbsp; Answer is: {{answer}}</span>
@@ -48,9 +48,15 @@
               <div class="mandarin-chinese">
                 {{#if isGap}}
                   {{#if isActive}}
-                    <input autofocus class="mandarin-input" size="{{len}}"/>
+                    <input
+                      autofocus
+                      placeholder="{{chinese}}"
+                      class="mandarin-input" size="{{len}}"/>
                   {{else}}
-                    <input disabled class="mandarin-input" size="{{len}}"/>
+                    <input
+                      disabled
+                      placeholder="{{chinese}}"
+                      class="mandarin-input" size="{{len}}"/>
                   {{/if}}
                 {{else}}
                   {{#if isEscaped}}

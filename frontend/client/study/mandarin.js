@@ -77,6 +77,7 @@ Template.studyMandarinCard.selectedPinyin = function () {
   return block.definitions[dictIdx].pinyin;
 }
 Template.studyMandarinCard.showPinyin = function () {
+  return Template.studyMandarinCard.isCompleted();
   return Session.get('showPinyin') && !this.isGap && !this.isEscaped;
 }
 Template.studyMandarinCard.showAnswer = function () {
