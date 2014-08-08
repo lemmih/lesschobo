@@ -1,9 +1,10 @@
 {-# LANGUAGE TemplateHaskell #-}
 {-# LANGUAGE OverloadedStrings #-}
 {-# LANGUAGE ParallelListComp #-}
+{-# OPTIONS_GHC -fno-warn-orphans #-}
 module Main where
 
-import           LessChobo.Tools
+--import           LessChobo.Tools
 import           LessChobo.State
 import           LessChobo.Responses
 

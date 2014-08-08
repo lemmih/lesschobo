@@ -165,6 +165,7 @@ mkStoryStencils inputFile = do
     paths =
       ["../data/cn_stencils.yaml"
       ,"../data/cn_stencils.3800.yaml"
+      ,"../data/cn_stencils.20000.yaml"
       ,"../data/cn_stencils.chinesepod.basic.yaml"
       ,"../data/cn_stencils.rocket.yaml"
       ,"../data/cn_stencils.livelingua.yaml" ]
@@ -172,23 +173,24 @@ mkStoryStencils inputFile = do
 testSatisfy :: IO ()
 testSatisfy = do
     stencils <- concat <$> mapM loadStencils paths
-    --text <- T.readFile "../data/cn_story.pigs_picnic.txt"
+    text <- T.readFile "../data/cn_story.pigs_picnic.txt"
     --text <- T.readFile "../data/cn_story.doctor_monkey.txt"
     --text <- T.readFile "../data/cn_story.foolish_affair.txt"
-    text <- T.readFile "../data/cn_story.umbrella_flowers.txt"
+    --text <- T.readFile "../data/cn_story.umbrella_flowers.txt"
     let cover = satisfyWithStencils text stencils
     print $ length $ nub $ lefts $ satisfyWithStencils text stencils
     print $ length $ nub $ rights $ satisfyWithStencils text stencils
     mapM_ T.putStrLn $ nub [ word | Left word <- satisfyWithStencils text stencils ]
     -- mapM_ T.putStrLn $ nub [ chinese | Right (Chinese chinese _) <- cover ]
     seed <- withSystemRandom $ asGenIO save
-    let sorted = sortStencilsWithSA seed (nub $ rights cover)
+    --let sorted = sortStencilsWithSA seed (nub $ rights cover)
     -- mapM_ T.putStrLn $ nub [ chinese | Chinese chinese _ <- sorted ]
     return ()
   where
     paths =
       ["../data/cn_stencils.yaml"
       ,"../data/cn_stencils.3800.yaml"
+      ,"../data/cn_stencils.20000.yaml"
       ,"../data/cn_stencils.chinesepod.basic.yaml"
       ,"../data/cn_stencils.rocket.yaml"
       ,"../data/cn_stencils.livelingua.yaml" ]
@@ -197,7 +199,7 @@ satisfyWithStencils :: Chinese -> [Stencil] -> [Either Chinese Stencil]
 satisfyWithStencils text stencils =
     [ case Map.lookup entry keyMap of
         Nothing       -> Left (entryChinese entry)
-        Just stencils -> Right (selectCheapest $ Set.toList stencils)
+        Just covers -> Right (selectCheapest $ Set.toList covers)
     | KnownWord entry <- tokenizer ccDict text ]
   where
     selectCheapest = fst . head . sortStencilsByCost

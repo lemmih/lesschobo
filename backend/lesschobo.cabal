@@ -47,7 +47,8 @@ executable lesschobo
                        lens                          >= 3.9.1,
                        safecopy                      >= 0.8.2,
                        acid-state                    >= 0.12.0,
-                       cndict                        >= 0.1.0
+                       cndict                        >= 0.1.0,
+                       filepath
 
   hs-source-dirs:      src
-  ghc-options:         -Wall -Werror -rtsopts
+  ghc-options:         -Wall -rtsopts
