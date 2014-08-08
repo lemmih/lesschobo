@@ -16,7 +16,7 @@
           {{! activeBlock.chinese}}
         </span>
         {{#if showAnswer }}
-          <span>&nbsp;&nbsp; Answer is: {{answer}}</span>
+          <span>&nbsp;&nbsp; Answer is: {{activeBlock.chinese}} {{answer}}</span>
         {{/if}}
         {{! This dictionary dropdown doesn't include pinyin }}
         <ul class="dropdown-menu mandarin-dict"
@@ -51,12 +51,12 @@
                     <input
                       autofocus
                       placeholder="{{chinese}}"
-                      class="mandarin-input" size="{{len}}"/>
+                      class="mandarin-input" style="width: {{len}}em;"/>
                   {{else}}
                     <input
                       disabled
                       placeholder="{{chinese}}"
-                      class="mandarin-input" size="{{len}}"/>
+                      class="mandarin-input" style="width: {{len}}em;"/>
                   {{/if}}
                 {{else}}
                   {{#if isEscaped}}

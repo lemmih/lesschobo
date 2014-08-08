@@ -35,6 +35,7 @@ div.mandarin-header-failed {
   background: orange;
 }
 input.mandarin-input {
+  min-width: 3em;
   border: 0px;
   border-bottom: 1px solid black;
   text-align: center;

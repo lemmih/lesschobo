@@ -90,7 +90,7 @@ Template.studyMandarinCard.answer = function () {
   return block.definitions[0].pinyin;
 }
 Template.studyMandarinCard.isCompleted = function () {
-  return Session.get('completed') || activeBlock(activeCard()) == false;
+  return activeBlock(activeCard()) == false;
 }
 
 

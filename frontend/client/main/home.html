@@ -2,14 +2,18 @@
   {{#each units}}
     <div class="panel panel-default">
       <!-- <div class="panel-heading"> -->
+      <!-- href="{{pathFor 'study' id=this.id slug=this.unit.slug}}" -->
         <a class="panel-heading study-link" style="display: block"
-           href="{{pathFor 'study' id=this.id slug=this.unit.slug}}">
-          <a class="toggle-info"
-             data-toggle="collapse" href="#collapse_{{unit.slug}}">
-            <span class="glyphicon glyphicon-chevron-down"></span>
-          </a>
-          {{unit.title}}
-          <span class="label pull-right label-info">50%</span>
+          data-toggle="collapse" href="#collapse_{{unit.slug}}"
+          >{{unit.title}}
+          <span class="pull-right">
+            <!-- <a class="label label-info"
+              data-toggle="collapse" href="#collapse_{{unit.slug}}">Info</a> -->
+            <a class="label label-info"
+              href="{{pathFor 'study' id=this.id slug=this.unit.slug}}"
+              >Study</a>
+            <span class="label label-info">50% done</span>
+          </span>
         </a>
       <!-- </div> -->
       <div id="collapse_{{unit.slug}}" class="panel-collapse collapse">
