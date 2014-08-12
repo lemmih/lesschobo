@@ -2,49 +2,58 @@
   <title>LessChobo</title>
 </head>
 
+<template name="mainNav">
+  <nav class="navbar navbar-default" role="navigation">
+    <div class="container">
+      {{! Brand and toggle get grouped for better mobile display }}
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle"
+          data-toggle="collapse" data-target="#navbar-collapse-1">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="{{pathFor 'landing'}}">
+          LessChobo
+        </a>
+      </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li class="{{isOnPage 'home'}}">
+            <a href="{{pathFor 'home'}}">Home</a>
+          </li>
+          <li class="{{isOnPage 'browseCourses'}}">
+            <a href="{{pathFor 'browseCourses'}}">Courses</a>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li>
+            <a>{{> loginButtons align="right"}}</a>
+          </li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+
+    </div>
+  </nav>
+</template>
 
 <template name="layout">
-  <header>
-  </header>
-  <div style="padding: 10px; margin: 0 auto; width: 970px; min-height: 500px;">
-    <aside style="position: fixed; width: 150px; ">
-      <a href="/">
-        <img src="/renren.svg"
-           style="display:block; height: 50px; margin: 0 auto"/>
-      </a>
-      <ul class="nav nav-pills nav-stacked">
-        <li class="disabled">
-          <a href="/study/">
-            Review
-            <span class="badge pull-right">0</span>
-          </a>
-        </li>
-        <li class="{{isOnPage 'home'}}">
-          <a href="{{pathFor 'home'}}">My Courses</a>
-        </li>
-        <li class="{{isOnPage 'browseCourses'}}">
-          <a href="{{pathFor 'browseCourses'}}">Browse Courses</a>
-        </li>
-        <li class="disabled"><a>Metrics</a></li>
-        {{#if currentUser}}
-        <li><a href="" id="logout">Log out</a></li>
-        {{/if}}
-        
-        
-      </ul>
-    </aside>
-    <div style="padding-left: 170px; ">
-      {{#if currentUser}}
-      {{else}}
-        <div class="alert alert-warning">
-          You are using LessChobo anonymously. Sign in or create an account
-          to save your progress.<br/>
-          <center>{{> loginButtons }}</center>
-        </div>
-      {{/if}}
-      {{> yield}}
-    </div>
+  {{> mainNav }}
+
+  <div class="container">
+    {{#if currentUser}}
+    {{else}}
+      <div class="alert alert-warning">
+        You are using LessChobo anonymously. Sign in or create an account
+        to save your progress.
+      </div>
+    {{/if}}
+    {{> yield}}
   </div>
+
   <footer style="clear: both;">Footer</footer>
 </template>
 

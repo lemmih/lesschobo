@@ -2,7 +2,7 @@
 // This collection can be accessed without race conditions
 // due to the singled threaded nature of JavaScript.
 var cardsPrefetched = new Meteor.Collection(null);
-var cards = new Meteor.Collection(null);
+cards = new Meteor.Collection(null);
 
 // FIXME: Move this somewhere else.
 function empty(collection) {
@@ -16,12 +16,12 @@ fetchMoreCards = function(courseId) {
 
       if ( empty(cards) ) {
         console.log('Cards immediately required.');
-        for(var i=0; i<data.length; i++)
+        for(var i=0; i<data.length && i < 3; i++)
           cards.insert(data[i]);
         Session.set('activeCard', cards.findOne()._id);
       } else {
         console.log('Cards stored in prefetch cache.');
-        for(var i=0; i<data.length; i++)
+        for(var i=0; i<data.length && i < 3; i++)
           cardsPrefetched.insert(data[i]);
       }
     });
@@ -65,10 +65,16 @@ function instantiateCards(cards) {
 isLoadingCards = function () {
   return !cards.findOne({});
 }
-activeCard = function () {
+activeCard = function(origin) {
+  console.log('activeCard', origin);
   var activeId = Session.get('activeCard');
   return cards.findOne({_id: activeId});
 }
+// activeCard = function () {
+//   console.log('activeCard');
+//   var activeId = Session.get('activeCard');
+//   return cards.findOne({_id: activeId});
+// }
 saveCard = function (card) {
   cards.update({_id: card._id}, card);
 }
@@ -76,12 +82,12 @@ nextCard = function () {
   var activeId = Session.get('activeCard');
   var newCard = cards.findOne({status: "blocked"});
   if ( !newCard ) {
-    Session.set('activeCard', undefined);
+    //Session.set('activeCard', undefined);
     return;
   }
   newCard.status = 'active';
   saveCard(newCard);
-  Session.set('activeCard', newCard._id);
+  //Session.set('activeCard', newCard._id);
 }
 
 

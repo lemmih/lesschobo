@@ -1,0 +1,91 @@
+Template.review.created = function () {
+  console.log('created', this.data);
+  cards.remove({});
+  fetchMoreCards(1910);
+};
+Template.review.cardTemplate = function () {
+  var activeId = Session.get('activeCard');
+  if ( activeId === 'final' )
+    return 'final';
+  if ( isLoadingCards() ) return 'studyLoading';
+  var card = activeCard();
+  if ( !card ) return 'studySprintCompleted';
+  return 'studyMandarinCard';
+}
+
+
+
+Template.learnToolbar.cards = function () {
+  return cards.find().fetch();
+};
+Template.learnToolbar.cardClass = function () {
+  var activeId = Session.get('activeCard');
+  var active = activeId == this.value._id ? 'active' : '';
+  switch( this.value.status ) {
+    case 'active': return active + ' next';
+    case 'blocked': return active + ' disabled';
+    case 'completed': return active + ' btn-success'
+    default: return '';
+  }
+};
+Template.learnToolbar.final = function () {
+  var activeId = Session.get('activeCard');
+  var newCard = cards.findOne({status: "active"});
+  if ( !newCard ) {
+    if( activeId === 'final' )
+      return 'next btn-info active';
+    return 'next btn-info';
+  }
+  return 'disabled'
+};
+Template.learnToolbar.events({
+  'click .learn-toolbar-card': function (evt) {
+    Session.set('activeCard', this.value._id);
+    console.log(this.value._id);
+    //console.log($(evt.target).attr('data-key'));
+  },
+  'click .learn-toolbar-final': function (evt) {
+    Session.set('activeCard', 'final');
+    //console.log($(evt.target).attr('data-key'));
+  }
+});
+
+Template.final.created = function () {
+  console.log('final created', this.action);
+  fetchMoreCards(1910);
+};
+Template.final.events({
+  'click .continue': function (evt) {
+    console.log('final clicked', this.action);
+    activateNextCardSet(1910);
+  }
+});
+
+
+
+Template.learnLayout.activeWhenEq = function (a, b) {
+  return a == b ? "active" : "";
+};
+
+Template.studyNav.nextIdx = function () {
+  if( !this.course ) return 0;
+  var idx = parseInt(this.unitIndex);
+  return idx+1;
+};
+Template.studyNav.nextActive = function () {
+  if( !this.course ) return 0;
+  var idx = parseInt(this.unitIndex);
+  var nUnits = this.course.units.length;
+  return idx+1 < nUnits ? "" : "disabled";
+};
+
+Template.studyNav.prevIdx = function () {
+  if( !this.course ) return 0;
+  var idx = parseInt(this.unitIndex);
+  return idx-1;
+};
+Template.studyNav.prevActive = function () {
+  if( !this.course ) return 0;
+  var idx = parseInt(this.unitIndex);
+  return idx != 0 ? "" : "disabled";
+};

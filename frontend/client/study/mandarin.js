@@ -36,6 +36,11 @@ function markNextActiveBlock(card) {
       }
     }
   }
+  card.status='completed';
+  nextCard();
+  Deps.afterFlush(function() {
+    $('a.next').focus();
+  });
 }
 
 function activeBlock(card) {
@@ -54,18 +59,18 @@ function activeBlock(card) {
 
 
 Template.studyMandarinCard.headerStyle = function() {
-  var card = activeCard();
+  var card = activeCard('header');
   if ( !card ) return 'active';
   if ( card.showAnswer )
     return 'failed';
   return 'active';
 }
 Template.studyMandarinCard.activeBlock = function () {
-  return activeBlock(activeCard());
+  return activeBlock(activeCard('activeBlock'));
 }
-Template.studyMandarinCard.card = function () { return activeCard(); }
+Template.studyMandarinCard.card = function () { return activeCard('card'); }
 Template.studyMandarinCard.selectedPinyin = function () {
-  var card = activeCard();
+  var card = activeCard('selectedPinyin');
   if ( !card ) return '';
   var s = card.sentences;
   var i = this.sentenceId;
@@ -76,21 +81,27 @@ Template.studyMandarinCard.selectedPinyin = function () {
   var dictIdx = block.dictIndex;
   return block.definitions[dictIdx].pinyin;
 }
+var showPinyin = false;
+Meteor.startup(function () {
+  Deps.autorun(function () {
+    //showPinyin = activeBlock(activeCard()) == false;
+    showPinyin = Template.studyMandarinCard.isCompleted()
+  });
+});
 Template.studyMandarinCard.showPinyin = function () {
-  return Template.studyMandarinCard.isCompleted();
-  return Session.get('showPinyin') && !this.isGap && !this.isEscaped;
+  return showPinyin; // Template.studyMandarinCard.isCompleted();
 }
 Template.studyMandarinCard.showAnswer = function () {
-  var card = activeCard();
+  var card = activeCard('showAnswer');
   if ( !card ) return false;
   return card.showAnswer;
 }
 Template.studyMandarinCard.answer = function () {
-  var block = activeBlock(activeCard());
+  var block = activeBlock(activeCard('answer'));
   return block.definitions[0].pinyin;
 }
 Template.studyMandarinCard.isCompleted = function () {
-  return activeBlock(activeCard()) == false;
+  return activeBlock(activeCard('isCompleted')) == false;
 }
 
 
@@ -127,19 +138,21 @@ Template.studyMandarinCard.events({
     s[sentenceId].blocks[blockId].dictIndex = pinyinIdx;
     saveCard(card);
   },
-  'click .mandarin-continue': function () {
-    console.log('continue');
-    var card = activeCard();
-    card.status = card.showAnswer ? 'missed' : 'perfect' ;
-    saveCard(card);
-    nextCard();
-  },
+  // 'click .mandarin-continue': function () {
+  //   console.log('continue');
+  //   var card = activeCard();
+  //   card.status = card.showAnswer ? 'missed' : 'perfect' ;
+  //   saveCard(card);
+  //   nextCard();
+  // },
   'keydown .mandarin-input': function (evt) {
     if (evt.keyCode === 27) {
       var card = activeCard();
       card.showAnswer = true;
       saveCard(card);
       console.log('show answer')
+      $(evt.target).popover({trigger: 'focus'});
+      $(evt.target).popover('show');
     } else if(evt.keyCode===13) {
       var card = activeCard();
       var block = activeBlock(card);
@@ -156,6 +169,7 @@ Template.studyMandarinCard.events({
       Meteor.call('postResponse', response);
 
       if (userAnswer === block.chinese) {
+        $(evt.target).popover('destroy');
         markNextActiveBlock(card);
         card.showAnswer = false;
         saveCard(card);

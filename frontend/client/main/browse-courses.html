@@ -1,3 +1,12 @@
 <template name="browseCourses">
   Browes courses.
+  <ul>
+    {{#each courses}}
+      <li>
+        <a href="{{pathFor 'view' id=_id slug='slug' nth=0}}">
+          {{title}}
+        </a>
+      </li>
+    {{/each}}
+  </ul>
 </template>

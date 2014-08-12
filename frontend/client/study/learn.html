@@ -1,0 +1,126 @@
+<template name="learnLayout">
+  {{> mainNav }}
+  <div class="container">
+    <div class="col-md-3">
+      <div class="list-group">
+        <span class="list-group-item list-group-item-info">
+          <h2>{{course.title}}</h2>
+        </span>
+        <a 
+          data-toggle="tooltip" data-placement="top"
+          title="Review of previously studied material is necessary."
+          href="{{pathFor 'review' id=courseId slug=slug}}"
+          class="list-group-item list-group-item-success">
+          <center>Review</center>
+        </a>
+
+        {{#each key_value course.units}}
+          {{! How do we highlight the active unit when reviewing? }}
+          <a class="list-group-item {{activeWhenEq key ../unitIndex}}"
+            href="{{pathFor 'view' id=../courseId slug=../slug nth=key}}">
+            {{value.title}}
+          </a>
+        {{/each}}
+      </div>
+    </div>
+    <div class="col-md-9">
+      {{> yield }}
+    </div>
+  </div>
+</template>
+
+<template name="learnToolbar">
+  <div class="btn-toolbar" role="toolbar">
+    <div class="btn-group">
+      <a class="btn btn-default disabled">
+        Show the answer
+      </a>
+      <a class="btn btn-default disabled">
+        Help
+      </a>
+    </div>
+
+    <div class="btn-group btn-group">
+      {{#each key_value cards}}
+        <a {{autofocus}}
+          href="#"
+          class="btn btn-default learn-toolbar-card {{cardClass}}">
+          {{key}}
+        </a>
+      {{/each}}
+      <a href="#" class="btn btn-default learn-toolbar-final {{final}}">
+        <span class="glyphicon glyphicon-certificate"></span>
+      </a>
+    </div>
+
+    <div class="btn-group">
+      <div class="btn-group">
+        <a class="btn btn-default dropdown-toggle disabled"
+          data-toggle="dropdown">
+          Options
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu" role="menu">
+          <li><a href="#" class="disabled">Report</a></li>
+          <li><a href="#" class="disabled">Block</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</template>
+
+<template name="studyNav">
+  <ul class="pager">
+    <li>
+      <div class="btn-group">
+        <a class="btn btn-default {{prevActive}}"
+          href="{{pathFor 'view' id=courseId slug='slug' nth=prevIdx}}"
+          >&larr; Previous</a>
+        <a class="btn btn-default"
+          href="{{pathFor 'studyCourse' id=courseId slug='slug' nth=unitIndex}}"
+          >Study</a>
+        <a class="btn btn-default {{nextActive}}"
+          href="{{pathFor 'view' id=courseId slug='slug' nth=nextIdx}}"
+          >Next &rarr;</a>
+      </div>
+    </li>
+  </ul>
+</template>
+
+<template name="final">
+  <ul class="pager">
+    <li>
+      <button
+        autofocus
+        class="btn btn-primary continue"
+        >Continue</button>
+    </li>
+  </ul>
+  Tally points from correct answers.
+  Show progress toward session reward.
+</template>
+
+
+
+
+<template name="review">
+  {{> learnToolbar }}
+  {{! studyMandarinCard }}
+  {{> UI.dynamic template=cardTemplate }}
+</template>
+
+<template name="view">
+  {{> studyNav }}
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      <strong>Unit heading</strong>
+    </div>
+    <div class="panel-body">
+      <p>Markdown content comes here</p>
+  </div></div>
+  {{> studyNav }}
+</template>
+
+<template name="studyCourse">
+  {{> learnToolbar }}
+</template>
