@@ -13,7 +13,7 @@
   max-width: 15em;
   margin-left: auto;
   margin-right: auto;
-  background: white;
+  background: aliceblue;
 }
 .call-to-action .course:hover {
   background: #DDDDDD;
@@ -56,7 +56,7 @@ section.card {
   border-bottom: 2px solid #eee;
   padding-bottom: 30px;
   padding-top: 30px;
-  background-color: white;
+  background-color: aliceblue;
 }
 section.card:last-child {
   margin-bottom: 0px;

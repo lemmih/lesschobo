@@ -77,7 +77,7 @@
           href="{{pathFor 'view' id=courseId slug='slug' nth=prevIdx}}"
           >&larr; Previous</a>
         <a class="btn btn-default"
-          href="{{pathFor 'studyCourse' id=courseId slug='slug' nth=unitIndex}}"
+          href="{{pathFor 'study' id=courseId slug='slug' nth=unitIndex}}"
           >Study</a>
         <a class="btn btn-default {{nextActive}}"
           href="{{pathFor 'view' id=courseId slug='slug' nth=nextIdx}}"
@@ -101,6 +101,12 @@
 </template>
 
 <template name="study">
+  {{#unless currentUser}}
+    <div class="alert alert-warning">
+      You are using LessChobo anonymously. Sign in or create an account
+      to save your progress.
+    </div>
+  {{/unless}}
   {{> learnToolbar }}
   {{! studyMandarinCard }}
   {{> UI.dynamic template=cardTemplate }}

@@ -44,17 +44,10 @@
   {{> mainNav }}
 
   <div class="container">
-    {{#if currentUser}}
-    {{else}}
-      <div class="alert alert-warning">
-        You are using LessChobo anonymously. Sign in or create an account
-        to save your progress.
-      </div>
-    {{/if}}
     {{> yield}}
   </div>
 
-  <footer style="clear: both;">Footer</footer>
+  <!-- <footer style="clear: both;">Footer</footer> -->
 </template>
 
 <template name="loading">

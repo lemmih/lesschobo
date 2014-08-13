@@ -32,24 +32,6 @@ Router.map(function () {
       return {units: Session.get('units')};
     }
   });
-  this.route('study', {
-    layoutTemplate: null,
-    path: '/home/study/:id/:slug/',
-    waitOn: function() {
-      // Meteor.call('fetchCards', this.params.id, function (err, data) {
-      //   console.log('Got data', data);
-      //   Session.set('stencilId', data[0].stencilId);
-      //   Session.set('sentences', data.shift().sentences);
-      //   Session.set('cards', data);
-      //   Template.interface.setActive();
-      // });
-    },
-    data: function () {
-      return {
-        courseId: this.params.id,
-      };
-    }
-  });
 
   this.route('review', {
     layoutTemplate: 'learnLayout',
@@ -64,7 +46,8 @@ Router.map(function () {
     }
   });
 
-  this.route('studyCourse', {
+  this.route('study', {
+    template: 'studyCourse',
     layoutTemplate: 'learnLayout',
     path: '/courses/:id/:slug/:nth/study',
     data: function () {
