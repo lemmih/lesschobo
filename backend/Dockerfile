@@ -3,14 +3,15 @@ FROM zsol/haskell-platform-2013.2.0.0
 
 MAINTAINER lemmih@gmail.com
 
-# RUN apt install zlib1g-dev
+RUN cabal update
+ADD lesschobo.cabal /home/haskell/lesschobo.cabal
+RUN cabal install . --only-dependencies  --jobs=1
 
 EXPOSE 8000
 
 COPY . /home/haskell/src/
 RUN sudo chown --recursive haskell:haskell src/
 
-RUN cabal update
 RUN cd src/ && cabal install --jobs=1
 
 CMD /home/haskell/.cabal/bin/lesschobo
