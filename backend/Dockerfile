@@ -5,7 +5,7 @@ MAINTAINER lemmih@gmail.com
 
 # RUN apt install zlib1g-dev
 
-EXPOSE 3000
+EXPOSE 8000
 
 COPY . /home/haskell/src/
 RUN sudo chown --recursive haskell:haskell src/
