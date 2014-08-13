@@ -1,8 +1,11 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE OverloadedStrings  #-}
 {-# LANGUAGE TemplateHaskell    #-}
+{-# LANGUAGE RecordWildCards    #-}
 module LessChobo.Stencils
-    ( StencilId
+    ( PermaResponse(..)
+
+    , StencilId
     , Chinese
     , Pinyin
     , English
@@ -14,11 +17,12 @@ module LessChobo.Stencils
 import           LessChobo.Common
 import           LessChobo.Features
 import           LessChobo.Users
+import           LessChobo.Responses ( ResponseContent )
 
 import           Control.Applicative
 import           Control.Monad.Reader
 import           Data.Aeson           (FromJSON (..), ToJSON (..), Value,
-                                       withObject, (.!=), (.:), (.:?))
+                                       withObject, (.!=), (.:), (.:?), object)
 import qualified Data.Aeson           as Aeson
 import           Data.Aeson.Types     (Pair)
 import           Data.Chinese.CCDict  as CCDict
@@ -28,6 +32,8 @@ import qualified Data.Set             as Set
 import           Data.Text
 import           Data.Time
 import           Data.Typeable
+
+
 
 data Stencil
   = Chinese        Chinese [English]
@@ -75,4 +81,29 @@ instance FromJSON Stencil where
 
 
 deriveSafeCopy 0 'base ''Stencil
+
+
+
+
+
+
+
+
+
+
+
+
+data PermaResponse = PermaResponse
+  { permaResponseAt  :: UTCTime
+  , permaContent     :: ResponseContent
+  , permaStencil     :: Stencil
+  , permaUserId      :: UserId
+  } deriving ( Typeable )
+instance ToJSON PermaResponse where
+  toJSON PermaResponse{..} = object
+    [ "at"      .=. permaResponseAt
+    , "content" .=. permaContent
+    , "stencil" .=. permaStencil
+    , "userId"  .=. permaUserId ]
+
 

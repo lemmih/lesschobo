@@ -1,13 +1,36 @@
 Template.review.created = function () {
-  console.log('created', this.data);
+  console.log('studyCourse', this.data);
   cards.remove({});
-  fetchMoreCards(1910);
-};
-Template.review.cardTemplate = function () {
+  fetchMoreCards(this.data);
+}
+Template.review.studyTemplate = function () {
+  if ( !cards.empty() )
+    return 'study';
+  if ( Session.equals('loading', true) )
+    return 'studyLoading';
+  // empty(cards) === true
+  return 'studyFinished';
+}
+
+Template.studyCourse.created = function () {
+  console.log('studyCourse', this.data);
+  cards.remove({});
+  fetchMoreCards(this.data);
+}
+Template.studyCourse.studyTemplate = function () {
+  if ( !cards.empty() )
+    return 'study';
+  if ( Session.equals('loading', true) )
+    return 'studyLoading';
+  // empty(cards) === true
+  return 'studyFinished';
+}
+
+
+Template.study.cardTemplate = function () {
   var activeId = Session.get('activeCard');
   if ( activeId === 'final' )
     return 'final';
-  if ( isLoadingCards() ) return 'studyLoading';
   var card = activeCard();
   if ( !card ) return 'studySprintCompleted';
   return 'studyMandarinCard';
@@ -51,13 +74,14 @@ Template.learnToolbar.events({
 });
 
 Template.final.created = function () {
-  console.log('final created', this.action);
-  fetchMoreCards(1910);
+  console.log('final created', this.data.action);
+  fetchMoreCards(this.data);
 };
 Template.final.events({
   'click .continue': function (evt) {
     console.log('final clicked', this.action);
-    activateNextCardSet(1910);
+
+    activateNextCardSet(this.courseId);
   }
 });
 

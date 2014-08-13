@@ -14,20 +14,14 @@ import           Control.Monad.Reader
 import           Control.Monad.State
 
 data User = User
-  { userAlias              :: Alias
-  , userSubscribedUnits    :: Set UnitId
-  , userSubscribedStencils :: Set StencilId
-  , userModel              :: Map Feature Rep
+  { userModel              :: Map Feature Rep
   , userSchedule           :: Map UTCTime (Set StencilId)
   , userSchedule'          :: Map StencilId UTCTime
   } deriving (Typeable)
 
 emptyUser :: User
 emptyUser = User
-  { userAlias              = ""
-  , userSubscribedUnits    = Set.empty
-  , userSubscribedStencils = Set.empty
-  , userModel              = Map.empty
+  { userModel              = Map.empty
   , userSchedule           = Map.empty
   , userSchedule'          = Map.empty
   }

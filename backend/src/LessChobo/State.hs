@@ -36,10 +36,12 @@ import qualified Data.Text               as T
 import           Data.Time
 import           Data.Typeable
 
+import Debug.Trace
 
 -- World?
 data Global = Global
   { _globalUnits       :: UnitStore
+  , _globalCourses     :: CourseStore
   , _globalStencils    :: StencilStore
   , _globalUsers       :: UserStore
   , _globalResponses   :: ResponseStore
@@ -49,6 +51,7 @@ data Global = Global
 emptyGlobal :: Global
 emptyGlobal = Global
   { _globalUnits     = emptyUnitStore
+  , _globalCourses   = emptyCourseStore
   , _globalStencils  = emptyStencilStore
   , _globalUsers     = emptyUserStore
   , _globalResponses = emptyResponseStore
@@ -109,17 +112,8 @@ listUnitStore = Map.toList . unitStoreById
 
 
 data Unit = Unit
-  { unitTitle    :: Title
-  , unitCategory :: Category
-  , unitSections :: [Section] -- Unused for now, 2013-12-09
-  , unitStencils :: [StencilId]
+  { unitStencils :: [StencilId]
   } deriving ( Typeable )
-
-instance ToJSON Unit where
-  toJSON Unit{..} = object
-    [ "title" .=. unitTitle
-    , "slug"  .=. mkSlug unitTitle
-    , "category" .=. unitCategory ]
 
 mkSlug :: Title -> String
 mkSlug = mapMaybe replace . map toLower
@@ -138,6 +132,26 @@ type Passive = String
 type SectionId = UniqueId
 data Section = Section Title Passive [StencilId]
 
+
+
+
+data CourseStore = CourseStore
+  { courseStoreById :: Map CourseId Course }
+
+emptyCourseStore :: CourseStore
+emptyCourseStore = CourseStore
+  { courseStoreById = Map.empty }
+
+lookupCourseStore :: CourseId -> CourseStore -> Maybe Course
+lookupCourseStore cId = Map.lookup cId . courseStoreById
+
+insertCourseStore :: CourseId -> Course -> CourseStore -> CourseStore
+insertCourseStore key value store = store
+  { courseStoreById = Map.insert key value (courseStoreById store) }
+
+data Course = Course
+  { courseUnits :: [UnitId]
+  } deriving ( Typeable )
 
 
 
@@ -167,7 +181,9 @@ deriveSafeCopy 0 'base ''User
 deriveSafeCopy 0 'base ''Rep
 deriveSafeCopy 0 'base ''RecallCurve
 deriveSafeCopy 0 'base ''UnitStore
+deriveSafeCopy 0 'base ''CourseStore
 deriveSafeCopy 0 'base ''Unit
+deriveSafeCopy 0 'base ''Course
 deriveSafeCopy 0 'base ''Section
 deriveSafeCopy 0 'base ''UniqueStore
 deriveSafeCopy 0 'base ''Feature
@@ -179,22 +195,24 @@ deriveSafeCopy 0 'base ''CardContent
 deriveSafeCopy 0 'base ''MandarinGapSentence
 deriveSafeCopy 0 'base ''MandarinBlock
 deriveSafeCopy 0 'base ''MandarinDefinition
+deriveSafeCopy 0 'base ''PermaResponse
 
 makeLenses ''Global
 
 
 
-instantiateStencils :: UTCTime -> User -> [StencilId] -> Query Global [Card]
-instantiateStencils now = worker []
+instantiateStencils :: Int -> UTCTime -> User -> [StencilId] -> Query Global [Card]
+instantiateStencils limit now = worker limit []
   where
-    worker acc _user [] = return $ reverse acc
-    worker acc user (stencilId:stencilIds) = do
+    worker 0 acc _ _ = return $ reverse acc
+    worker _ acc _user [] = return $ reverse acc
+    worker n acc user (stencilId:stencilIds) = do
       stencil <- requireStencil stencilId
       case runState (instantiateContent stencil now) user of
-        (Nothing, user') -> worker acc user' stencilIds
+        (Nothing, user') -> worker n acc user' stencilIds
         (Just content, user') -> do
           let card = Card{ cardStencil = stencilId, cardContent = content }
-          worker (card:acc) user' stencilIds
+          worker (n-1) (card:acc) user' stencilIds
 
 instantiateContent :: Stencil -> UTCTime -> State User (Maybe CardContent)
 instantiateContent (Chinese chinese english) now = do
@@ -307,27 +325,29 @@ resetUserModel userId = do
   u1 <- foldM worker cleanUser responses
   globalUsers %= insertUserStore userId u1
 
-drawRepetitionCards :: UTCTime -> UserId -> UnitId -> Query Global [Card]
-drawRepetitionCards now userId unitId = do
+drawRepetitionCards :: UTCTime -> UserId -> CourseId -> Query Global [Card]
+drawRepetitionCards now userId courseId = do
   user <- requireUser userId
-  unit <- requireUnit unitId
-  let filterSet = Set.fromList (unitStencils unit)
+  course <- requireCourse courseId
+  units <- mapM requireUnit (courseUnits course)
+  let filterSet = Set.fromList (concatMap unitStencils units)
   -- TODO: shuffle set elements.
   let (before,_) = Map.split now (userSchedule user)
       stencilIds = concatMap (Set.toList . Set.intersection filterSet) (reverse $ Map.elems before)
-  instantiateStencils now user stencilIds
+  instantiateStencils 10 now user stencilIds
 
-drawNovelCards :: UTCTime -> UserId -> UnitId -> Query Global [Card]
-drawNovelCards now userId unitId = do
+drawNovelCards :: UTCTime -> UserId -> CourseId -> Int -> Query Global [Card]
+drawNovelCards now userId courseId unitIdx = do
   user <- requireUser userId
-  unit <- requireUnit unitId
-  let stencilIds = unitStencils unit
-  instantiateStencils now user stencilIds
+  course <- requireCourse courseId
+  units <- mapM requireUnit (take (unitIdx+1) $ courseUnits course)
+  let stencilIds = concatMap unitStencils units
+  instantiateStencils 10 now user stencilIds
 
-drawCards :: UTCTime -> UserId -> UnitId -> Query Global [Card]
-drawCards now userId unitId = do
-  repCards <- drawRepetitionCards now userId unitId
-  newCards <- drawNovelCards now userId unitId
+drawCards :: UTCTime -> UserId -> CourseId -> Int -> Query Global [Card]
+drawCards now userId courseId unitIdx = do
+  repCards <- drawRepetitionCards now userId courseId
+  newCards <- drawNovelCards now userId courseId unitIdx
   let repIds = map cardStencil repCards
   return (take 10 $ repCards ++ (filter ((`notElem` repIds) . cardStencil) newCards))
 
@@ -379,38 +399,53 @@ requireUnit :: UnitId -> Query Global Unit
 requireUnit unitId = do
   store <- view globalUnits
   case lookupUnitStore unitId store of
-    Nothing   -> error $ "Unit not found: " ++ show unitId
+    Nothing   -> return (Unit [])
     Just unit -> return unit
 
--- FIXME: Check if the user exists.
-addUser :: UserId -> Alias -> Update Global ()
-addUser userId alias = do
-  globalUsers %= insertUserStore userId emptyUser{ userAlias = alias }
+requireCourse :: CourseId -> Query Global Course
+requireCourse courseId = do
+  store <- view globalCourses
+  case lookupCourseStore courseId store of
+    Nothing     -> return (Course [])
+    Just course -> return course
+
+addUser :: UserId -> Update Global ()
+addUser userId = do
+  globalUsers %= insertUserStore userId emptyUser
 
 -- Guarantee that a user id exists in the system.
 ensureUser :: UserId -> Update Global ()
 ensureUser userId = do
   userStore <- liftQuery $ view globalUsers
   case lookupUserStore userId userStore of
-    Nothing -> addUser userId ""
+    Nothing -> addUser userId
     Just{}  -> return ()
 
-addSimpleUnit :: Title -> [Stencil] -> Update Global UnitId
-addSimpleUnit title stencils = do
-  stencilIds <- mapM addStencil stencils
-  unitId <- newUnique
-  let unit = Unit{ unitTitle = title, unitCategory = []
-                 , unitSections = [], unitStencils = stencilIds }
-  globalUnits %= insertUnitStore unitId unit
-  return unitId
+--addSimpleUnit :: Title -> [Stencil] -> Update Global UnitId
+--addSimpleUnit title stencils = do
+--  stencilIds <- mapM addStencil stencils
+--  unitId <- newUnique
+--  let unit = Unit{ unitTitle = title, unitCategory = []
+--                 , unitSections = [], unitStencils = stencilIds }
+--  globalUnits %= insertUnitStore unitId unit
+--  return unitId
 
-updSimpleUnit :: UnitId -> Title -> [Stencil] -> Update Global ()
-updSimpleUnit unitId title stencils = do
+--updSimpleUnit :: UnitId -> Title -> [Stencil] -> Update Global ()
+--updSimpleUnit unitId title stencils = do
+--  stencilIds <- mapM addStencil stencils
+--  let unit = Unit{ unitTitle = title, unitCategory = []
+--                 , unitSections = [], unitStencils = stencilIds }
+--  globalUnits %= insertUnitStore unitId unit
+--  return ()
+
+putUnit :: UnitId -> [Stencil] -> Update Global ()
+putUnit unitId stencils = do
   stencilIds <- mapM addStencil stencils
-  let unit = Unit{ unitTitle = title, unitCategory = []
-                 , unitSections = [], unitStencils = stencilIds }
-  globalUnits %= insertUnitStore unitId unit
-  return ()
+  globalUnits %= insertUnitStore unitId (Unit stencilIds)
+
+putCourse :: CourseId -> [UnitId] -> Update Global ()
+putCourse courseId units = do
+  globalCourses %= insertCourseStore courseId (Course units)
 
 deleteUnit :: UnitId -> Update Global ()
 deleteUnit unitId =
@@ -430,6 +465,25 @@ listUsers = do
   store <- view globalUsers
   return $ listUserStore store
 
+exportPermaResponses :: Query Global [PermaResponse]
+exportPermaResponses = do
+  responses <- view globalResponses
+  stencils <- view globalStencils
+  return
+    [ PermaResponse
+      { permaResponseAt  = responseAt response
+      , permaContent     = responseContent response
+      , permaStencil     =
+          case lookupStencil (responseStencil response) stencils of
+            Nothing      -> error "Missing stencil"
+            Just stencil -> stencil
+      , permaUserId      = responseUserId response
+      }
+    | (_, response) <- responseStoreToList responses ]
+
+importPermaResponses :: [PermaResponse] -> Update Global ()
+importPermaResponses = undefined
+
 makeAcidic ''Global [ 'addStencil
                     , 'addResponse
                     , 'clearResponses
@@ -437,18 +491,20 @@ makeAcidic ''Global [ 'addStencil
                     , 'viewModel
                     , 'resetUserModel
                     , 'resetAllUserModels
-                    , 'drawNovelCards
+                    , 'drawRepetitionCards
                     , 'drawCards
                     , 'listAnnotatedStencils
                     , 'updateStencilSchedules
-                    , 'addUser
                     , 'ensureUser
-                    , 'addSimpleUnit
-                    , 'updSimpleUnit
+                    --, 'addSimpleUnit
+                    --, 'updSimpleUnit
                     , 'deleteUnit
                     , 'listUnits
                     , 'deleteAllUnits
                     , 'listUsers
+                    , 'exportPermaResponses
+                    , 'putUnit
+                    , 'putCourse
                     ]
 
 

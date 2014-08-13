@@ -64,20 +64,6 @@ Router.map(function () {
     }
   });
 
-  this.route('view', {
-    layoutTemplate: 'learnLayout',
-    path: '/courses/:id/:slug/:nth/',
-    data: function () {
-      return {
-        course: Courses.findOne({_id: this.params.id}),
-        courseId: this.params.id,
-        slug: this.params.slug,
-        unitIndex: this.params.nth,
-        action: 'view'
-      };
-    }
-  });
-
   this.route('studyCourse', {
     layoutTemplate: 'learnLayout',
     path: '/courses/:id/:slug/:nth/study',
@@ -92,6 +78,20 @@ Router.map(function () {
     }
   });
 
+
+  this.route('view', {
+    layoutTemplate: 'learnLayout',
+    path: '/courses/:id/:slug/:nth/',
+    data: function () {
+      return {
+        course: Courses.findOne({_id: this.params.id}),
+        courseId: this.params.id,
+        slug: this.params.slug,
+        unitIndex: this.params.nth,
+        action: 'view'
+      };
+    }
+  });
 
   this.route('viewCourse', {
     path: '/courses/:id/:slug/',

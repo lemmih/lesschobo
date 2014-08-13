@@ -81,15 +81,8 @@ Template.studyMandarinCard.selectedPinyin = function () {
   var dictIdx = block.dictIndex;
   return block.definitions[dictIdx].pinyin;
 }
-var showPinyin = false;
-Meteor.startup(function () {
-  Deps.autorun(function () {
-    //showPinyin = activeBlock(activeCard()) == false;
-    showPinyin = Template.studyMandarinCard.isCompleted()
-  });
-});
 Template.studyMandarinCard.showPinyin = function () {
-  return showPinyin; // Template.studyMandarinCard.isCompleted();
+  return Template.studyMandarinCard.isCompleted();
 }
 Template.studyMandarinCard.showAnswer = function () {
   var card = activeCard('showAnswer');

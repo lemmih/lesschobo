@@ -100,13 +100,18 @@
   Show progress toward session reward.
 </template>
 
-
-
-
-<template name="review">
+<template name="study">
   {{> learnToolbar }}
   {{! studyMandarinCard }}
   {{> UI.dynamic template=cardTemplate }}
+</template>
+
+<template name="studyLoading">
+  Loading...
+</template>
+
+<template name="studyFinished">
+  Finished
 </template>
 
 <template name="view">
@@ -121,6 +126,9 @@
   {{> studyNav }}
 </template>
 
+<template name="review">
+  {{> UI.dynamic template=studyTemplate }}
+</template>
 <template name="studyCourse">
-  {{> learnToolbar }}
+  {{> UI.dynamic template=studyTemplate }}
 </template>

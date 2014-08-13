@@ -30,68 +30,69 @@ instance FromData Response where
     pairs <- lookPairs
     trace ("pairs: " ++ show pairs) $ return undefined
 
-{-
-Endpoints:
-GET  /users/:userId/units
-GET  /users/:userId/units/:unitId/cards
-POST /responses
--}
+maxSize = 4096 -- 1024*1024*10
+
 main :: IO ()
 main = do
   global <- openChobo
   simpleHTTP nullConf (msum
-    [ do decodeBody (defaultBodyPolicy "/tmp/" 4096 4096 4096)
+    [ do -- decodeBody (defaultBodyPolicy "/tmp/" maxSize maxSize maxSize)
+         --liftIO $ putStrLn "Body decoded"
          mzero
-    , dir "favicon.iso" $ notFound (toResponse ())
-    --, dir "units" $ path $ \unitId -> msum
-    --  [ dir "stencils" $ do
-    --    method GET
-    --    trailingSlash
-    --    stencils <- query' global $ UnitStencils unitId
-    --    ok $ toResponse $ toJSON stencils
-    --  ]
-    , dir "users" $ path $ \userId -> msum
-      [ dir "units" $ msum
-          [ path $ \unitId -> msum
-              [ dir "cards" $ do
-                now <- liftIO getCurrentTime
-                cards <- query' global $ DrawCards now userId unitId
-                ok $ toResponse $ toJSON cards
-                , dir "stencils" $ do
-                method GET
-                trailingSlash
-                update' global (EnsureUser userId)
-                annStencils <- query' global (ListAnnotatedStencils userId unitId)
-                ok $ toResponse $ toJSON
-                  [ object [ "id"       .= stencilId
-                           , "order"    .= (n::Int)
-                           , "stencil"  .= stencil
-                           , "schedule" .= schedule ]
-                  | (stencilId, stencil, schedule) <- annStencils
-                  | n <- [1..] ]
-              ]
-          , do
-              method GET
-              trailingSlash
-              units <- query' global ListUnits
-              ok $ toResponse $ toJSON $
-                [ object [ "id" .= unitId, "unit" .= unit ] | (unitId, unit) <- units ]
+    , dir "users" $ path $ \userId -> do
+      update' global $ EnsureUser userId
+      msum
+        [ dir "courses" $ msum
+          [ path $ \courseId -> msum
+            [ dir "review" $ do
+              liftIO $ putStrLn "review"
+              now <- liftIO getCurrentTime
+              cards <- query' global $ DrawRepetitionCards now userId courseId
+              ok $ toResponse $ toJSON cards
+            , path $ \unitIdx -> do
+              liftIO $ putStrLn "study"
+              now <- liftIO getCurrentTime
+              cards <- query' global $ DrawCards now userId courseId unitIdx
+              ok $ toResponse $ toJSON cards
+            ]
           ]
-      ]
+        ]
     , dir "responses" $ do
       method POST
       response <- jsonBody
       () <- update' global $ AddResponse response
       ok $ toResponse ()
+    , dir "responses" $ do
+      method GET
+      lst <- query' global ExportPermaResponses
+      ok $ toResponse $ toJSON lst
+
+    , dir "courses" $ path $ \courseId -> do
+      method PUT
+      unitList <- jsonBody
+      () <- update' global $ PutCourse courseId unitList
+      ok $ toResponse ()
+    
+    , dir "units" $ path $ \unitId -> do
+      liftIO $ putStrLn "units"
+      method PUT
+      stencils <- jsonBody
+      () <- update' global $ PutUnit unitId stencils
+      ok $ toResponse ()
     ]) `finally` closeAcidState global
   where
+    jsonBody :: FromJSON a => ServerPart a
     jsonBody = do
+      liftIO $ putStrLn "jsonBody"
       rq <- askRq
-      bs <- liftIO $ unBody <$> readMVar (rqBody rq)
-      liftIO $ L.putStrLn bs
-      case decode bs of
-        Nothing    -> liftIO (putStrLn "failed to parse") >> mzero
-        Just value -> return value
+      mbBS <- fmap unBody <$> takeRequestBody rq
+      case mbBS of
+        Nothing -> mzero
+        Just bs -> do
+          liftIO $ L.putStrLn bs
+          case decode bs of
+            Nothing    -> liftIO (putStrLn "failed to parse") >> mzero
+            Just value -> return value
 
 
 

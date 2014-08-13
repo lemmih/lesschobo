@@ -130,6 +130,8 @@ sortAllStencils iterations = do
     paths =
       ["../data/cn_stencils.yaml"
       ,"../data/cn_stencils.3800.yaml"
+      ,"../data/cn_stencils.20000.yaml"
+      ,"../data/cn_stencils.419.yaml"
       ,"../data/cn_stencils.chinesepod.basic.yaml"
       ,"../data/cn_stencils.rocket.yaml"
       ,"../data/cn_stencils.livelingua.yaml" ]

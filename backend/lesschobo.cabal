@@ -52,3 +52,27 @@ executable lesschobo
 
   hs-source-dirs:      src
   ghc-options:         -Wall -rtsopts
+
+executable lesschobo-cli
+  Main-is:             Main.hs
+  hs-source-dirs:      cli, src
+  ghc-options:         -rtsopts
+  ghc-prof-options:    -auto-all
+  build-depends:       base,
+                       aeson                         >= 0.6.0,
+                       array                         >= 0.4.0.0,
+                       cndict                        >= 0.1.0,
+                       containers                    >= 0.5.0,
+                       mersenne-random               >= 1.0.0.0,
+                       mersenne-random-pure64        >= 0.2.0.0,
+                       mwc-random                    >= 0.13.0.0,
+                       mtl                           >= 2.1.0,
+                       random-shuffle                >= 0.0,
+                       safecopy                      >= 0.8.2,
+                       text                          >= 0.11.0,
+                       time                          >= 1.4.0,
+                       vector                        >= 0.10.0,
+                       yaml                          >= 0.8.0,
+                       filepath
+
+

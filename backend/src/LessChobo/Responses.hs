@@ -15,6 +15,7 @@ import           Data.Text
 import           Data.Time
 import           Data.Typeable
 
+
 data Response = Response
   { responseAt      :: UTCTime
   , responseContent :: ResponseContent
