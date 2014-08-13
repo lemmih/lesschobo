@@ -1,4 +1,6 @@
-var path = 'http://localhost:8000';
+var backend = process.env['BACKEND_PORT_8000_TCP_ADDR'] || 'localhost';
+var port    = process.env['BACKEND_PORT_8000_TCP_PORT'] || '8000';
+var path = 'http://' + backend + ':' + port;
 
 Meteor.methods({
   fetchReviewCards: function (courseId) {
@@ -24,7 +26,10 @@ Meteor.methods({
   postResponse: function(response) {
     response.userId = Meteor.userId();
 
-    return HTTP.call('POST', 'http://localhost:8000/responses', {data: response, params: {key: 'value'}});
+    return HTTP.call(
+      'POST',
+      path + '/responses',
+      {data: response, params: {key: 'value'}});
   },
 
   putCourse: function(course) {
