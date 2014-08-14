@@ -1,7 +1,8 @@
 <template name="studyMandarinCard">
 
+  {{#with card}}
   <div class="container" style="width: 800px; padding-top: 2em;">
-    {{#each card.sentences}}
+    {{#each sentences}}
       <div class="mandarin-sentence row">
 
         {{! Chinese text on the left side. Main focus is here }}
@@ -9,7 +10,7 @@
           {{#each blocks}}
             <div class="mandarin-block">
               <div class="mandarin-pinyin">
-                {{#if showPinyin}}
+                {{#if showPinyin ../..}}
                   {{selectedPinyin}}
                   &nbsp; {{! FIXME. selectedPinyin can be empty }}
                 {{else}}
@@ -87,4 +88,5 @@
     {{/each}}
     
   </div>
+  {{/with}}
 </template>

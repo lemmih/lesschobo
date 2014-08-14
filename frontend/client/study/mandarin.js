@@ -14,10 +14,14 @@ instantiateChineseCard = function(card) {
         block.literal    = false;
         block.dictIndex  = 0;
         block.isActive   = false;
+        if( !block.isEscaped ) {
+          // XXX: Use pinyin from stencil notes.
+          block.selectedPinyin = block.definitions[0].pinyin;
+        }
       }
     }
   markNextActiveBlock(card);
-  card.showAnswer = false;
+  card.shownAnswer = false;
 }
 
 // Clear the currently active block (if there is one) and mark the next
@@ -57,43 +61,16 @@ function activeBlock(card) {
 }
 
 
-Template.studyMandarinCard.headerStyle = function() {
-  var card = activeCard('header');
-  if ( !card ) return 'active';
-  if ( card.showAnswer )
-    return 'failed';
-  return 'active';
-};
 Template.studyMandarinCard.activeBlock = function () {
   return activeBlock(activeCard('activeBlock'));
 };
 Template.studyMandarinCard.card = function () { return activeCard('card'); };
-Template.studyMandarinCard.selectedPinyin = function () {
-  var card = activeCard('selectedPinyin');
-  if ( !card ) return '';
-  var s = card.sentences;
-  var i = this.sentenceId;
-  var j = this.blockId;
-  if ( !s[i] ) return '';
-  var block = s[i].blocks[j];
-  if ( !block || block.isEscaped ) return ''; // Why does this happen?
-  var dictIdx = block.dictIndex;
-  return block.definitions[dictIdx].pinyin;
-};
-Template.studyMandarinCard.showPinyin = function () {
-  return Template.studyMandarinCard.isCompleted();
-};
-Template.studyMandarinCard.showAnswer = function () {
-  var card = activeCard('showAnswer');
-  if ( !card ) return false;
-  return card.showAnswer;
+Template.studyMandarinCard.showPinyin = function (card) {
+  return activeBlock(card) == false;
 };
 Template.studyMandarinCard.answer = function () {
   var block = activeBlock(activeCard('answer'));
   return block.definitions[0].pinyin;
-};
-Template.studyMandarinCard.isCompleted = function () {
-  return activeBlock(activeCard('isCompleted')) == false;
 };
 
 
@@ -120,14 +97,15 @@ Template.studyMandarinCard.events({
     var pinyinIdx  = $(evt.target).attr('data-pinyin-idx');
     var englishIdx = $(evt.target).attr('data-english-idx');
 
-    var definition = s[sentenceId].blocks[blockId].
-                     definitions[pinyinIdx];
+    var block      = s[sentenceId].blocks[blockId];
+    var definition = block.definitions[pinyinIdx];
     var pinyin     = definition.pinyin;
     var english    = definition.english[englishIdx];
 
     console.log('select', pinyin, english);
-    s[sentenceId].blocks[blockId].literal = english;
-    s[sentenceId].blocks[blockId].dictIndex = pinyinIdx;
+    block.literal = english;
+    block.dictIndex = pinyinIdx;
+    block.selectedPinyin = block.definitions[pinyinIdx].pinyin;
     saveCard(card);
   },
   // 'click .mandarin-continue': function () {
@@ -140,7 +118,7 @@ Template.studyMandarinCard.events({
   'keydown .mandarin-input': function (evt) {
     if (evt.keyCode === 27) {
       var card = activeCard();
-      card.showAnswer = true;
+      card.shownAnswer = true;
       saveCard(card);
       console.log('show answer')
       $(evt.target).popover({trigger: 'focus'});
@@ -153,7 +131,7 @@ Template.studyMandarinCard.events({
       var response = {stencilId: card.stencilId,
                       content: {
                         type: 'MandarinTextAnswer',
-                        shownAnswer: card.showAnswer,
+                        shownAnswer: card.shownAnswer,
                         key: block.chinese,
                         value: userAnswer },
                       at: (new Date().toJSON())
@@ -169,6 +147,8 @@ Template.studyMandarinCard.events({
         console.log('incorrect', userAnswer, block.chinese);
         $(evt.currentTarget).select();
       }
+    } else {
+      console.log('other keydown', evt.keyCode);
     }
   }
 });
