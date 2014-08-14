@@ -15,5 +15,5 @@ WORKDIR /opt/application/
 
 EXPOSE 3000
 
-CMD PORT=3000 MONGO_URL=mongodb://$MONGO_PORT_27017_TCP_ADDR/lesschobo node bundle/main.js
+CMD ROOT_URL=http://talentsrs.com/ PORT=3000 MONGO_URL=mongodb://$MONGO_PORT_27017_TCP_ADDR/lesschobo node bundle/main.js
 
