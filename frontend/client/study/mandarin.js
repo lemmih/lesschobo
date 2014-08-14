@@ -57,18 +57,17 @@ function activeBlock(card) {
 }
 
 
-
 Template.studyMandarinCard.headerStyle = function() {
   var card = activeCard('header');
   if ( !card ) return 'active';
   if ( card.showAnswer )
     return 'failed';
   return 'active';
-}
+};
 Template.studyMandarinCard.activeBlock = function () {
   return activeBlock(activeCard('activeBlock'));
-}
-Template.studyMandarinCard.card = function () { return activeCard('card'); }
+};
+Template.studyMandarinCard.card = function () { return activeCard('card'); };
 Template.studyMandarinCard.selectedPinyin = function () {
   var card = activeCard('selectedPinyin');
   if ( !card ) return '';
@@ -80,22 +79,22 @@ Template.studyMandarinCard.selectedPinyin = function () {
   if ( !block || block.isEscaped ) return ''; // Why does this happen?
   var dictIdx = block.dictIndex;
   return block.definitions[dictIdx].pinyin;
-}
+};
 Template.studyMandarinCard.showPinyin = function () {
   return Template.studyMandarinCard.isCompleted();
-}
+};
 Template.studyMandarinCard.showAnswer = function () {
   var card = activeCard('showAnswer');
   if ( !card ) return false;
   return card.showAnswer;
-}
+};
 Template.studyMandarinCard.answer = function () {
   var block = activeBlock(activeCard('answer'));
   return block.definitions[0].pinyin;
-}
+};
 Template.studyMandarinCard.isCompleted = function () {
   return activeBlock(activeCard('isCompleted')) == false;
-}
+};
 
 
 

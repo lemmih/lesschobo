@@ -42,8 +42,7 @@
 
     <div class="btn-group btn-group">
       {{#each key_value cards}}
-        <a {{autofocus}}
-          href="#"
+        <a href="#"
           class="btn btn-default learn-toolbar-card {{cardClass}}">
           {{key}}
         </a>
@@ -90,10 +89,11 @@
 <template name="final">
   <ul class="pager">
     <li>
-      <button
-        autofocus
-        class="btn btn-primary continue"
-        >Continue</button>
+      {{#autofocus}}
+        <button
+          class="btn btn-primary continue autofocus"
+          >Continue</button>
+      {{/autofocus}}
     </li>
   </ul>
   Tally points from correct answers.

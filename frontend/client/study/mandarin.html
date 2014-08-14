@@ -1,41 +1,4 @@
 <template name="studyMandarinCard">
-  <!-- Container for the target word and continue button -->
-  <!-- <div style="min-height: 4em;">
-    {{#if isCompleted}}
-      <div style="text-align:center;">
-        <button autofocus class="mandarin-continue btn btn-success btn-lg">
-          Continue
-        </button>
-      </div>
-    {{else}}
-      <div style="text-align:center;"
-        class="mandarin-header-{{headerStyle}}">
-      <div class="dropdown" style="display: inline-block;">
-        <span class="mandarin-target" data-toggle="dropdown" href="#"
-          style="font-size: 200%;" >
-          {{! activeBlock.chinese}}
-        </span>
-        {{#if showAnswer }}
-          <span>&nbsp;&nbsp; Answer is: {{activeBlock.chinese}} {{answer}}</span>
-        {{/if}}
-        {{! This dictionary dropdown doesn't include pinyin }}
-        <ul class="dropdown-menu mandarin-dict"
-            role="menu" aria-labelledby="dLabel">
-          {{#each activeBlock.definitions}}
-            <li>Meaning:
-            {{#each english}}
-              <li>
-                <a>{{this}}</a>
-              </li>
-            {{/each}}
-            </li>
-          {{/each}}
-        </ul>
-      </div>
-      </div>
-    {{/if}}
-  </div> -->
-
 
   <div class="container" style="width: 800px; padding-top: 2em;">
     {{#each card.sentences}}
@@ -56,13 +19,16 @@
               <div class="mandarin-chinese">
                 {{#if isGap}}
                   {{#if isActive}}
-                    <input
-                      data-placement="top"
-                      data-content="{{chinese}} {{selectedPinyin}}"
+                    {{#autofocus}}
+                      <input
+                        type="text"
+                        data-placement="top"
+                        data-content="{{chinese}} {{selectedPinyin}}"
 
-                      autofocus
-                      placeholder="{{chinese}}"
-                      class="mandarin-input" style="width: {{len}}em;"/>
+                        placeholder="{{chinese}}"
+                        class="mandarin-input autofocus"
+                        style="width: {{len}}em;"/>
+                      {{/autofocus}}
                   {{else}}
                     <input
                       disabled

@@ -16,3 +16,10 @@ Meteor.Collection.prototype.insertMany = function (lst) {
 Meteor.Collection.prototype.copy = function (c) {
   this.insertMany(c.find({}).fetch());
 }
+
+// This helper template is needed because meteor doesn't work
+// well with the HTML5 autofocus tag. Instead, we use jquery
+// to focus the element when the template is rendered.
+Template.autofocus.rendered = function () {
+  $(".autofocus").focus();
+};
