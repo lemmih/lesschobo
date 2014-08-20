@@ -9,8 +9,6 @@ backbone
 http
 iron-router
 accounts-base
-accounts-github
-accounts-google
 accounts-ui
 email
 accounts-password
