@@ -30,7 +30,7 @@ instance FromData Response where
     pairs <- lookPairs
     trace ("pairs: " ++ show pairs) $ return undefined
 
-maxSize = 4096 -- 1024*1024*10
+maxSize = 1024*1024*10
 
 main :: IO ()
 main = do
@@ -89,7 +89,7 @@ main = do
       case mbBS of
         Nothing -> mzero
         Just bs -> do
-          liftIO $ L.putStrLn bs
+          -- liftIO $ L.putStrLn bs
           case decode bs of
             Nothing    -> liftIO (putStrLn "failed to parse") >> mzero
             Just value -> return value
