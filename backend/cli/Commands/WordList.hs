@@ -22,3 +22,5 @@ cmdWordList path = do
 
 merge :: [T.Text] -> String
 merge = concat . intersperse "/" . map T.unpack
+
+

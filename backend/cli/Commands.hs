@@ -35,7 +35,7 @@ satisfyInfo = defTI
                \words in the input text as possible." }
 
 satisfyTerm :: Term (IO ())
-satisfyTerm = cmdSatisfy <$> inputFile
+satisfyTerm = cmdSatisfy <$> verbose <*> inputFile
   where
     inputFile = fileExists $ required $ pos 0 Nothing posInfo
       { posName = "FILE"
