@@ -516,7 +516,7 @@
   type: chinese
 - chinese: 那两本书，一本好看，一本不好看。
   english:
-  - Of those two books, one is a good read and the other isn't.&nbsp;&nbsp;
+  - Of those two books, one is a good read and the other isn't.
   type: chinese
 - chinese: 你们渴吗？
   english:
@@ -632,7 +632,7 @@
   type: chinese
 - chinese: 王先生，欢迎欢迎！请进！
   english:
-  - Mr. Wang, welcome welcome!&nbsp;&nbsp;Please come in!
+  - Mr. Wang, welcome welcome! Please come in!
   type: chinese
 - chinese: 这种东西很特别。
   english:
@@ -1264,7 +1264,7 @@
   type: chinese
 - chinese: 你想吃什么饭？吃中国饭，好吗？
   english:
-  - What do you want to eat?&nbsp;&nbsp;Is Chinese food OK?
+  - What do you want to eat?  Is Chinese food OK?
   type: chinese
 - chinese: 我儿子爱吃苹果，女儿爱吃西瓜。
   english:
@@ -1344,7 +1344,7 @@
   type: chinese
 - chinese: 你会不会说中国话？我只会说几句。
   english:
-  - Do you speak Chinese?&nbsp;&nbsp;I can only speak a few words.
+  - Do you speak Chinese?  I can only speak a few words.
   type: chinese
 - chinese: 我不懂中国话，还不能看中国电影。
   english:
@@ -1540,9 +1540,13 @@
   english:
   - I think he must be an American.
   type: chinese
-- chinese: 我就是。
+- chinese: ! '请问，哪位是李小姐？
+
+    我就是。'
   english:
-  - wǒ jiù shì
+  - ! 'Excuse me, who is Miss Li?
+
+    I am. (I''m that very person.)'
   type: chinese
 - chinese: 贵的东西不一定好。
   english:
@@ -1778,7 +1782,7 @@
   type: chinese
 - chinese: 真的吗？你学得怎么样？
   english:
-  - Really?&nbsp;&nbsp;How is the studying going?
+  - Really?  How is the studying going?
   type: chinese
 - chinese: 你是中国人，为什么不喜欢喝茶？
   english:
@@ -2053,9 +2057,13 @@
   english:
   - My parents are both in Japan.
   type: chinese
-- chinese: 洗手間在那邊。
+- chinese: ! '请问，洗手间在哪里？
+
+    洗手间在那边。'
   english:
-  - xǐ shǒu jiān zài nà biān
+  - ! 'Excuse me, where is the washroom?
+
+    The washroom is on that side.'
   type: chinese
 - chinese: 他的东西椅子底下。
   english:
@@ -2318,9 +2326,13 @@
   english:
   - The clothes you are wearing today are very pretty.
   type: chinese
-- chinese: 他好像看報。
+- chinese: ! '你爸爸在做什么？
+
+    他好像看报。'
   english:
-  - tā hǎo xiàng kàn bào
+  - ! 'What is your father doing?
+
+    He seems to be reading the paper.'
   type: chinese
 - chinese: 这个餐馆的东西好吃，而且很便宜。
   english:
@@ -2485,8 +2497,8 @@
   type: chinese
 - chinese: 你认识的中国朋友多不多？你认识的中国朋友大部分是男的还是女的？
   english:
-  - Do you have a lot of Chinese friends?&nbsp;&nbsp;Are you Chiense friends mostly
-    guys or girls?
+  - Do you have a lot of Chinese friends?  Are you Chiense friends mostly guys or
+    girls?
   type: chinese
 - chinese: 如果你是老板，你比较喜欢会做事的年轻人还是聪明的年轻人？
   english:
@@ -2747,20 +2759,19 @@
   type: chinese
 - chinese: 我是昨天买的书。
   english:
-  - I bought the book <span style="font-weight:600; font-style:italic;">yesterday</span>.
+  - I bought the book yesterday.
   type: chinese
 - chinese: 我是在那家书店买的书。
   english:
-  - I bought the book at <span style="font-weight:600; font-style:italic;">that bookstore</span>.
+  - I bought the book at that bookstore.
   type: chinese
 - chinese: 我是跟我姐姐去买的书。
   english:
-  - I went <span style="font-weight:600; font-style:italic;">with my older sister</span>
-    to buy the book.
+  - I went with my older sister to buy the book.
   type: chinese
 - chinese: 这本书是我买的。
   english:
-  - <span style="font-weight:600; font-style:italic;">I</span> bought this book.
+  - I bought this book.
   type: chinese
 - chinese: 我是从法国来的，不是从英国来的。
   english:
@@ -2768,12 +2779,11 @@
   type: chinese
 - chinese: 我昨天是在餐厅吃的晚饭。
   english:
-  - I ate dinner <span style="font-weight:600; font-style:italic;">at a restaurant</span>
-    yesterday.
+  - I ate dinner at a restaurant yesterday.
   type: chinese
 - chinese: 今天我是跟朋友一块吃的中饭。
   english:
-  - Today I ate lunch <span style="font-weight:600; font-style:italic;">with my friend</span>.
+  - Today I ate lunch with my friend.
   type: chinese
 - chinese: 你要不要到他那里去？
   english:
@@ -2873,11 +2883,11 @@
   type: chinese
 - chinese: 对了！她的名字是美玉。
   english:
-  - Oh I remember!&nbsp;&nbsp;Her name is Meiyu.
+  - Oh I remember!  Her name is Meiyu.
   type: chinese
 - chinese: 你渴不渴？要不要喝点水？
   english:
-  - Are you thirsty?&nbsp;&nbsp;Would you like some water?
+  - Are you thirsty?  Would you like some water?
   type: chinese
 - chinese: 每张桌子上都有菜单。
   english:
