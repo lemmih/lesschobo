@@ -148,10 +148,12 @@ phraseCost knownCharacters knownWords tokens = sum
       = n
 
 phraseFreqCost :: Set Text -> [Token] -> Double
-phraseFreqCost seen tokens = foldr max 0
-  [ recip (wordFrequency (entryChinese entry))
-  | KnownWord entry <- tokens
-  , entryChinese entry `Set.notMember` seen ]
+phraseFreqCost seen tokens =
+  foldr max 0 $
+  map (recip . wordFrequency) $
+  nub [ entryChinese entry
+      | KnownWord entry <- tokens
+      , entryChinese entry `Set.notMember` seen ]
 
 {-# NOINLINE traceSingle #-}
 traceSingle msg val = unsafePerformIO $ do
@@ -206,17 +208,20 @@ sortStencilsByCost stencils =
             (stencil, score) : worker (n+1) knownTokens' knownCharacters' knownWords' newCostMap
 
 sortStencilsByFrequency :: Set Text -> [Stencil] -> [(Stencil, Double)]
-sortStencilsByFrequency seen stencils =
-  worker [ (stencil, tokenizer ccDict chinese)
-                               | stencil@(Chinese chinese _) <- stencils ]
+sortStencilsByFrequency seen0 stencils =
+  worker seen0
+    [ (stencil, tokenizer ccDict chinese)
+    | stencil@(Chinese chinese _) <- stencils ]
   where
-    worker lst =
+    worker seen lst =
       case sortBy (comparing snd)
               [ ((stencil, tokens), phraseFreqCost seen tokens)
               | (stencil, tokens) <- lst ] of
         [] -> []
-        (((stencil, _tokens),score):xs) ->
-          (stencil, score) : worker (map fst xs)
+        (((stencil, tokens),score):xs) ->
+          let seen' = Set.union seen $
+                Set.fromList [ entryChinese entry | KnownWord entry <- tokens ]
+          in (stencil, score) : worker seen' (map fst xs)
 
 sortStencilsWithSA :: Seed -> [Stencil] -> [Stencil]
 sortStencilsWithSA seed stencils =
