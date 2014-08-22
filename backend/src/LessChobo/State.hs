@@ -16,13 +16,11 @@ import           LessChobo.StencilStore
 import           LessChobo.Unique
 import           LessChobo.Users
 import           LessChobo.UserStore
-import           LessChobo.Utilities
 
 import           Control.Lens            (makeLenses, use, view, (%=), (.=))
 import           Control.Monad.Reader
 import           Control.Monad.State
 import           Data.Acid
-import           Data.Aeson              (ToJSON (..), object)
 import           Data.Char
 import           Data.Chinese.CCDict     as CCDict
 import           Data.List               (foldl', nub, sortBy)
@@ -35,8 +33,6 @@ import qualified Data.Set                as Set
 import qualified Data.Text               as T
 import           Data.Time
 import           Data.Typeable
-
-import Debug.Trace
 
 -- World?
 data Global = Global

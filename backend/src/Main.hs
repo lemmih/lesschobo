@@ -16,8 +16,6 @@ import           Data.Aeson
 import           Data.Time
 import           Happstack.Server hiding (Response)
 import Debug.Trace
-import qualified Data.ByteString.Lazy.Char8 as L
-import Control.Concurrent
 import Control.Exception
 import Control.Applicative
 
@@ -30,6 +28,7 @@ instance FromData Response where
     pairs <- lookPairs
     trace ("pairs: " ++ show pairs) $ return undefined
 
+maxSize :: Int
 maxSize = 1024*1024*10
 
 main :: IO ()

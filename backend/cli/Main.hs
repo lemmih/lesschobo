@@ -24,11 +24,16 @@ import Text.Printf
 import System.IO.Unsafe
 import System.IO
 
+import Commands
+import Commands.Load
 
 main :: IO ()
-main = do
-  stencils <- sortAllStencils 0
-  return ()
+main =
+  runCommands
+  --args <- getArgs
+  --mapM_ mkStoryStencils args
+  ----stencils <- sortAllStencils 0
+  --return ()
 
 
 loadStencils :: FilePath -> IO [Stencil]

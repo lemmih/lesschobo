@@ -73,6 +73,9 @@ executable lesschobo-cli
                        time                          >= 1.4.0,
                        vector                        >= 0.10.0,
                        yaml                          >= 0.8.0,
-                       filepath
+                       filepath,
+                       cmdtheline,
+                       bytestring,
+                       directory
 
 
