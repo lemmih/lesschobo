@@ -474,10 +474,11 @@
   english:
   - The horse trotted down the road.
   type: chinese
-- chinese: 我看到他就高兴。
-  english:
-  - I never see him but I am happy.
-  type: chinese
+# - chinese: 我看到他就高兴。
+#   english:
+#   - I never see him but I am happy.
+#   type: chinese
+#   comment: The english translation seems wrong.
 - chinese: 他有早起的习惯。
   english:
   - He is in the habit of rising early.
@@ -34599,10 +34600,6 @@
   english:
   - Don't bother.
   type: chinese
-- chinese: 我怎么知道。
-  english:
-  - How should I know.
-  type: chinese
 - chinese: 你干得很好。
   english:
   - You did a good job.
@@ -58432,10 +58429,6 @@
 - chinese: 天上的云彩
   english:
   - The clouds above.
-  type: chinese
-- chinese: 我怎么知道。
-  english:
-  - How should I know.
   type: chinese
 - chinese: 轻快的心情
   english:
