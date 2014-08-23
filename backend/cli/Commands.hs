@@ -13,18 +13,21 @@ import Commands.Load
 -- merge stencils
 -- load stencils
 
+
 wordListInfo :: TermInfo
 wordListInfo = defTI
   { termName = "list"
   , termDoc  = "Generate word list from input text document" }
 
 wordListTerm :: Term (IO ())
-wordListTerm = cmdWordList <$> inputFile
+wordListTerm = cmdWordList <$> outputFormat <*> inputFile
   where
     inputFile = fileExists $ required $ pos 0 Nothing posInfo
       { posName = "FILE"
       , posDoc  = "Text file containing mandarin." }
-
+    outputFormat = value $ opt WordListTable (optInfo ["output","o"])
+      { optName = "FORMAT"
+      , optDoc  = "plain or table." }
 
 
 
@@ -35,11 +38,15 @@ satisfyInfo = defTI
                \words in the input text as possible." }
 
 satisfyTerm :: Term (IO ())
-satisfyTerm = cmdSatisfy <$> verbose <*> inputFile
+satisfyTerm = cmdSatisfy <$> verbose <*> assumedFiles <*> inputFile
   where
     inputFile = fileExists $ required $ pos 0 Nothing posInfo
       { posName = "FILE"
       , posDoc  = "Text file containing mandarin." }
+    assumedFiles = filesExist $ value $ optAll [] (optInfo ["assume","a"])
+      { optName = "FILE"
+      , optDoc  = "Stencils files covering concepts the \
+                  \user has already been shown." }
 
 
 

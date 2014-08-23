@@ -26,9 +26,9 @@ import           Text.Printf
 
 import           Commands.Load                (readStencilDB)
 
-cmdSatisfy :: Bool -> FilePath -> IO ()
-cmdSatisfy verbose path =
-  mkStoryStencils path
+cmdSatisfy :: Bool -> [FilePath] -> FilePath -> IO ()
+cmdSatisfy verbose basePaths path =
+  mkStoryStencils basePaths path
 
 
 
@@ -52,18 +52,28 @@ cmdSatisfy verbose path =
 
 -- Create Chinese stencils covering the concepts in a short story or poem.
 -- The stencils are written in YAML to {input-file}.yaml
-mkStoryStencils :: FilePath -> IO ()
-mkStoryStencils inputFile = do
+mkStoryStencils :: [FilePath] -> FilePath -> IO ()
+mkStoryStencils assumedFiles inputFile = do
     putStrLn "Loading Chinese stencils..."
     stencils <- readStencilDB
     text <- T.readFile inputFile
-    let cover = nub $ satisfyWithStencils text stencils
+    assumedTexts <- mapM T.readFile assumedFiles
+    let assumedWords = Set.fromList
+          [ entry
+          | KnownWord entry <- tokenizer ccDict (T.concat assumedTexts)]
+        textWords = nub
+          [ entry
+          | KnownWord entry <- tokenizer ccDict text
+          , entry `Set.notMember` assumedWords ]
+        textWordsN = length textWords
+
+        cover = nub $ satisfyWithStencils textWords stencils
         totalWords = length cover
         coveredWords = length $ rights cover
         coveredWordsP = (coveredWords*100) `div` totalWords
         missingWords = length $ lefts cover
-        textWords = nub [ entry | KnownWord entry <- tokenizer ccDict text ]
-        textWordsN = length textWords
+        
+        
         stencilWords = nub
           [ entry | Chinese chinese _english <- rights cover
           , KnownWord entry <- tokenizer ccDict chinese ]
@@ -104,14 +114,13 @@ mkStoryStencils inputFile = do
 --      ,"../data/cn_stencils.rocket.yaml"
 --      ,"../data/cn_stencils.livelingua.yaml" ]
 
-satisfyWithStencils :: Chinese -> [Stencil] -> [Either Chinese Stencil]
-satisfyWithStencils text stencils =
+satisfyWithStencils :: [Entry] -> [Stencil] -> [Either Chinese Stencil]
+satisfyWithStencils entries stencils =
     [ case Map.lookup entry keyMap of
         Nothing       -> Left (entryChinese entry)
         Just covers -> Right (selectCheapest $ Set.toList covers)
     | entry <- entries ]
   where
-    entries = [ entry | KnownWord entry <- tokenizer ccDict text ]
     seen = Set.fromList (map entryChinese entries)
     -- selectCheapest = fst . head . sortStencilsByCost
     selectCheapest = fst . head . sortStencilsByFrequency seen
