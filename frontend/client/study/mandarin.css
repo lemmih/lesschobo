@@ -26,6 +26,10 @@ div.mandarin-literal {
 div.mandarin-chinese {
   font-size: 150%;
 }
+div.mandarin-chinese div.popover-content {
+  padding-top: 0;
+  padding-bottom: 0;
+}
 div.mandarin-header-active {
   transition: background 1s;
   background: aliceblue;

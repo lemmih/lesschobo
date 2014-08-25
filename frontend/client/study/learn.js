@@ -31,7 +31,7 @@ Template.study.cardTemplate = function () {
   var activeId = Session.get('activeCard');
   if ( activeId === 'final' )
     return 'final';
-  var card = activeCard();
+  var card = activeCard('cardTemplate');
   if ( !card ) return 'studySprintCompleted';
   return 'studyMandarinCard';
 }
@@ -81,6 +81,9 @@ Template.learnToolbar.events({
   'click .learn-toolbar-final': function (evt) {
     Session.set('activeCard', 'final');
     //console.log($(evt.target).attr('data-key'));
+  },
+  'click #showAnswerBtn': function (evt) {
+    activeCard('showAnswerBtn').showAnswer();
   }
 });
 

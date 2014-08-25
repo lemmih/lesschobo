@@ -1,7 +1,3 @@
-showMandarinAnswer = function() {
-  return;
-}
-
 instantiateChineseCard = function(card) {
   var s = card.sentences;
 
@@ -22,6 +18,17 @@ instantiateChineseCard = function(card) {
     }
   markNextActiveBlock(card);
   card.shownAnswer = false;
+  card.showAnswer = function () {
+    console.log('Show answer: mandarin', this);
+    
+    var card = this;
+    card.shownAnswer = true;
+    saveCard(card);
+    console.log('show answer')
+    $('.autofocus').popover({trigger: 'focus'});
+    $('.autofocus').popover('show');
+    $('.autofocus').focus();
+  };
 }
 
 // Clear the currently active block (if there is one) and mark the next
@@ -64,7 +71,9 @@ function activeBlock(card) {
 Template.studyMandarinCard.activeBlock = function () {
   return activeBlock(activeCard('activeBlock'));
 };
-Template.studyMandarinCard.card = function () { return activeCard('card'); };
+Template.studyMandarinCard.card = function () {
+  return activeCard('card');
+};
 Template.studyMandarinCard.showPinyin = function (card) {
   return activeBlock(card) == false;
 };
@@ -84,13 +93,13 @@ Template.studyMandarinCard.answer = function () {
 
 Template.studyMandarinCard.events({
   'click .mandarin-literal': function (evt) {
-    var card       = activeCard();
+    var card       = activeCard('remove literal');
     console.log('remove literal', this);
     card.sentences[this.sentenceId].blocks[this.blockId].literal = '';
     saveCard(card);
   },
   'click .mandarin-dict-select': function (evt) {
-    var card       = activeCard();
+    var card       = activeCard('dict select');
     var s          = card.sentences;
     var sentenceId = $(evt.target).attr('data-sentence-id');
     var blockId    = $(evt.target).attr('data-block-id');
@@ -117,14 +126,14 @@ Template.studyMandarinCard.events({
   // },
   'keydown .mandarin-input': function (evt) {
     if (evt.keyCode === 27) {
-      var card = activeCard();
+      var card = activeCard('escape');
       card.shownAnswer = true;
       saveCard(card);
       console.log('show answer')
       $(evt.target).popover({trigger: 'focus'});
       $(evt.target).popover('show');
     } else if(evt.keyCode===13) {
-      var card = activeCard();
+      var card = activeCard('submit');
       var block = activeBlock(card);
       var userAnswer = evt.currentTarget.value;
       
