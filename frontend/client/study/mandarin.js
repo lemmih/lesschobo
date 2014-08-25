@@ -147,8 +147,6 @@ Template.studyMandarinCard.events({
         console.log('incorrect', userAnswer, block.chinese);
         $(evt.currentTarget).select();
       }
-    } else {
-      console.log('other keydown', evt.keyCode);
     }
   }
 });
