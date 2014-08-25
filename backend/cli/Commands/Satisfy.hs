@@ -1,8 +1,6 @@
 module Commands.Satisfy
   ( cmdSatisfy ) where
 
-import           Control.Applicative
-import           Control.Exception
 import           Data.Chinese.CCDict          as CCDict
 import           Data.Chinese.Frequency
 import           Data.Either
@@ -27,7 +25,7 @@ import           Text.Printf
 import           Commands.Load                (readStencilDB)
 
 cmdSatisfy :: Bool -> [FilePath] -> FilePath -> IO ()
-cmdSatisfy verbose basePaths path =
+cmdSatisfy _verbose basePaths path =
   mkStoryStencils basePaths path
 
 
@@ -165,6 +163,7 @@ phraseFreqCost seen tokens =
       , entryChinese entry `Set.notMember` seen ]
 
 {-# NOINLINE traceSingle #-}
+traceSingle :: String -> a -> a
 traceSingle msg val = unsafePerformIO $ do
   putStr (msg ++ "                \r")
   hFlush stdout
@@ -172,7 +171,7 @@ traceSingle msg val = unsafePerformIO $ do
 
 sortStencilsByCost :: [Stencil] -> [(Stencil, Double)]
 sortStencilsByCost stencils =
-    worker 0 Set.empty Set.empty Set.empty initCostMap
+    worker (0::Int) Set.empty Set.empty Set.empty initCostMap
   where
     allStencilKeys =
       [ (stencil, tokenizer ccDict chinese)
@@ -208,8 +207,8 @@ sortStencilsByCost stencils =
                 , key `Set.notMember` knownTokens ]
               costMap' = Map.delete (stencil, tokens) costMap
               newCosts = Map.fromList
-                [ (item, phraseCost knownCharacters' knownWords' tokens)
-                | item@(_stencil, tokens) <- Set.toList dirtyItems
+                [ (item, phraseCost knownCharacters' knownWords' thisTokens)
+                | item@(_stencil, thisTokens) <- Set.toList dirtyItems
                 , item `Map.member` costMap'
                 ]
               newCostMap = newCosts `Map.union` costMap'
@@ -232,18 +231,18 @@ sortStencilsByFrequency seen0 stencils =
                 Set.fromList [ entryChinese entry | KnownWord entry <- tokens ]
           in (stencil, score) : worker seen' (map fst xs)
 
-sortStencilsWithSA :: Seed -> [Stencil] -> [Stencil]
-sortStencilsWithSA seed stencils =
-    [ stencils !! n | n <- testSA' seed (map stencilToFact stencils) ]
+--sortStencilsWithSA :: Seed -> [Stencil] -> [Stencil]
+--sortStencilsWithSA seed stencils =
+--    [ stencils !! n | n <- testSA' seed (map stencilToFact stencils) ]
 
-stencilPathCost :: [Stencil] -> Int
-stencilPathCost = testPathCost . map stencilToFact
+--stencilPathCost :: [Stencil] -> Int
+--stencilPathCost = testPathCost . map stencilToFact
 
-stencilToFact :: Stencil -> [Int]
-stencilToFact (Chinese chinese _) =
-  mapMaybe (\w -> fmap subtlexIndex (Map.lookup w subtlex)) $ concat
-      [ entryChinese word : map T.singleton (T.unpack $ entryChinese word)
-      | KnownWord word <- tokenizer ccDict chinese ]
+--stencilToFact :: Stencil -> [Int]
+--stencilToFact (Chinese chinese _) =
+--  mapMaybe (\w -> fmap subtlexIndex (Map.lookup w subtlex)) $ concat
+--      [ entryChinese word : map T.singleton (T.unpack $ entryChinese word)
+--      | KnownWord word <- tokenizer ccDict chinese ]
 
 --frequencyTally :: Int -> [Stencil] -> [(T.Text, Int)]
 --frequencyTally nWords stencils =

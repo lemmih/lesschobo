@@ -48,7 +48,9 @@ executable lesschobo
                        safecopy                      >= 0.8.2,
                        acid-state                    >= 0.12.0,
                        cndict                        >= 0.1.0,
-                       filepath
+                       filepath,
+                       mongoDB,
+                       network
 
   hs-source-dirs:      src
   ghc-options:         -Wall -rtsopts

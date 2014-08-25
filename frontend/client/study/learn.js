@@ -80,7 +80,6 @@ Template.final.created = function () {
 Template.final.events({
   'click .continue': function (evt) {
     console.log('final clicked', this.action);
-
     activateNextCardSet(this.courseId);
   }
 });
