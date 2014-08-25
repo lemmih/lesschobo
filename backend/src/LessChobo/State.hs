@@ -321,6 +321,20 @@ resetUserModel userId = do
   u1 <- foldM worker cleanUser responses
   globalUsers %= insertUserStore userId u1
 
+genCourseStats :: UTCTime -> UserId -> CourseId
+               -> Query Global (Bool, Int, Int, Int)
+genCourseStats now userId courseId = do
+  user <- requireUser userId
+  course <- requireCourse courseId
+  units <- mapM requireUnit (courseUnits course)
+  let total      = Set.fromList $ concatMap unitStencils units
+      seen       = total `Set.intersection` Map.keysSet (userSchedule' user)
+      mastered   = 0
+      (scheduled,_) = Map.split now (userSchedule user)
+      scheduledStencils = Map.foldl' Set.union Set.empty scheduled
+      review     = total `Set.intersection` scheduledStencils
+  return (not (Set.null review), Set.size seen, mastered, Set.size total)
+
 drawRepetitionCards :: UTCTime -> UserId -> CourseId -> Query Global [Card]
 drawRepetitionCards now userId courseId = do
   user <- requireUser userId
@@ -487,6 +501,7 @@ makeAcidic ''Global [ 'addStencil
                     , 'viewModel
                     , 'resetUserModel
                     , 'resetAllUserModels
+                    , 'genCourseStats
                     , 'drawRepetitionCards
                     , 'drawCards
                     , 'listAnnotatedStencils
