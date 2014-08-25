@@ -24,6 +24,12 @@
       </div>
     </div>
     <div class="col-md-9">
+      {{#unless currentUser}}
+        <div class="alert alert-warning">
+          You are using <b>Talent<sup>srs</sup></b> anonymously. Sign in or create an account
+          to save your progress.
+        </div>
+      {{/unless}}
       {{> yield }}
     </div>
   </div>
@@ -101,12 +107,6 @@
 </template>
 
 <template name="study">
-  {{#unless currentUser}}
-    <div class="alert alert-warning">
-      You are using <b>Talent<sup>srs</sup></b> anonymously. Sign in or create an account
-      to save your progress.
-    </div>
-  {{/unless}}
   {{> learnToolbar }}
   {{! studyMandarinCard }}
   {{> UI.dynamic template=cardTemplate }}
