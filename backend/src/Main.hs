@@ -66,7 +66,6 @@ main = do
          --liftIO $ putStrLn "Body decoded"
          mzero
     , dir "users" $ path $ \userId -> do
-      update' global $ EnsureUser userId
       msum
         [ dir "courses" $ msum
           [ path $ \courseId -> msum

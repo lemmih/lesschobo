@@ -136,7 +136,7 @@ Template.studyMandarinCard.events({
                         value: userAnswer },
                       at: (new Date().toJSON())
                      };
-      Meteor.call('postResponse', response);
+      Meteor.call('postResponse', getTempUserId(), response);
 
       if (userAnswer === block.chinese) {
         $(evt.target).popover('destroy');

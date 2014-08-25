@@ -2,6 +2,7 @@
   "packages": {
     "iron-router": {},
     "bootstrap-3": {},
-    "auto-nprogress": {}
+    "auto-nprogress": {},
+    "cookie": {}
   }
 }

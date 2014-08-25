@@ -3,18 +3,18 @@ var port    = process.env['BACKEND_PORT_8000_TCP_PORT'] || '8000';
 var path = 'http://' + backend + ':' + port;
 
 Meteor.methods({
-  fetchReviewCards: function (courseId) {
+  fetchReviewCards: function (tmpUserId, courseId) {
+    var userId = Meteor.userId() || tmpUserId;
     var ret = HTTP.call(
       'GET',
-      path + '/users/' + Meteor.userId() + '/courses/' + courseId + '/review');
-    console.log('review', courseId, JSON.parse(ret.content));
+      path + '/users/' + userId + '/courses/' + courseId + '/review');
     return JSON.parse(ret.content);
   },
-  fetchStudyCards: function (courseId, unitIdx) {
-    console.log('path', path + '/users/' + Meteor.userId() + '/courses/' + courseId + '/' + unitIdx);
+  fetchStudyCards: function (tmpUserId, courseId, unitIdx) {
+    var userId = Meteor.userId() || tmpUserId;
     var ret = HTTP.call(
       'GET',
-      path + '/users/' + Meteor.userId() + '/courses/' + courseId + '/' + unitIdx);
+      path + '/users/' + userId + '/courses/' + courseId + '/' + unitIdx);
     console.log('study', courseId, JSON.parse(ret.content));
     return JSON.parse(ret.content);
   },
@@ -23,8 +23,10 @@ Meteor.methods({
   //   var ret = HTTP.call('GET', 'http://localhost:8000/users/' + Meteor.userId() + '/units/' + courseId + '/stencils/');
   //   return JSON.parse(ret.content);
   // },
-  postResponse: function(response) {
-    response.userId = Meteor.userId();
+  postResponse: function(tmpUserId, response) {
+    
+    response.userId = Meteor.userId() || tmpUserId;
+    console.log('userId', response.userId);
 
     return HTTP.call(
       'POST',

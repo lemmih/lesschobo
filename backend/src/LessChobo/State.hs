@@ -402,7 +402,7 @@ requireUser :: UserId -> Query Global User
 requireUser userId = do
   store <- view globalUsers
   case lookupUserStore userId store of
-    Nothing   -> error $ "User not found: " ++ show userId
+    Nothing   -> return emptyUser -- error $ "User not found: " ++ show userId
     Just user -> return user
 
 requireUnit :: UnitId -> Query Global Unit

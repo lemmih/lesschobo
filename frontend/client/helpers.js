@@ -23,3 +23,12 @@ Meteor.Collection.prototype.copy = function (c) {
 Template.autofocus.rendered = function () {
   $(".autofocus").focus();
 };
+
+getTempUserId = function () {
+  return Cookie.get('temp-userid');
+};
+Meteor.startup(function () {
+  var thisId = Cookie.get('temp-userid') || Random.id();
+  Cookie.set('temp-userid', thisId);
+});
+

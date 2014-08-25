@@ -41,17 +41,19 @@ function processCards(newCards) {
 }
 fetchMoreReviewCards = function(courseId) {
   Session.set('loading', true);
-  Meteor.call('fetchReviewCards', courseId, function (err, data) {
-    Session.set('loading', false);
-    processCards(data);
-  });
+  Meteor.call('fetchReviewCards', getTempUserId(), courseId,
+    function (err, data) {
+      Session.set('loading', false);
+      processCards(data);
+    });
 }
 fetchMoreStudyCards = function(courseId, unitIdx) {
   Session.set('loading', true);
-  Meteor.call('fetchStudyCards', courseId, unitIdx, function (err, data) {
-    Session.set('loading', false);
-    processCards(data);
-  });
+  Meteor.call('fetchStudyCards', getTempUserId(), courseId, unitIdx,
+    function (err, data) {
+      Session.set('loading', false);
+      processCards(data);
+    });
 }
 
 activateNextCardSet = function () {
