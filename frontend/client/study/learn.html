@@ -124,10 +124,10 @@
   {{> studyNav }}
   <div class="panel panel-default">
     <div class="panel-heading">
-      <strong>Unit heading</strong>
+      <strong>{{ title }}</strong>
     </div>
     <div class="panel-body">
-      <p>Markdown content comes here</p>
+      {{#markdown}}{{content}}{{/markdown}}
   </div></div>
   {{> studyNav }}
 </template>

@@ -37,6 +37,17 @@ Template.study.cardTemplate = function () {
 }
 
 
+Template.view.title = function () {
+  if( !this.course ) return '';
+  var idx = parseInt(this.unitIndex);
+  return this.course.units[idx].title;
+}
+Template.view.content = function () {
+  if( !this.course ) return '';
+  var idx = parseInt(this.unitIndex);
+  return this.course.units[idx].content || 'No content written for unit.';
+}
+
 
 Template.learnToolbar.cards = function () {
   return cards.find().fetch();
