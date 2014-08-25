@@ -1,5 +1,33 @@
 <template name="studyMandarinCard">
 
+  <div class="modal fade" id="helpModal" tabindex="-1"
+    role="dialog" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">
+            <span aria-hidden="true">&times;</span>
+            <span class="sr-only">Close</span>
+          </button>
+          <h4 class="modal-title" id="helpModalLabel"
+          >Mandarin cloze deletion exercise help</h4>
+        </div>
+        <div class="modal-body">
+          <p>Complete the sentence(s) by filling in the missing words.
+          Press <kbd>escape</kbd> if you do not know the word or if you
+          do not remember it.</p>
+          <p>Remember to configure your keyboard options such that you can
+            input Chinese characters.</p>
+          <p>Dictionary definitions can be selected by clicking on a word.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default"
+            data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   {{#with card}}
   <div class="container" style="width: 800px; padding-top: 2em;">
     {{#each sentences}}
