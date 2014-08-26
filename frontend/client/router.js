@@ -10,7 +10,8 @@ Routes:
 
 
 Router.configure({
-  layoutTemplate: 'layout'
+  layoutTemplate: 'layout',
+  trackPageView: true
 });
 Router.map(function () {
   this.route('landing', {

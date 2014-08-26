@@ -3,6 +3,7 @@
     "iron-router": {},
     "bootstrap-3": {},
     "auto-nprogress": {},
-    "cookie": {}
+    "cookie": {},
+    "iron-router-ga": {}
   }
 }
