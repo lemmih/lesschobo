@@ -1564,9 +1564,13 @@
   english:
   - Miss Zhang's calligraphy is really good.
   type: chinese
-- chinese: 對了，我就是。
+- chinese: ! '请问，您是张先生吗？
+
+    对了，我就是。'
   english:
-  - duì le wǒ jiù shì
+  - ! 'Excuse me, are you Mr. Zhang?
+
+    Yes, I am.'
   type: chinese
 - chinese: 他为什么不念书？
   english:
