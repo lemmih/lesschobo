@@ -264,6 +264,6 @@ wordFrequency :: T.Text -> Double
 wordFrequency txt =
   case Map.lookup txt subtlex of
     Just entry -> subtlexWMillion entry
-    Nothing -> foldr max 0 $ catMaybes
+    Nothing -> foldr min 0 $ catMaybes
       [ fmap subtlexWMillion (Map.lookup chunk subtlex)
       | chunk <- T.chunksOf 1 txt ]
