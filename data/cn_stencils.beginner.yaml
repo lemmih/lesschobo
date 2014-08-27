@@ -890,7 +890,7 @@
   english:
   - Of those two people, the tall one is Zhang, the short one is Li.
   type: chinese
-- chinese: 那两个表，小的是我的，大的是我先生的。
+- chinese: 那两个表，小|的是我的，大的是我先生的。
   english:
   - Of those two watches, the small one is mine, the big one is my husband's.
   type: chinese
@@ -2877,7 +2877,7 @@
   english:
   - There are one table and two chairs in this room.
   type: chinese
-- chinese: 大的在上面，小的在下面。
+- chinese: 大的在上面，小|的在下面。
   english:
   - Big ones are on top, small ones are down below.
   type: chinese
