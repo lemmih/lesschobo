@@ -1764,9 +1764,13 @@
   english:
   - Mr Wang is American, but his Chinese is excellent.
   type: chinese
-- chinese: 是啊！
+- chinese: ! '这个餐厅的东西真好吃。
+
+    是啊！'
   english:
-  - The food in this restaurant is really delicious.
+  - ! 'The food in this restaurant is really delicious.
+
+    Yes, it is!'
   type: chinese
 - chinese: 他要练习唱中文歌。
   english:
