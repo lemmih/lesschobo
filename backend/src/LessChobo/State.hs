@@ -210,11 +210,17 @@ instantiateStencils limit now = worker limit []
           let card = Card{ cardStencil = stencilId, cardContent = content }
           worker (n-1) (card:acc) user' stencilIds
 
+dropSeparator :: [Token] -> [Token]
+dropSeparator = filter (not . isTokenSeparator)
+  where
+    isTokenSeparator (UnknownWord "|") = True
+    isTokenSeparator _ = False
+
 instantiateContent :: Stencil -> UTCTime -> State User (Maybe CardContent)
 instantiateContent (Chinese chinese english) now = do
     let rows = zip (T.lines chinese) (T.lines (T.unlines english) ++ repeat T.empty)
     sentences <- forM rows $ \(line, hint) -> do
-      blocks <- forM (tokenizer ccDict line) $ \token ->
+      blocks <- forM (dropSeparator $ tokenizer ccDict line) $ \token ->
         case token of
           KnownWord entry -> do
             let feat = MandarinWordFeature (entryChinese entry)
