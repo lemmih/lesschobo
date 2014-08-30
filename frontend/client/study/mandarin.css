@@ -5,7 +5,7 @@ div.mandarin-task {
   border-right: 1px dotted blue;
   padding-left: 0px;
 }
-div.mandarin-translation {
+span.mandarin-translation {
   color: #ccc;
 }
 div.mandarin-block {

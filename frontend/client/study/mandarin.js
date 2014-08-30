@@ -21,6 +21,7 @@ instantiateChineseCard = function(card) {
     }
   markNextActiveBlock(card);
   card.shownAnswer = false;
+  card.showEnglish = false;
   card.showAnswer = function () {
     console.log('Show answer: mandarin', this);
     
@@ -80,6 +81,9 @@ Template.studyMandarinCard.card = function () {
 Template.studyMandarinCard.showPinyin = function (card) {
   return activeBlock(card) == false;
 };
+Template.studyMandarinCard.showEnglish = function (card) {
+  return activeBlock(card) == false || card.showEnglish;
+};
 Template.studyMandarinCard.answer = function () {
   var block = activeBlock(activeCard('answer'));
   return block.definitions[0].pinyin;
@@ -95,6 +99,11 @@ Template.studyMandarinCard.answer = function () {
 
 
 Template.studyMandarinCard.events({
+  'click .mandarin-translation': function (evt) {
+    var card       = activeCard('remove literal');
+    card.showEnglish = true;
+    saveCard(card);
+  },
   'click .mandarin-literal': function (evt) {
     var card       = activeCard('remove literal');
     console.log('remove literal', this);

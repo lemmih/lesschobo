@@ -101,7 +101,7 @@
               </div>
               <div class="mandarin-literal">
                 {{#if literal}}
-                {{literal}}
+                  {{literal}}
                 {{else}}
                   &nbsp;
                 {{/if}}
@@ -111,8 +111,16 @@
         </div>
 
         {{! English translation on the right hand side. }}
-        <div class="mandarin-translation col-xs-4">
-          {{english}}
+        <div class="col-xs-4">
+          {{#if showEnglish .. }}
+            <span>
+              {{english}}
+            </span>
+          {{else}}
+            <span class="mandarin-translation">
+              English translation hidden. Click to reveal.
+            </span>
+          {{/if}}
         </div>
       </div>
     {{/each}}
