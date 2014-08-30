@@ -20,6 +20,17 @@ div.mandarin-block > div {
 div.mandarin-pinyin {
   color: #777;
 }
+ul.pinyin-list {
+  padding: 0px;
+  display: inline;
+  list-style: none;
+}
+ul.pinyin-list li {
+  display: inline;
+}
+ul.pinyin-list li + li:before {
+  content: ", ";
+}
 div.mandarin-literal {
   color: #ccc;
 }

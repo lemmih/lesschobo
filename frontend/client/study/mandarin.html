@@ -39,7 +39,9 @@
             <div class="mandarin-block">
               <div class="mandarin-pinyin">
                 {{#if showPinyin ../..}}
-                  {{selectedPinyin}}
+                  <ul class="pinyin-list">
+                    {{#each selectedPinyin}}<li>{{this}}</li>{{/each}}
+                  </ul>
                   &nbsp; {{! FIXME. selectedPinyin can be empty }}
                 {{else}}
                   &nbsp;

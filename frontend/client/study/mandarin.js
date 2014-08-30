@@ -12,7 +12,10 @@ instantiateChineseCard = function(card) {
         block.isActive   = false;
         if( !block.isEscaped ) {
           // XXX: Use pinyin from stencil notes.
-          block.selectedPinyin = block.definitions[0].pinyin;
+          block.selectedPinyin =
+            _.uniq(_.map(block.definitions, function(obj) {
+              return obj.pinyin;
+            }));
         }
       }
     }
@@ -114,7 +117,7 @@ Template.studyMandarinCard.events({
     console.log('select', pinyin, english);
     block.literal = english;
     block.dictIndex = pinyinIdx;
-    block.selectedPinyin = block.definitions[pinyinIdx].pinyin;
+    block.selectedPinyin = [block.definitions[pinyinIdx].pinyin];
     saveCard(card);
   },
   // 'click .mandarin-continue': function () {
