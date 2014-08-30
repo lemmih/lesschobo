@@ -45,8 +45,50 @@ Template.view.title = function () {
 Template.view.content = function () {
   if( !this.course ) return '';
   var idx = parseInt(this.unitIndex);
-  return this.course.units[idx].content || 'No content written for unit.';
+  return this.course.units[idx].content;
 }
+Template.view.editContent = function () {
+  return Session.equals('editContent', true) &&
+    Roles.userIsInRole(Meteor.userId(), ['editor']);
+}
+Template.view.editTitle = function () {
+  return Session.equals('editTitle', true) &&
+    Roles.userIsInRole(Meteor.userId(), ['editor']);
+}
+Template.view.events({
+  'blur .unit-content-editable': function (evt) {
+    if( !this.course ) return;
+      var idx = parseInt(this.unitIndex);
+    var field = 'units.' + idx + '.content';
+        obj = {};
+    obj[field] = evt.target.value;
+    Courses.update({_id: this.course._id},
+      {'$set': obj});
+    Session.set('editContent', false);
+  },
+  'keydown .unit-title-editable': function (evt) {
+    if (evt.keyCode === 13) {
+      evt.target.blur();
+    }
+  },
+  'blur .unit-title-editable': function (evt) {
+    if( !this.course ) return;
+      var idx = parseInt(this.unitIndex);
+    var field = 'units.' + idx + '.title';
+        obj = {};
+    obj[field] = evt.target.value;
+    console.log(evt.target.value);
+    Courses.update({_id: this.course._id},
+      {'$set': obj});
+    Session.set('editTitle', false);
+  },
+  'dblclick .unit-content': function (evt) {
+    Session.set('editContent', true);
+  },
+  'dblclick .unit-title': function (evt) {
+    Session.set('editTitle', true);
+  }
+});
 
 
 Template.learnToolbar.cards = function () {

@@ -125,11 +125,32 @@
   {{> studyNav }}
   <div class="panel panel-default">
     <div class="panel-heading">
-      <strong>{{ title }}</strong>
+      {{#if editTitle}}
+        {{#autofocus}}
+          <input class="autofocus unit-title-editable"
+              type="text" value="{{title}}"/>
+        {{/autofocus}}
+      {{else}}
+        <strong class="unit-title">{{ title }}</strong>
+      {{/if}}
     </div>
     <div class="panel-body">
-      {{#markdown}}{{content}}{{/markdown}}
-  </div></div>
+      {{#if editContent}}
+        {{#autofocus}}
+          <textarea class="unit-content-editable autofocus"
+            >{{content}}</textarea>
+        {{/autofocus}}
+      {{else}}
+        <div class="unit-content">
+          {{#if content}}
+            {{#markdown}}{{content}}{{/markdown}}
+          {{else}}
+            <p>No content written for unit.</p>
+          {{/if}}
+        </div>
+      {{/if}}
+    </div>
+  </div>
   {{> studyNav }}
 </template>
 

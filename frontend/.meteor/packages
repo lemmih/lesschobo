@@ -3,7 +3,6 @@
 # 'meteor add' and 'meteor remove' will edit this file for you,
 # but you can also edit it by hand.
 
-autopublish
 coffeescript
 backbone
 http
@@ -15,8 +14,8 @@ accounts-password
 bootstrap-3
 standard-app-packages
 jquery
-insecure
 auto-nprogress
 showdown
 cookie
 iron-router-ga
+alanning:roles
