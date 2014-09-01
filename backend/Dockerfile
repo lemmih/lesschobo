@@ -14,4 +14,4 @@ RUN sudo chown --recursive haskell:haskell src/
 
 RUN cd src/ && cabal install --jobs=1
 
-CMD /home/haskell/.cabal/bin/lesschobo
+CMD MONGO_URL=mongodb://$MONGO_PORT_27017_TCP_ADDR/lesschobo /home/haskell/.cabal/bin/lesschobo
