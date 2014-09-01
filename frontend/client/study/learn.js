@@ -37,6 +37,15 @@ Template.study.cardTemplate = function () {
 }
 
 
+Template.view.created = function () {
+  Session.set('editable', false);
+}
+Template.view.rendered = function () {
+  this.autorun(function () {
+    if(Template.view.editable())
+      enableSortable(Router.current().data());
+  });
+}
 Template.view.title = function () {
   if( !this.course ) return '';
   var idx = parseInt(this.unitIndex);
@@ -47,13 +56,17 @@ Template.view.content = function () {
   var idx = parseInt(this.unitIndex);
   return this.course.units[idx].content;
 }
+Template.view.editable = function () {
+  return Session.equals('editable', true) &&
+    Roles.userIsInRole(Meteor.userId(), ['editor']);
+}
 Template.view.editContent = function () {
   return Session.equals('editContent', true) &&
-    Roles.userIsInRole(Meteor.userId(), ['editor']);
+    Template.view.editable();
 }
 Template.view.editTitle = function () {
   return Session.equals('editTitle', true) &&
-    Roles.userIsInRole(Meteor.userId(), ['editor']);
+    Template.view.editable();
 }
 Template.view.events({
   'blur .unit-content-editable': function (evt) {
@@ -82,13 +95,49 @@ Template.view.events({
       {'$set': obj});
     Session.set('editTitle', false);
   },
+  'click #unlock-edit': function () {
+    //enableSortable(this);
+    Session.set('editable', true);
+  },
+  'click #lock-edit': function () {
+    $(".unit-list").sortable();
+    $(".unit-list").sortable("destroy");
+    Session.set('editable', false);
+  },
   'dblclick .unit-content': function (evt) {
-    Session.set('editContent', true);
+    if(Template.view.editable())
+      Session.set('editContent', true);
   },
   'dblclick .unit-title': function (evt) {
-    Session.set('editTitle', true);
+    if(Template.view.editable())
+      Session.set('editTitle', true);
   }
 });
+
+function enableSortable(context) {
+  var course = context.course;
+  $(".unit-list").sortable({
+      items: "a.unit",
+      stop: function (event, ui) {
+        var newOrder = $(this).sortable('toArray');
+        var units = _.indexBy(course.units, '_id');
+        var newUnits = _.map(newOrder, function(key) { return units[key]; });
+        Courses.update(course._id,
+          {'$set': {'units': newUnits} });
+        $(this).sortable('cancel');
+
+        var selectedUnitId = course.units[parseInt(context.unitIndex)]._id;
+        var selectedUnitIdx = _.indexOf(newOrder, selectedUnitId);
+
+        if( context.unitIndex !== selectedUnitIdx)
+          Router.go('view',
+            {id: context.courseId, slug: context.slug, nth: selectedUnitIdx});
+      }
+  });
+}
+
+
+
 
 
 Template.learnToolbar.cards = function () {

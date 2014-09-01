@@ -5,3 +5,14 @@ textarea.unit-content-editable {
 input.unit-title-editable {
   width: 100%;
 }
+.panel {
+  position: relative;
+}
+.panel .edit-options {
+  display: block;
+  position: absolute;
+  right: 0;
+}
+.panel .edit-options span {
+  padding: 0.7em;
+}

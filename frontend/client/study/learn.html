@@ -2,10 +2,12 @@
   {{> mainNav }}
   <div class="container">
     <div class="col-md-3">
-      <div class="list-group">
+      <div class="list-group unit-list">
         <span class="list-group-item list-group-item-info">
           <strong>{{course.title}}</strong>
         </span>
+        {{! Only show the Review button when we actually have something
+            to review. }}
         <a 
           data-toggle="tooltip" data-placement="top"
           title="Review of previously studied material is necessary."
@@ -16,7 +18,8 @@
 
         {{#each key_value course.units}}
           {{! How do we highlight the active unit when reviewing? }}
-          <a class="list-group-item {{activeWhenEq key ../unitIndex}}"
+          <a class="unit list-group-item {{activeWhenEq key ../unitIndex}}"
+            id="{{value._id}}"
             href="{{pathFor 'view' id=../courseId slug=../slug nth=key}}">
             {{value.title}}
           </a>
@@ -124,6 +127,24 @@
 <template name="view">
   {{> studyNav }}
   <div class="panel panel-default">
+    {{#if isInRole 'editor'}}
+    <div class="edit-options">
+      <div class="dropdown">
+        <span class="dropdown-toggle glyphicon glyphicon-cog"
+          data-toggle="dropdown"></span>
+        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+          {{#if editable}}
+            <li><a href="#" id="lock-edit">Lock edit mode</a></li>
+          {{else}}
+            <li><a href="#" id="unlock-edit">Unlock edit mode</a></li>
+          {{/if}}
+          <li><a href="#" id="upload-stencils">Upload stencils</a></li>
+          <li class="divider"></li>
+          <li><a href="#" id="delete-unit">Delete unit</a></li>
+        </ul>
+      </div>
+    </div>
+    {{/if}}
     <div class="panel-heading">
       {{#if editTitle}}
         {{#autofocus}}
@@ -142,6 +163,7 @@
         {{/autofocus}}
       {{else}}
         <div class="unit-content">
+
           {{#if content}}
             {{#markdown}}{{content}}{{/markdown}}
           {{else}}
