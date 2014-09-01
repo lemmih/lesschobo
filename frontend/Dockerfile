@@ -1,7 +1,17 @@
-# FROM phusion/passenger-nodejs
-FROM golden/meteor-dev
+FROM phusion/passenger-nodejs
+# FROM golden/meteor-dev
+# FROM node
 
-# RUN apt-get update && apt-get install -y phantomjs
+RUN apt-get update
+RUN apt-get -y dist-upgrade
+RUN apt-get install -y curl
+RUN curl https://install.meteor.com/ | sh
+WORKDIR /opt/application
+
+
+
+
+# RUN apt-get update && apt-get install -y phantomjs nodejs
 
 ADD .meteor/packages /tmp/app/.meteor/packages
 ADD .meteor/release /tmp/app/.meteor/release
@@ -14,6 +24,7 @@ ADD . /tmp/app/
 RUN meteor bundle --directory /opt/application/
 
 WORKDIR /opt/application/
+RUN (cd programs/server && npm install)
 
 EXPOSE 3000
 
