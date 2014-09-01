@@ -12,10 +12,7 @@ instantiateChineseCard = function(card) {
         block.isActive   = false;
         if( !block.isEscaped ) {
           // XXX: Use pinyin from stencil notes.
-          block.selectedPinyin =
-            _.uniq(_.map(block.definitions, function(obj) {
-              return obj.pinyin;
-            }));
+          block.selectedPinyin = _.uniq(_.pluck(block.definitions, 'pinyin'));
         }
       }
     }
