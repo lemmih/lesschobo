@@ -6,18 +6,17 @@
 coffeescript
 backbone
 http
-iron-router
 accounts-base
 accounts-ui
 email
 accounts-password
-bootstrap-3
 standard-app-packages
 jquery
-auto-nprogress
 showdown
-cookie
-iron-router-ga
 alanning:roles
 mrt:jquery-ui-sortable
+iron:router
+ian:bootstrap-3
+chuangbo:cookie
+reywood:iron-router-ga
 

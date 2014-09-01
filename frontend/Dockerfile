@@ -1,12 +1,15 @@
 # FROM phusion/passenger-nodejs
 FROM golden/meteor-dev
 
-ADD smart.json /tmp/app/
+# RUN apt-get update && apt-get install -y phantomjs
+
+ADD .meteor/packages /tmp/app/.meteor/packages
+ADD .meteor/release /tmp/app/.meteor/release
 WORKDIR /tmp/app/
-RUN mrt install
+# This is a hack to force meteor to install the dependencies.
+RUN meteor bundle tmp.tgz
 
 ADD . /tmp/app/
-RUN mrt install
 
 RUN meteor bundle --directory /opt/application/
 
