@@ -24,6 +24,26 @@ Template.autofocus.rendered = function () {
   $(".autofocus").focus();
 };
 
+var templateUniqueId = 0;
+Template.expandable.created = function () {
+  this.templateInstanceId = templateUniqueId++;
+  var ident = 'visible'+this.templateInstanceId;
+  Session.set(ident, false);
+}
+Template.expandable.toggle = function () {
+  var self = UI._templateInstance().templateInstanceId;
+  return Session.equals('visible'+self, false);
+}
+Template.expandable.unique = function () {
+  return UI._templateInstance().templateInstanceId;
+}
+Template.expandable.events({
+  'click a': function (evt, tmpl) {
+    var ident = 'visible'+tmpl.templateInstanceId;
+    Session.set(ident, Session.equals(ident, false));
+  }
+});
+
 getTempUserId = function () {
   return Cookie.get('temp-userid');
 };
