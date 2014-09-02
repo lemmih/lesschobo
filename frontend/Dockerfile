@@ -11,7 +11,7 @@ WORKDIR /opt/application
 
 
 
-# RUN apt-get update && apt-get install -y phantomjs nodejs
+RUN apt-get install -y phantomjs
 
 ADD .meteor/packages /tmp/app/.meteor/packages
 ADD .meteor/release /tmp/app/.meteor/release
