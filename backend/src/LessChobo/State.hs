@@ -220,7 +220,7 @@ instantiateContent :: Stencil -> UTCTime -> State User (Maybe CardContent)
 instantiateContent (Chinese chinese english) now = do
     let rows = zip (T.lines chinese) (T.lines (T.unlines english) ++ repeat T.empty)
     sentences <- forM rows $ \(line, hint) -> do
-      blocks <- forM (dropSeparator $ tokenizer ccDict line) $ \token ->
+      blocks <- forM (dropSeparator $ tokenizer' ccDict line) $ \token ->
         case token of
           KnownWord entry -> do
             let feat = MandarinWordFeature (entryChinese entry)
