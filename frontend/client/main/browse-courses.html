@@ -1,11 +1,33 @@
 <template name="browseCourses">
-  Browes courses.
-  <ul>
+  <ul class="course-list">
     {{#each courses}}
       <li>
-        <a href="{{pathFor 'view' id=_id slug='slug' nth=0}}">
-          {{title}}
-        </a>
+        <div class="panel panel-default">
+          <a href="#" class="subscribe-box">
+            Follow
+          </a>
+          <div class="link-container">
+            <a class="course-link bg-blue white"
+              href="{{pathFor 'view' id=_id slug='slug' nth=0}}">
+              {{title}}
+            </a>
+          </div>
+          <div class="course-body">
+            <div class="panel-body">
+              {{#if description}}
+                {{description}}
+              {{else}}
+                No description for this course.
+              {{/if}}
+            </div>
+            <div class="course-item-footer">
+              <span>N<br/>followers</span>
+              <span>N%<br/>mastered</span>
+              <span>N%<br/>seen</span>
+            </div>
+            <div style="clear: both;"></div>
+          </div>
+        </div>
       </li>
     {{/each}}
   </ul>

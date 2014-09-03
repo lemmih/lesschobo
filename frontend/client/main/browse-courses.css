@@ -1,0 +1,85 @@
+ul.course-list {
+  margin: 0;
+  padding: 0;
+  display: inline;
+  list-style: none;
+}
+ul.course-list li {
+  display: inline;
+  float: left;
+  padding: 1em;
+  height: 20em;
+  width: 22em;
+}
+ul.course-list div.panel {
+  width: 20em;
+  position: absolute;
+}
+ul.course-list div.panel:hover {
+  z-index: 1;
+}
+ul.course-list div.panel .subscribe-box {
+  float: right;
+  border-left: 1px solid #ddd;
+  border-bottom: 1px solid #ddd;
+  border-bottom-left-radius: 4px;
+  border-top-right-radius: 4px;
+  padding: 5px;
+  display: block;
+  display: none;
+}
+ul.course-list div.panel .subscribe-box:hover {
+  background: aliceblue;
+}
+
+ul.course-list div.panel .link-container {
+  border-bottom: 1px solid #ddd;
+}
+ul.course-list div.panel .link-container .label {
+  margin-left: 5px;
+}
+
+ul.course-list div.panel a.course-link {
+  border-top-left-radius: 4px;
+  border-top-right-radius: 4px;
+  padding: 10px;
+  padding-left: 15px;
+  padding-right: 15px;
+  display: block;
+  font-size: 130%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: white;
+}
+ul.course-list div.panel a.course-link:hover {
+  text-decoration: none;
+  overflow: visible;
+  text-overflow: clip;
+  white-space: normal;
+}
+
+ul.course-list div.course-body {
+}
+
+ul.course-list div.panel-body {
+  height: 10em;
+  width: 20em;
+  min-height: 10em;
+  overflow: hidden;
+}
+ul.course-list .course-body:hover div.panel-body {
+  height: auto;
+  z-index: 10;
+}
+ul.course-list div.course-item-footer {
+  border-top: 1px solid #ddd;
+}
+ul.course-list div.course-item-footer span {
+  text-align: center;
+  width: calc(100% / 3);
+  float: left;
+}
+ul.course-list div.course-item-footer span:not(:first-child) {
+  border-left: 1px solid #ddd;
+}

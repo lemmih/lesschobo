@@ -10,12 +10,14 @@
             to review. }}
         <a 
           data-toggle="tooltip" data-placement="top"
-          title="Review of previously studied material is necessary."
+          title="Review of previously studied material."
           href="{{pathFor 'review' id=courseId slug=slug}}"
           class="list-group-item list-group-item-success">
           <center>Review</center>
         </a>
+      </div>
 
+      <div class="list-group unit-list">
         {{#each key_value course.units}}
           {{! How do we highlight the active unit when reviewing? }}
           <a class="unit list-group-item {{activeWhenEq key ../unitIndex}}"

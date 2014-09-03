@@ -4,3 +4,7 @@
   box-sizing:border-box;
   -moz-box-sizing:border-box; /* Firefox */
 }
+body {
+  /*background: url('/sos.png');*/
+}
+
