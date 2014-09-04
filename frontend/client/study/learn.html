@@ -1,4 +1,45 @@
 <template name="learnLayout">
+  <div class="modal fade" id="uploadModal" tabindex="-1"
+    role="dialog" aria-labelledby="helpModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          Upload JSON file containing stencils.
+        </div>
+        <div class="modal-body">
+          <div class="fileupload fileupload-new" data-provides="fileupload">
+            <span class="btn btn-file">
+              <input name="stencils"
+                class="file-upload-input"
+                method="file-upload.method"
+                accept="text/json"
+                type="file"/>
+            </span>
+          </div>
+          {{#if jsonError}}
+            Parse error: {{jsonError}}
+          {{else}}
+            {{#if jsonUpload}}
+              File accepted.
+            {{else}}
+            {{/if}}
+          {{/if}}
+        </div>
+        <div class="modal-footer">
+          {{#if jsonUpload}}
+            <button type="button" class="btn btn-success activate-stencils"
+              data-loading-text="Uploading..."
+              >Upload stencils: {{jsonUpload.nStencils}}</button>
+          {{/if}}
+          <button type="button" class="btn btn-default"
+            data-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
   {{> mainNav }}
   <div class="container">
     <div class="col-md-3">
@@ -140,7 +181,9 @@
           {{else}}
             <li><a href="#" id="unlock-edit">Unlock edit mode</a></li>
           {{/if}}
-          <li><a href="#" id="upload-stencils">Upload stencils</a></li>
+          <li><a href="#" id="upload-stencils"
+            data-toggle="modal" data-target="#uploadModal"
+            >Upload stencils</a></li>
           <li class="divider"></li>
           <li><a href="#" id="delete-unit">Delete unit</a></li>
         </ul>

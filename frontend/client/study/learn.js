@@ -125,6 +125,8 @@ function enableSortable(context) {
         Courses.update(course._id,
           {'$set': {'units': newUnits} });
         $(this).sortable('cancel');
+        // Let the backend know about the unit ordering.
+        Meteor.call('putCourse', course._id, newOrder, function(){});
 
         var selectedUnitId = course.units[parseInt(context.unitIndex)]._id;
         var selectedUnitIdx = _.indexOf(newOrder, selectedUnitId);
@@ -190,10 +192,55 @@ Template.final.events({
 });
 
 
-
+Template.learnLayout.created = function() {
+  Session.set('json-upload', undefined);
+  Session.set('json-error', undefined);
+}
 Template.learnLayout.activeWhenEq = function (a, b) {
   return a == b ? "active" : "";
 };
+Template.learnLayout.jsonUpload = function () {
+  return Session.get('json-upload');
+}
+Template.learnLayout.jsonError = function () {
+  return Session.get('json-error');
+}
+Template.learnLayout.events({
+  'click .activate-stencils': function(event, template) {
+    var json = Session.get('json-upload').json;
+    var unitId = template.data.course.units[template.data.unitIndex]._id;
+    $(event.target).button('loading');
+    Meteor.call('putUnit', unitId, json, function () {
+      $(event.target).button('reset');
+      $('#uploadModal').modal('hide');
+    });
+  },
+  'change .file-upload-input': function(event, template) {
+    var func = this;
+    var file = event.currentTarget.files[0];
+    var reader = new FileReader();
+    Session.set('json-upload',undefined);
+    Session.set('json-error', undefined);
+
+    if(file) {
+      reader.onload = function(fileLoadEvent) {
+        try{
+          var json = JSON.parse(reader.result);
+          Session.set('json-upload',
+            { json: json
+            , nStencils: json.length }
+          );
+        } catch(e) {
+          Session.set('json-error', e.message);
+        }
+        //console.log('file-upload', file, reader.result);
+        //Meteor.call('file-upload', file, reader.result);
+      };
+      reader.readAsText(file);
+    }
+  }
+});
+
 
 Template.studyNav.nextIdx = function () {
   if( !this.course ) return 0;

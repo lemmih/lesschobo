@@ -34,13 +34,13 @@ Meteor.methods({
       {data: response, params: {key: 'value'}});
   },
 
-  putCourse: function(course) {
+  putCourse: function(courseId, unitIds) {
     // FIXME: Fail if course is malformed.
     // XXX: Limit this call to admins/authors.
     HTTP.call(
       'PUT',
-      path+'/courses/'+course._id,
-      {data: _.map(course.units, function(u){ return u._id; })});
+      path+'/courses/'+courseId,
+      {data: unitIds });
   },
   putUnit: function(unitId, stencils) {
     // XXX: Limit this call to admins/authors.
