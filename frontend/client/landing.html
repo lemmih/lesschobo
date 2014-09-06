@@ -1,62 +1,80 @@
 <template name="landing">
   {{> mainNav }}
-  <article style="padding-bottom: 50px;">
-    <section class="logo">
-      <div class="container">
-        <div class="row">
-          <div class="col-sm-6 col-sm-offset-3">
-            <h1>What would you like to learn?</h1>
-          </div>
-        </div>
-      </div>
-    </section>
-    
+
+  <article>
     <section class="call-to-action">
-      <div class="container">
-        <div class="row course-list-preview">
-          <div class="col-sm-4 col-sm-offset-2 course-container cn">
-            <div class="course">
-              <a href="{{pathFor 'view' id='rPCP6dGNuzw6drGTm' slug='comprehensive_mandarin' nth=0}}">
-                <div class="media">中文</div>
-                <span>Learn Mandarin</span>
-              </a>
+      <h1>Read a story, learn Chinese.</h1>
+
+      <a href="{{watermelonPath}}">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-5 col-sm-push-5">
+              <br/>
+              <ul>
+                <li>Beginner story, around 75 unique words.</li>
+                <li>See examples of each word as you practice.</li>
+                <li>Built-in dictionary to help when in doubt.</li>
+                <li>Never forget. Everything you learn will be reviewed.</li>
+              </ul>
             </div>
-          </div>
-          <div class="col-sm-4 course-container">
-            <div class="course">
-              <a href="{{pathFor 'view' id='yrjsmLpn3gs9GSip3' slug='sherlock_holmes' nth=0}}">
-                <div class="media">故事</div>
-                <span>Read Chinese Stories</span>
-              </a>
+            <div class="col-sm-3 col-sm-offset-3 col-sm-pull-6 title">
+              <h1>西瓜</h1><br/>
+              Read story &ldquo;Watermelon&rdquo;
             </div>
           </div>
         </div>
-        <!-- <div class="row course-list-preview">
-          <div class="col-sm-4 col-sm-offset-2 course-container">
-            <div class="course">
-              <a href="{{pathFor 'home'}}">
-                <div class="media">∏ ∑</div>
-                <span>Learn Mental Arithmetic</span>
-              </a>
+      </a>
+
+      <a href="{{umbrellaPath}}">
+        <div class="container">
+          <br/><br/>
+
+          <div class="row">
+            <div class="col-sm-5 col-sm-push-5">
+              <br/>
+              <ul>
+                <li>Beginner story, around 85 unique words.</li>
+                <li>Re-use every relevant word from the previous story.</li>
+                <li>Gradually build your vocabulary.</li>
+                <li>Small, achievable goals - like reading a short story -
+                  help you feel motivated and productive.</li>
+              </ul>
             </div>
-          </div>
-          <div class="col-sm-4 course-container">
-            <div class="course">
-              <a href="{{pathFor 'home'}}">
-                <div class="media">♠♥♦♣</div>
-                <span>Learn Poker Skills</span>
-              </a>
+            <div class="col-sm-3 col-sm-offset-3 col-sm-pull-6 title">
+              <h1>小伞花</h1><br/>
+              Read story &ldquo;Umbrella Flowers&rdquo;
             </div>
-          </div>
-        </div> -->
-        <div class="row browse">
-          <div class="col-sm-4 col-sm-offset-4">
-            <a class="btn btn-primary"
-              href="{{pathFor 'browseCourses'}}">View more courses</a>
           </div>
         </div>
-      </div>
+      </a>
+
+      <br/><br/>
+      <center>
+        <h3>For the serious learner:</h3>
+      </center>
+
+      <a href="{{hskPath}}">
+        <div class="container">
+          <div class="row">
+            <div class="col-sm-5 col-sm-push-5">
+              <br/>
+              <ul>
+                <li>HSK: Chinese Proficieny Test (aka Chinese Standard Exam)</li>
+                <li>Vocabulary illustrated by 20,000+ example phrases.</li>
+                <li>Fastest and most difficult way to learn Mandarin Chinese.</li>
+              </ul>
+            </div>
+            <div class="col-sm-3 col-sm-offset-3 col-sm-pull-6 title">
+              <h1>汉语水平考试</h1><br/>
+              Study for the HSK exam
+            </div>
+          </div>
+        </div>
+      </a>      
     </section>
+
+
+
 
     <!-- The Why of LC. Describe the problem. -->
     <section class="card">

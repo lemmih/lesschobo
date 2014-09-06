@@ -9,7 +9,7 @@ Template.review.studyTemplate = function () {
   if ( Session.equals('loading', true) )
     return 'studyLoading';
   // empty(cards) === true
-  return 'studyFinished';
+  return 'studyFinishedReview';
 }
 
 Template.studyCourse.created = function () {

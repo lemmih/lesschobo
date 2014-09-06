@@ -6,5 +6,12 @@
 }
 body {
   /*background: url('/sos.png');*/
+  /*background: #ddd;*/
+}
+nav.navbar {
+  /*background: #0074D9;*/
+}
+nav.navbar * {
+  /*color: white !important;*/
 }
 

@@ -1,62 +1,56 @@
-.logo {
-  text-align: center;
-}
-.call-to-action {
-  text-align: center;
-}
-.call-to-action .course-container {
-  padding: 1em;
-}
-.call-to-action .course {
-  border: 1px solid black;
-  border-radius: 4px;
-  max-width: 15em;
-  margin-left: auto;
-  margin-right: auto;
-  background: aliceblue;
-}
-.call-to-action .course:hover {
-  background: #DDDDDD;
-}
-.call-to-action .course .media {
-  min-height: 150px;
-  font-size: 500%;
-  padding-top: 25px;
-}
-.call-to-action .course button {
+article {
   width: 100%;
-  border: 0px;
+  height: 100%;
 }
-.call-to-action .course a {
-  text-decoration: none;
-  color: black;
-  /* z-index: -1; */
+section.call-to-action {
+  min-height: 95vh;
+  /*background: #0074d9;*/
+  color: #111;
+  background: #0074d9;
+  background: linear-gradient(135deg, #0074d9 0%,#7db9e8 100%);
+  /*margin-bottom: 50px;*/
+  padding-bottom: 20px;
 }
-.call-to-action .course span {
-  /*background-color: #ccc;*/
-  display: block;
+section.call-to-action a {
+  color: #111;
 }
-.call-to-action .course-list-preview {
-  /* margin-bottom: 1em; */
+section.call-to-action a:hover {
+  color: #333;
 }
-.call-to-action .browse {
-  margin-top: 4em;
+section.call-to-action .title {
+  text-align: center;
 }
-.call-to-action .browse button {
+.call-to-action h1 {
+  margin-top: 0px;
+  padding-top: 1em;
+  text-align: center;
+}
+section.card:nth-child(2) {
+  /*background: #39CCCC;*/
+  /*background: #FFDC00;*/
+  /*background: #FFFF33;*/
+  /*background: #aaa;*/
+  /*background: #001F3F;*/
+  /*background: #1A8EF3;*/
+  /*background: #33A7FF;*/
+  background: #4DC1FF;
+}
+section.card:nth-child(3) {
+  background: #53E6E6;
+  background: #7FDBFF;
+  background: #33A7FF;
+  background: #4DC1FF;
+}
+section.card:nth-child(4) {
+  background: #6CFFFF;
+  background: #aaa;
+  background: #4DC1FF;
+  /*background: #33A7FF;*/
 }
 
-section.call-to-action {
-  margin-bottom: 50px;
-  padding-bottom: 20px;
-  padding-top: 50px;
-}
 section.card {
-  margin-bottom: 50px;
-  border-top: 2px solid #eee;
-  border-bottom: 2px solid #eee;
   padding-bottom: 30px;
   padding-top: 30px;
-  background-color: aliceblue;
 }
 section.card:last-child {
   margin-bottom: 0px;
