@@ -14,7 +14,7 @@ Template.landing.umbrellaPath = function () {
 };
 Template.landing.hskPath = function () {
   return Router.routes['view'].path({
-    id: 'FIXME',
+    id: 'J7bpTCDFqQpEhtNbb',
     slug: 'hsk',
     nth: 0
   });
