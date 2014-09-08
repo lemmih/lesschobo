@@ -481,6 +481,11 @@ listUsers = do
   store <- view globalUsers
   return $ listUserStore store
 
+duplicateUser :: UserId -> UserId -> Update Global ()
+duplicateUser src dst = do
+  user <- liftQuery $ requireUser src
+  globalUsers %= insertUserStore dst user
+
 exportPermaResponses :: Query Global [PermaResponse]
 exportPermaResponses = do
   responses <- view globalResponses
@@ -517,6 +522,7 @@ makeAcidic ''Global [ 'addStencil
                     --, 'updSimpleUnit
                     , 'deleteUnit
                     , 'listUnits
+                    , 'duplicateUser
                     , 'deleteAllUnits
                     , 'listUsers
                     , 'exportPermaResponses

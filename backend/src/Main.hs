@@ -67,7 +67,11 @@ main = do
          mzero
     , dir "users" $ path $ \userId -> do
       msum
-        [ dir "courses" $ msum
+        [ dir "duplicate" $ path $ \dstUserId -> do
+          method POST
+          () <- update' global $ DuplicateUser userId dstUserId
+          ok $ toResponse ()
+        , dir "courses" $ msum
           [ path $ \courseId -> msum
             [ dir "review" $ do
               liftIO $ putStrLn "review"
