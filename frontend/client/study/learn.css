@@ -16,3 +16,9 @@ input.unit-title-editable {
 .panel .edit-options span {
   padding: 0.7em;
 }
+#continueBtn {
+  min-width: 10em;
+}
+#showAnswerBtn {
+  min-width: 10em;
+}

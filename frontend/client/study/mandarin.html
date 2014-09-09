@@ -1,6 +1,6 @@
 <template name="studyMandarinCard">
 
-  <div class="modal fade" id="helpModal" tabindex="-1"
+  <div class="modal fade mandarin-help" id="helpModal" tabindex="-1"
     role="dialog" aria-labelledby="helpModalLabel" aria-hidden="true">
     <div class="modal-dialog">
       <div class="modal-content">
@@ -13,12 +13,75 @@
           >Mandarin cloze deletion exercise help</h4>
         </div>
         <div class="modal-body">
-          <p>Complete the sentence(s) by filling in the missing words.
-          Press <kbd>escape</kbd> if you do not know the word or if you
-          do not remember it.</p>
-          <p>Remember to configure your keyboard options such that you can
-            input Chinese characters.</p>
-          <p>Dictionary definitions can be selected by clicking on a word.</p>
+          <dl>
+            <dt>What is this?</dt>
+            <dd>
+              This is an exercise aimed at improving your Chinese
+              reading comprehension. You will be quizzed on individual
+              words but they're always shown in a complete sentence.
+              This way you will not only learn how to recognize Chinese
+              characters, you will also see how they're used in real
+              day-to-day situations.
+            </dd>
+            
+            <dt>How do I complete the exercise?</dt>
+            <dd>
+              A few of the words in the Chinese sentence will be missing. It
+              is your task to fill in the missing pieces. It will look a bit
+              like this:
+              <blockquote>
+                This
+                <input
+                        type="text"
+                        data-placement="top"
+                        data-content="word"
+
+                        class="mandarin-input mandarin-help"
+                        style="width: 5em;"/>
+                is missing.
+              </blockquote>
+              In the above example, you have to type in 'word'.
+            </dd>
+
+            <dt>Why is the English translation hidden?</dt>
+            <dd>
+              <p>
+                Translations are a crotch that will slow your learning if you're
+                not careful. While translations are immensely useful when you're
+                stuck, it is best to train your brain to think directly in
+                Chinese.
+              </p>
+              <p>
+                So, in short, use the translations when you're confused or in
+                doubt. But try to understand the meaning of the Chinese in its
+                own right
+              </p>
+            </dd>
+
+            <dt>Why are sometimes more than one pinyin spelling?</dt>
+            <dd>
+              Some Chinese words can be pronounced in different ways to give
+              different meanings. Selecting the right meaning automatically
+              is beyond the capabilities of this website but you can do it
+              manually. Simply click on the Chinese characters and select
+              the most sensible defintion from the pop-up dictionary.
+            </dd>
+
+            <dt>Do I have to use the mouse to continue to the next exercise?</dt>
+            <dd>
+              No, you can simply press <kbd>enter</kbd> to proceed to the next
+              exercise. The exercises have been designed such that you hands
+              never have to leave the keyboard.
+            </dd>
+
+            <dt>I don't know some of these words. Is there a dictionary?</dt>
+            <dd>
+              Yes, there's a built-in dictionary that you can open by clicking
+              on a given Chinese word. However, words that you are currently
+              practising will not show up in the dictionary because that would
+              be cheating.
+            </dd>
+          </dl>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default"
@@ -54,17 +117,18 @@
                       <input
                         type="text"
                         data-placement="top"
-                        data-content="{{chinese}} {{selectedPinyin}}"
+                        data-content="{{chinese}}"
+                        data-answer-content="{{chinese}} {{selectedPinyin}}"
 
-                        placeholder="{{chinese}}"
-                        class="mandarin-input autofocus"
+                        class="mandarin-input active-input autofocus"
                         style="width: {{len}}em;"/>
                       {{/autofocus}}
                   {{else}}
-                    <input
+                    {{chinese}}
+                    <!-- <input
                       disabled
                       placeholder="{{chinese}}"
-                      class="mandarin-input" style="width: {{len}}em;"/>
+                      class="mandarin-input" style="width: {{len}}em;"/> -->
                   {{/if}}
                 {{else}}
                   {{#if isEscaped}}

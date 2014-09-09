@@ -40,6 +40,13 @@ div.mandarin-chinese {
 div.mandarin-chinese div.popover-content {
   padding-top: 0;
   padding-bottom: 0;
+  -webkit-user-select: none;  /* Chrome all / Safari all */
+  -moz-user-select: none;     /* Firefox all */
+  -ms-user-select: none;      /* IE 10+ */
+
+  /* No support for these yet, use at own risk */
+  -o-user-select: none;
+  user-select: none;          
 }
 div.mandarin-header-active {
   transition: background 1s;
@@ -91,3 +98,15 @@ ul.mandarin-dict li li:hover {
   background-color: #ccc;
 }
 
+.mandarin-help dd {
+  margin-left: 1em;
+  margin-right: 1em;
+  padding-bottom: 1em;
+}
+.mandarin-help blockquote {
+  margin-top: 2em;
+}
+.mandarin-help div.popover-content {
+  padding-top: 0;
+  padding-bottom: 0;
+}

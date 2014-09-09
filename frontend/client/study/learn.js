@@ -155,6 +155,13 @@ Template.learnToolbar.cardClass = function () {
     default: return '';
   }
 };
+Template.learnToolbar.isCompleted = function () {
+  var card = activeCard('isCompleted');
+  if ( !card || card.status === 'completed' ) {
+    return true;
+  }
+  return false;
+};
 Template.learnToolbar.final = function () {
   var activeId = Session.get('activeCard');
   var newCard = cards.findOne({status: "active"});
@@ -177,6 +184,14 @@ Template.learnToolbar.events({
   },
   'click #showAnswerBtn': function (evt) {
     activeCard('showAnswerBtn').showAnswer();
+  },
+  'click #continueBtn': function () {
+    var activeId = Session.get('activeCard');
+    var newCard = cards.findOne({status: "active"});
+    if( !newCard )
+      Session.set('activeCard', 'final');
+    else
+      Session.set('activeCard', newCard._id);
   }
 });
 

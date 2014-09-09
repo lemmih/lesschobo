@@ -23,12 +23,17 @@ instantiateChineseCard = function(card) {
     console.log('Show answer: mandarin', this);
     
     var card = this;
-    card.shownAnswer = true;
+    if( card.showEnglish ) {
+      card.shownAnswer = true;
+      console.log('show answer')
+      var elt = $('.autofocus');
+      elt.attr('data-content', elt.attr('data-answer-content'));
+      $('.autofocus').focus();
+    } else {
+      card.showEnglish = true;
+    }
     saveCard(card);
-    console.log('show answer')
-    $('.autofocus').popover({trigger: 'focus'});
-    $('.autofocus').popover('show');
-    $('.autofocus').focus();
+
   };
 }
 
@@ -50,9 +55,6 @@ function markNextActiveBlock(card) {
   }
   card.status='completed';
   nextCard();
-  Deps.afterFlush(function() {
-    $('a.next').focus();
-  });
 }
 
 function activeBlock(card) {
@@ -69,6 +71,18 @@ function activeBlock(card) {
 }
 
 
+Template.studyMandarinCard.rendered = function () {
+  $('.mandarin-help').popover({trigger: 'manual'});
+  $('#helpModal').on('shown.bs.modal', function (e) {
+    if(! $('#helpModal div.popover').is(':visible')) {
+      $('.mandarin-help').popover('show');
+    }
+  })
+  this.autorun(function() {
+    // $('.active-input').popover({trigger: 'focus'});
+    // $('.active-input').popover('show');
+  });
+};
 Template.studyMandarinCard.activeBlock = function () {
   return activeBlock(activeCard('activeBlock'));
 };
@@ -133,14 +147,10 @@ Template.studyMandarinCard.events({
   //   saveCard(card);
   //   nextCard();
   // },
-  'keydown .mandarin-input': function (evt) {
+  'keydown .active-input': function (evt) {
     if (evt.keyCode === 27) {
       var card = activeCard('escape');
-      card.shownAnswer = true;
-      saveCard(card);
-      console.log('show answer')
-      $(evt.target).popover({trigger: 'focus'});
-      $(evt.target).popover('show');
+      card.showAnswer();
     } else if(evt.keyCode===13) {
       var card = activeCard('submit');
       var block = activeBlock(card);
@@ -159,7 +169,7 @@ Template.studyMandarinCard.events({
       if (userAnswer === block.chinese) {
         $(evt.target).popover('destroy');
         markNextActiveBlock(card);
-        card.showAnswer = false;
+        card.shownAnswer = false;
         saveCard(card);
       } else {
         console.log('incorrect', userAnswer, block.chinese);

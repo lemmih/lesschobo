@@ -22,7 +22,16 @@ Meteor.Collection.prototype.copy = function (c) {
 // to focus the element when the template is rendered.
 Template.autofocus.rendered = function () {
   $(".autofocus").focus();
+  if( $('.autofocus').attr('data-content') ) {
+    $('.autofocus').popover({trigger: 'focus'});
+    $('.autofocus').popover('show');
+  }
 };
+Template.autofocus.destroyed = function () {
+  if( $('.autofocus').attr('data-content') ) {
+    $('.autofocus').popover('destroy');
+  }
+}
 
 var templateUniqueId = 0;
 Template.expandable.created = function () {

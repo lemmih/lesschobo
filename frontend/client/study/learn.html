@@ -85,34 +85,42 @@
 <template name="learnToolbar">
   <div class="btn-toolbar" role="toolbar">
     <div class="btn-group">
-      <a class="btn btn-warning" id="showAnswerBtn">
-        Show Answer
-      </a>
-      <a class="btn btn-info"
+      {{#if isCompleted}}
+        {{#autofocus}}
+          <button class="btn btn-success autofocus" id="continueBtn">
+            Continue
+          </button>
+        {{/autofocus}}
+      {{else}}
+        <button class="btn btn-warning" id="showAnswerBtn">
+          Show Hint
+        </button>
+      {{/if}}
+      <button class="btn btn-info"
         data-toggle="modal" data-target="#helpModal">
         Help
-      </a>
+      </button>
     </div>
 
     <div class="btn-group btn-group">
       {{#each key_value cards}}
-        <a href="#"
+        <button
           class="btn btn-default learn-toolbar-card {{cardClass}}">
           {{key}}
-        </a>
+        </button>
       {{/each}}
-      <a href="#" class="btn btn-default learn-toolbar-final {{final}}">
+      <button class="btn btn-default learn-toolbar-final {{final}}">
         <span class="glyphicon glyphicon-certificate"></span>
-      </a>
+      </button>
     </div>
 
     <div class="btn-group">
       <div class="btn-group">
-        <a class="btn btn-default dropdown-toggle disabled"
+        <button class="btn btn-default dropdown-toggle disabled"
           data-toggle="dropdown">
           Options
           <span class="caret"></span>
-        </a>
+        </button>
         <ul class="dropdown-menu" role="menu">
           <li><a href="#" class="disabled">Report</a></li>
           <li><a href="#" class="disabled">Block</a></li>
