@@ -1,3 +1,4 @@
+{-# LANGUAGE NamedFieldPuns, OverloadedStrings #-}
 module Commands.Satisfy
   ( cmdSatisfy ) where
 
@@ -8,10 +9,11 @@ import           Data.List
 import qualified Data.Map                     as Map
 import           Data.Maybe
 import           Data.Ord
+import           Data.Function
 import           Data.Set                     (Set)
 import qualified Data.Set                     as Set
 import qualified Data.Text                    as T
-import Data.Text (Text)
+import Data.Text (Text, append)
 import qualified Data.Text.IO                 as T
 import qualified Data.Yaml                    as Yaml
 import           LessChobo.SimulatedAnnealing
@@ -58,14 +60,15 @@ mkStoryStencils assumedFiles inputFile = do
     assumedTexts <- mapM T.readFile assumedFiles
     let assumedWords = Set.fromList
           [ entry
-          | KnownWord entry <- tokenizer ccDict (T.concat assumedTexts)]
+          | KnownWord entry <- tokenizer' ccDict (T.concat assumedTexts)]
         textWords = nub
           [ entry
-          | KnownWord entry <- tokenizer ccDict text
+          | KnownWord entry <- tokenizer' ccDict text
           , entry `Set.notMember` assumedWords ]
         textWordsN = length textWords
 
         cover = nub $ satisfyWithStencils textWords stencils
+        coverStencils = nubBy ((==) `on` stencilChinese) $ rights cover
         totalWords = length cover
         coveredWords = length $ rights cover
         coveredWordsP = (coveredWords*100) `div` totalWords
@@ -73,50 +76,31 @@ mkStoryStencils assumedFiles inputFile = do
         
         
         stencilWords = nub
-          [ entry | Chinese chinese _english <- rights cover
-          , KnownWord entry <- tokenizer ccDict chinese ]
+          [ entry | Chinese{stencilChinese} <- rights cover
+          , KnownWord entry <- tokenizer' ccDict stencilChinese ]
         superfluousWords = length (stencilWords \\ textWords)
         superfluousWordsP =
           ((superfluousWords)*100) `div` textWordsN
     printf "Word coverage:     %3d%% (missing %d)\n" coveredWordsP missingWords
     printf "Superfluous words: %3d%% (%d)\n" superfluousWordsP superfluousWords
     putStrLn "Sorting stencils..."
-    let sorted = map fst $ sortStencilsByCost $ rights cover
+    let sorted = map fst $ sortStencilsByCost $ coverStencils
     Yaml.encodeFile outputFile sorted
     putStrLn $ "Stencils written to: " ++ outputFile
   where
     outputFile = inputFile <.> "yaml"
 
---testSatisfy :: IO ()
---testSatisfy = do
---    stencils <- concat <$> mapM loadStencils paths
---    text <- T.readFile "../data/cn_story.pigs_picnic.txt"
---    --text <- T.readFile "../data/cn_story.doctor_monkey.txt"
---    --text <- T.readFile "../data/cn_story.foolish_affair.txt"
---    --text <- T.readFile "../data/cn_story.umbrella_flowers.txt"
---    let cover = satisfyWithStencils text stencils
---    print $ length $ nub $ lefts $ satisfyWithStencils text stencils
---    print $ length $ nub $ rights $ satisfyWithStencils text stencils
---    mapM_ T.putStrLn $ nub [ word | Left word <- satisfyWithStencils text stencils ]
---    -- mapM_ T.putStrLn $ nub [ chinese | Right (Chinese chinese _) <- cover ]
---    seed <- withSystemRandom $ asGenIO save
---    --let sorted = sortStencilsWithSA seed (nub $ rights cover)
---    -- mapM_ T.putStrLn $ nub [ chinese | Chinese chinese _ <- sorted ]
---    return ()
---  where
---    paths =
---      ["../data/cn_stencils.yaml"
---      ,"../data/cn_stencils.3800.yaml"
---      ,"../data/cn_stencils.20000.yaml"
---      ,"../data/cn_stencils.chinesepod.basic.yaml"
---      ,"../data/cn_stencils.rocket.yaml"
---      ,"../data/cn_stencils.livelingua.yaml" ]
 
 satisfyWithStencils :: [Entry] -> [Stencil] -> [Either Chinese Stencil]
 satisfyWithStencils entries stencils =
     [ case Map.lookup entry keyMap of
         Nothing       -> Left (entryChinese entry)
-        Just covers -> Right (selectCheapest $ Set.toList covers)
+        Just covers ->
+          let cheapest = selectCheapest $ Set.toList covers in
+          let cost = phraseFreqCost seen (tokenizer' ccDict (stencilChinese cheapest)) in
+          Right cheapest
+          { stencilComment = "Covers: " `append` entryChinese entry `append`
+            ". Cost: " `append` T.pack (show cost) }
     | entry <- entries ]
   where
     seen = Set.fromList (map entryChinese entries)
@@ -124,8 +108,8 @@ satisfyWithStencils entries stencils =
     selectCheapest = fst . head . sortStencilsByFrequency seen
     keyMap = Map.fromListWith Set.union
       [ (entry, Set.singleton stencil)
-      | stencil@(Chinese chinese _english) <- stencils
-      , KnownWord entry <- tokenizer ccDict chinese ]
+      | stencil <- stencils
+      , KnownWord entry <- tokenizer' ccDict (stencilChinese stencil) ]
 
 
 
@@ -174,8 +158,8 @@ sortStencilsByCost stencils =
     worker (0::Int) Set.empty Set.empty Set.empty initCostMap
   where
     allStencilKeys =
-      [ (stencil, tokenizer ccDict chinese)
-      | stencil@(Chinese chinese _) <- stencils ]
+      [ (stencil, tokenizer' ccDict stencilChinese)
+      | stencil@Chinese{stencilChinese} <- stencils ]
     initCostMap = Map.fromList
       [ (key, phraseCost Set.empty Set.empty token)
       | key@(_stencil, token) <- allStencilKeys ]
@@ -218,8 +202,8 @@ sortStencilsByCost stencils =
 sortStencilsByFrequency :: Set Text -> [Stencil] -> [(Stencil, Double)]
 sortStencilsByFrequency seen0 stencils =
   worker seen0
-    [ (stencil, tokenizer ccDict chinese)
-    | stencil@(Chinese chinese _) <- stencils ]
+    [ (stencil, tokenizer' ccDict stencilChinese)
+    | stencil@Chinese{stencilChinese} <- stencils ]
   where
     worker seen lst =
       case sortBy (comparing snd)
@@ -264,6 +248,6 @@ wordFrequency :: T.Text -> Double
 wordFrequency txt =
   case Map.lookup txt subtlex of
     Just entry -> subtlexWMillion entry
-    Nothing -> foldr min 0 $ catMaybes
+    Nothing -> foldr max 1 $ catMaybes
       [ fmap subtlexWMillion (Map.lookup chunk subtlex)
       | chunk <- T.chunksOf 1 txt ]

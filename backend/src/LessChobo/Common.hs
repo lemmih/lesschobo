@@ -12,3 +12,4 @@ type ResponseId = UniqueId
 type Chinese = Text
 type Pinyin  = Text
 type English = Text
+type Comment = Text

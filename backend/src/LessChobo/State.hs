@@ -217,7 +217,7 @@ dropSeparator = filter (not . isTokenSeparator)
     isTokenSeparator _ = False
 
 instantiateContent :: Stencil -> UTCTime -> State User (Maybe CardContent)
-instantiateContent (Chinese chinese english) now = do
+instantiateContent (Chinese chinese english _comment) now = do
     let rows = zip (T.lines chinese) (T.lines (T.unlines english) ++ repeat T.empty)
     sentences <- forM rows $ \(line, hint) -> do
       blocks <- forM (dropSeparator $ tokenizer' ccDict line) $ \token ->

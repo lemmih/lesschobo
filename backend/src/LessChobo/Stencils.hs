@@ -36,12 +36,14 @@ import           Data.Typeable
 
 
 data Stencil
-  = Chinese        Chinese [English]
-  -- | ChineseChunked [Chinese] [[English]]
+  = Chinese
+  { stencilChinese :: Chinese
+  , stencilEnglish :: [English]
+  , stencilComment :: Comment }
   deriving ( Eq, Ord, Read, Show, Typeable )
 
 features :: Stencil -> Set Feature
-features (Chinese chinese _english) = Set.fromList
+features Chinese{stencilChinese=chinese} = Set.fromList
   [ MandarinWordFeature (entryChinese entry) | KnownWord entry <- tokenizer ccDict chinese ]
 
 schedule :: Stencil -> Reader User (Maybe UTCTime)
@@ -68,15 +70,23 @@ typed ty pairs = Aeson.object (("type" .=. ty) : pairs)
 instance ToJSON Stencil where
   toJSON stencil =
     case stencil of
-      Chinese chinese english -> typed "chinese"
+      Chinese chinese english "" -> typed "chinese"
         [ "chinese" .=. chinese
         , "english" .=. english ]
+      Chinese chinese english comment -> typed "chinese"
+        [ "chinese" .=. chinese
+        , "english" .=. english
+        , "comment" .=. comment ]
 
 instance FromJSON Stencil where
   parseJSON = withObject "Stencil" $ \o -> do
     ty <- o .: "type"
     case ty of
-      "chinese" -> Chinese <$> o.:"chinese" <*> o.:? "english" .!= []
+      "chinese" ->
+        Chinese
+          <$> o.:"chinese"
+          <*> o.:? "english" .!= []
+          <*> o.:? "comment" .!= ""
       _other    -> fail $ "Unknown stencil type: " ++ ty
 
 
