@@ -7,6 +7,7 @@ module Main ( main ) where
 import           LessChobo.Common
 import           LessChobo.Responses
 import           LessChobo.State
+import DB
 
 import           Control.Applicative
 import           Control.Concurrent
@@ -16,15 +17,18 @@ import           Control.Monad.Fix
 import           Control.Monad.Trans
 import           Data.Acid
 import           Data.Acid.Advanced
-import qualified Data.Aeson          as Aeson
+import qualified Data.Aeson               as Aeson
 import           Data.Maybe
-import qualified Data.Text           as T
+import qualified Data.Text                as T
+import qualified Data.ByteString.Char8 as B
 import           Data.Time
+import qualified Database.PostgreSQL.Simple as PSQL
 import           Database.MongoDB
+import Data.Pool
 import           Debug.Trace
-import           Happstack.Server    hiding (Host, Response)
-import           Network.URI         (URI (..), URIAuth (..), parseURI,
-                                      uriAuthority)
+import           Happstack.Server         hiding (Host, Response)
+import           Network.URI              (URI (..), URIAuth (..), parseURI,
+                                           uriAuthority)
 import           System.Environment
 import           System.IO.Error
 
@@ -50,8 +54,17 @@ getMongoAddr = do
     addr <- readHostPortM (uriRegName auth ++ uriPort auth)
     return (addr, T.pack $ tail $ uriPath uri)
 
+mkDatabasePool :: IO (Pool PSQL.Connection)
+mkDatabasePool = do
+  dbAddr <- getEnv "SQL_DB" `catchIOError` \_ -> return "host=localhost user=postgres"
+  createPool (PSQL.connectPostgreSQL (B.pack dbAddr)) PSQL.close
+    1 -- One stripe.
+    (60*60) -- Keep connections open for an hour.
+    5 -- Max five connections per stripe.
+
 main :: IO ()
 main = do
+  pool <- mkDatabasePool
   (mongoHost, database) <- getMongoAddr
   pipe <- connect mongoHost
   global <- openChobo
@@ -100,6 +113,8 @@ main = do
       method PUT
       unitList <- jsonBody
       () <- update' global $ PutCourse courseId unitList
+      liftIO $ runDB pool $ \conn ->
+        postCourse conn courseId unitList
       ok $ toResponse ()
 
     , dir "units" $ path $ \unitId -> do
@@ -107,6 +122,8 @@ main = do
       method PUT
       stencils <- jsonBody
       () <- update' global $ PutUnit unitId stencils
+      liftIO $ runDB pool $ \conn ->
+        postUnit conn unitId stencils
       ok $ toResponse ()
     ]) `finally` closeAcidState global
   where

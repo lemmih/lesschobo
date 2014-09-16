@@ -12,6 +12,7 @@ DROP TABLE IF EXISTS Schedule CASCADE;
 DROP TABLE IF EXISTS Units CASCADE;
 DROP TABLE IF EXISTS UnitMembers CASCADE;
 DROP TABLE IF EXISTS Inherit CASCADE;
+DROP FUNCTION IF EXISTS post_stencil();
 DROP VIEW IF EXISTS UserCourses CASCADE;
 DROP VIEW IF EXISTS Courses CASCADE;
 
@@ -23,10 +24,44 @@ CREATE TABLE Users
 
 CREATE TABLE Stencils
   ( id      uuid PRIMARY KEY
-  , type    text
   , content text
-  , UNIQUE (type, content)
+  , UNIQUE (content)
   );
+
+CREATE OR REPLACE VIEW StencilsView AS
+  SELECT id, content
+  FROM Stencils;
+
+CREATE OR REPLACE FUNCTION post_stencil() RETURNS trigger AS
+$$
+DECLARE
+  rec Stencils%ROWTYPE;
+BEGIN
+  LOOP
+    SELECT id INTO rec FROM Stencils WHERE content = NEW.content;
+    IF FOUND THEN
+      NEW.id := rec.id;
+      RETURN NEW;
+    ELSE
+      BEGIN
+        INSERT INTO Stencils (id, content)
+          VALUES (uuid_generate_v4(), NEW.content) RETURNING id INTO NEW.id;
+        RETURN NEW;
+      EXCEPTION
+        WHEN unique_violation THEN
+          NULL;
+      END;
+    END IF;
+  END LOOP;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER stencil_trigger
+  INSTEAD OF INSERT ON StencilsView
+  FOR EACH ROW
+  EXECUTE PROCEDURE post_stencil();
+
 
 CREATE TABLE StencilIssues
   ( stencil_id uuid REFERENCES Stencils(id)
@@ -37,10 +72,48 @@ CREATE TABLE StencilIssues
 
 CREATE TABLE Features
   ( id      uuid PRIMARY KEY
-  , type    text
   , content text
-  , UNIQUE (type, content)
   );
+
+CREATE OR REPLACE VIEW FeaturesView AS
+  SELECT id, content
+  FROM Features;
+
+CREATE OR REPLACE FUNCTION post_feature() RETURNS trigger AS
+$$
+DECLARE
+  rec Features%ROWTYPE;
+BEGIN
+  LOOP
+    SELECT id INTO rec FROM Features WHERE content = NEW.content;
+    IF FOUND THEN
+      NEW.id := rec.id;
+      RETURN NEW;
+    ELSE
+      BEGIN
+        INSERT INTO Features (id, content)
+          VALUES (uuid_generate_v4(), NEW.content) RETURNING id INTO NEW.id;
+        RETURN NEW;
+      EXCEPTION
+        WHEN unique_violation THEN
+          NULL;
+      END;
+    END IF;
+  END LOOP;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER feature_trigger
+  INSTEAD OF INSERT ON FeaturesView
+  FOR EACH ROW
+  EXECUTE PROCEDURE post_feature();
+
+
+
+
+
+
 
 CREATE TABLE StencilFeatures
   ( stencil_id uuid REFERENCES Stencils(id)
@@ -178,8 +251,8 @@ INSERT INTO Stencils VALUES ( :'id2' );
 INSERT INTO Stencils VALUES ( :'id3' );
 INSERT INTO Stencils VALUES ( :'id4' );
 
-INSERT INTO Features VALUES ( :'id5', 'f1', '');
-INSERT INTO Features VALUES ( :'id6', 'f2', '');
+INSERT INTO Features VALUES ( :'id5', 'f1');
+INSERT INTO Features VALUES ( :'id6', 'f2');
 
 INSERT INTO StencilFeatures VALUES ( :'id1', :'id5' );
 INSERT INTO StencilFeatures VALUES ( :'id1', :'id6' );
