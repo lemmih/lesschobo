@@ -8,6 +8,7 @@ import           LessChobo.Common
 import           LessChobo.Responses
 import           LessChobo.State
 import DB
+import Logic
 
 import           Control.Applicative
 import           Control.Concurrent
@@ -67,12 +68,12 @@ main = do
   pool <- mkDatabasePool
   (mongoHost, database) <- getMongoAddr
   pipe <- connect mongoHost
-  global <- openChobo
+  --global <- openChobo
 
-  forkIO $ forever $ do
-    updCourseStats global pipe database `catch` \e -> do
-      putStrLn $ "Caught exception: " ++ show (e :: SomeException)
-    threadDelay (round (1e6 :: Double))
+  --forkIO $ forever $ do
+  --  updCourseStats global pipe database `catch` \e -> do
+  --    putStrLn $ "Caught exception: " ++ show (e :: SomeException)
+  --  threadDelay (round (1e6 :: Double))
 
   simpleHTTP nullConf (msum
     [ do -- decodeBody (defaultBodyPolicy "/tmp/" maxSize maxSize maxSize)
@@ -80,21 +81,19 @@ main = do
          mzero
     , dir "users" $ path $ \userId -> do
       msum
-        [ dir "duplicate" $ path $ \dstUserId -> do
+        [ {-dir "duplicate" $ path $ \dstUserId -> do
           method POST
           () <- update' global $ DuplicateUser userId dstUserId
           ok $ toResponse ()
-        , dir "courses" $ msum
+        , -}dir "courses" $ msum
           [ path $ \courseId -> msum
             [ dir "review" $ do
               liftIO $ putStrLn "review"
-              now <- liftIO getCurrentTime
-              cards <- query' global $ DrawRepetitionCards now userId courseId
+              cards <- liftIO $ runDB pool $ \conn -> drawReviewCards conn userId courseId
               ok $ toResponse $ Aeson.toJSON cards
             , path $ \unitIdx -> do
               liftIO $ putStrLn "study"
-              now <- liftIO getCurrentTime
-              cards <- query' global $ DrawCards now userId courseId unitIdx
+              cards <- liftIO $ runDB pool $ \conn -> drawStudyCards conn userId courseId unitIdx
               ok $ toResponse $ Aeson.toJSON cards
             ]
           ]
@@ -102,17 +101,19 @@ main = do
     , dir "responses" $ do
       method POST
       response <- jsonBody
-      () <- update' global $ AddResponse response
+      liftIO $ runDB pool $ \conn ->
+        Logic.addResponse conn response
       ok $ toResponse ()
     , dir "responses" $ do
       method GET
-      lst <- query' global ExportPermaResponses
-      ok $ toResponse $ Aeson.toJSON lst
+      --lst <- query' global ExportPermaResponses
+      lst <- error "ExportPermaResponses"
+      ok $ toResponse $ Aeson.toJSON (lst :: [()])
 
     , dir "courses" $ path $ \courseId -> do
       method PUT
       unitList <- jsonBody
-      () <- update' global $ PutCourse courseId unitList
+      --() <- update' global $ PutCourse courseId unitList
       liftIO $ runDB pool $ \conn ->
         postCourse conn courseId unitList
       ok $ toResponse ()
@@ -121,11 +122,11 @@ main = do
       liftIO $ putStrLn "units"
       method PUT
       stencils <- jsonBody
-      () <- update' global $ PutUnit unitId stencils
+      --() <- update' global $ PutUnit unitId stencils
       liftIO $ runDB pool $ \conn ->
         postUnit conn unitId stencils
       ok $ toResponse ()
-    ]) `finally` closeAcidState global
+    ])
   where
     jsonBody :: Aeson.FromJSON a => ServerPart a
     jsonBody = do
@@ -165,38 +166,38 @@ CourseStatsTimes
 , expiresAt: date
 }
 -}
-updCourseStats :: AcidState Global -> Pipe -> Database -> IO ()
-updCourseStats global pipe database = do
-  -- fetch expired or old userId/courseId pairs
-  now <- liftIO getCurrentTime
-  let expires = addUTCTime 80000 now
-  access pipe slaveOk database $ do
-    cursor <- find (select ["expiresAt" =: ["$lt" =: now]] "CourseStatsTimes")
-    fix $ \loop -> do
-      objs <- nextBatch cursor
-      unless (null objs) $ do
-        forM_ objs $ \obj -> do
-          liftIO $ putStrLn $ "Got object: " ++ show obj
-          let userId = at "userId" obj
-              courseId = at "courseId" obj
-          doc <- liftIO $ mkUserStats global now userId courseId
-          liftIO $ putStrLn $ "Made doc: " ++ show doc
-          upsert
-            (select [ "userId" =: userId
-                    , "courseId" =: courseId] "CourseStats")
-            doc
-          upsert
-            (select [ "userId" =: userId
-                    , "courseId" =: courseId] "CourseStatsTimes")
-            [ "userId" =: userId
-            , "courseId" =: courseId
-            , "updatedAt" =: now
-            , "expiresAt" =: expires ]
-        loop
-    closeCursor cursor
-    return ()
-  -- recalculate review/seen/mastered for each one of them.
-  return ()
+--updCourseStats :: AcidState Global -> Pipe -> Database -> IO ()
+--updCourseStats global pipe database = do
+--  -- fetch expired or old userId/courseId pairs
+--  now <- liftIO getCurrentTime
+--  let expires = addUTCTime 80000 now
+--  access pipe slaveOk database $ do
+--    cursor <- find (select ["expiresAt" =: ["$lt" =: now]] "CourseStatsTimes")
+--    fix $ \loop -> do
+--      objs <- nextBatch cursor
+--      unless (null objs) $ do
+--        forM_ objs $ \obj -> do
+--          liftIO $ putStrLn $ "Got object: " ++ show obj
+--          let userId = at "userId" obj
+--              courseId = at "courseId" obj
+--          doc <- liftIO $ mkUserStats global now userId courseId
+--          liftIO $ putStrLn $ "Made doc: " ++ show doc
+--          upsert
+--            (select [ "userId" =: userId
+--                    , "courseId" =: courseId] "CourseStats")
+--            doc
+--          upsert
+--            (select [ "userId" =: userId
+--                    , "courseId" =: courseId] "CourseStatsTimes")
+--            [ "userId" =: userId
+--            , "courseId" =: courseId
+--            , "updatedAt" =: now
+--            , "expiresAt" =: expires ]
+--        loop
+--    closeCursor cursor
+--    return ()
+--  -- recalculate review/seen/mastered for each one of them.
+--  return ()
 
 {-
 { userId:   id
@@ -207,14 +208,14 @@ updCourseStats global pipe database = do
 , total:    int
 }
 -}
-mkUserStats :: AcidState Global -> UTCTime -> UserId -> CourseId -> IO Document
-mkUserStats global now userId courseId = do
-  (review, seen, mastered, total) <-
-    query global $ GenCourseStats now userId courseId
-  return
-    [ "userId"   =: userId
-    , "courseId" =: courseId
-    , "review"   =: review
-    , "seen"     =: seen
-    , "mastered" =: mastered
-    , "total"    =: total ]
+--mkUserStats :: AcidState Global -> UTCTime -> UserId -> CourseId -> IO Document
+--mkUserStats global now userId courseId = do
+--  (review, seen, mastered, total) <-
+--    query global $ GenCourseStats now userId courseId
+--  return
+--    [ "userId"   =: userId
+--    , "courseId" =: courseId
+--    , "review"   =: review
+--    , "seen"     =: seen
+--    , "mastered" =: mastered
+--    , "total"    =: total ]

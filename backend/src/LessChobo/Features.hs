@@ -1,10 +1,14 @@
 {-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE OverloadedStrings  #-}
 {-# LANGUAGE RecordWildCards    #-}
 module LessChobo.Features where
 
 import           LessChobo.Common
 import           LessChobo.Responses
+import           LessChobo.Utilities
 
+import           Control.Applicative
+import           Data.Aeson
 import           Data.Maybe
 import           Data.Time
 import           Data.Typeable
@@ -16,12 +20,40 @@ data Feature
   = MandarinWordFeature Chinese
   deriving ( Eq, Ord, Read, Show, Typeable )
 
+instance FromJSON Feature where
+  parseJSON = withObject "Feature" $ \o -> do
+    ty <- o .: "type"
+    case ty of
+      "chinese" ->
+        MandarinWordFeature
+          <$> o .: "word"
+      _ -> fail $ "Unknown feature type: " ++ ty
+
 defaultRep :: Feature -> Rep
 defaultRep MandarinWordFeature{} = MandarinWordRep Nothing
 
 data Rep
   = MandarinWordRep (Maybe RecallCurve)
   deriving ( Read, Show, Typeable, Eq )
+
+instance ToJSON Rep where
+  toJSON rep =
+    case rep of
+      MandarinWordRep Nothing -> typed "chinese"
+        []
+      MandarinWordRep (Just curve) -> typed "chinese"
+        [ "curve" .= curve ]
+
+instance FromJSON Rep where
+  parseJSON = withObject "Model" $ \o -> do
+    ty <- o .: "type"
+    case ty of
+      "chinese" ->
+        MandarinWordRep
+          <$> o .:? "curve"
+      _ -> fail $ "Unknown model type: " ++ ty
+
+
 
 repSchedule :: Rep -> Maybe UTCTime
 repSchedule (MandarinWordRep mbCurve) = fmap (recallWhen 0.8) mbCurve
@@ -86,6 +118,17 @@ data RecallCurve = RecallCurve
   { rcSuccessfulRecall :: UTCTime
   , rcStability        :: Integer
   } deriving ( Read, Show, Typeable, Eq )
+
+instance ToJSON RecallCurve where
+  toJSON (RecallCurve recall stability) = object
+    [ "recall"    .= recall
+    , "stability" .= stability ]
+
+instance FromJSON RecallCurve where
+  parseJSON = withObject "RecallCurve" $ \o ->
+    RecallCurve
+      <$> o .: "recall"
+      <*> o .: "stability"
 
 markSuccess :: UTCTime -> RecallCurve -> RecallCurve
 markSuccess now curve = curve{rcSuccessfulRecall = now}

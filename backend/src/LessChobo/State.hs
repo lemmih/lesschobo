@@ -248,14 +248,15 @@ instantiateContent (Chinese chinese english _comment) now = do
 
 
 addStencil :: Stencil -> Update Global StencilId
-addStencil stencil = do
-  store <- use globalStencils
-  case lookupStencilId stencil store of
-    Just stencilId -> return stencilId
-    Nothing -> do
-      stencilId <- newUnique
-      globalStencils %= insertStencilStore stencilId stencil
-      return stencilId
+addStencil = undefined
+--addStencil stencil = do
+--  store <- use globalStencils
+--  case lookupStencilId stencil store of
+--    Just stencilId -> return stencilId
+--    Nothing -> do
+--      stencilId <- newUnique
+--      globalStencils %= insertStencilStore stencilId stencil
+--      return stencilId
 
 addResponse :: Response -> Update Global ()
 addResponse response = do

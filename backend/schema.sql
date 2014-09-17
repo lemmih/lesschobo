@@ -24,7 +24,8 @@ CREATE TABLE Users
 
 CREATE TABLE Stencils
   ( id      uuid PRIMARY KEY
-  , content text
+  , content jsonb NOT NULL
+  , dirty   boolean NOT NULL -- true => Features need to be recalculated.
   , UNIQUE (content)
   );
 
@@ -44,8 +45,8 @@ BEGIN
       RETURN NEW;
     ELSE
       BEGIN
-        INSERT INTO Stencils (id, content)
-          VALUES (uuid_generate_v4(), NEW.content) RETURNING id INTO NEW.id;
+        INSERT INTO Stencils (id, content, dirty)
+          VALUES (uuid_generate_v4(), NEW.content, true) RETURNING id INTO NEW.id;
         RETURN NEW;
       EXCEPTION
         WHEN unique_violation THEN
@@ -72,7 +73,7 @@ CREATE TABLE StencilIssues
 
 CREATE TABLE Features
   ( id      uuid PRIMARY KEY
-  , content text
+  , content jsonb NOT NULL
   );
 
 CREATE OR REPLACE VIEW FeaturesView AS
@@ -125,9 +126,8 @@ CREATE TABLE Responses
   ( id         uuid PRIMARY KEY
   , stencil_id uuid REFERENCES Stencils(id)
   , user_id    text REFERENCES Users(id)
-  , type       text
-  , content    text
-  , at         timestamp
+  , content    jsonb NOT NULL
+  , at         timestamp NOT NULL
   ); 
 
 CREATE OR REPLACE VIEW StencilLastSeen AS
@@ -138,8 +138,7 @@ CREATE OR REPLACE VIEW StencilLastSeen AS
 CREATE TABLE Models
   ( user_id    text REFERENCES Users(id)
   , feature_id uuid REFERENCES Features(id)
-  , type       text
-  , content    text
+  , content    jsonb NOT NULL
   , at         timestamp
   , UNIQUE (user_id, feature_id)
   );
@@ -155,7 +154,7 @@ CREATE OR REPLACE VIEW UserStencils AS
   SELECT Users.id as user_id, Stencils.id as stencil_id
   FROM Users, Stencils;
 
-CREATE OR REPLACE View UserFeatures AS
+CREATE OR REPLACE VIEW UserFeatures AS
   SELECT user_id, us.stencil_id, feature_id
   FROM UserStencils us, StencilFeatures sf
   WHERE us.stencil_id = sf.stencil_id;
@@ -207,7 +206,10 @@ CREATE VIEW Courses AS
     UserCourses.user_id,
     course_id, unit_id, UnitIndex,
     StencilIndex, UserCourses.stencil_id,
-    at
+    CASE
+      WHEN at = :'nullDate' THEN NULL
+      ELSE at
+    END
   FROM
     UserCourses
   LEFT JOIN Schedule
@@ -246,13 +248,13 @@ CREATE VIEW CourseIssues AS
 \set id8 7e502817-fcb8-44d8-bd79-04b8e2557af8
 \set id9 e331a3b0-8d54-4bbb-8034-4a1ec7dae4ae
 
-INSERT INTO Stencils VALUES ( :'id1' );
-INSERT INTO Stencils VALUES ( :'id2' );
-INSERT INTO Stencils VALUES ( :'id3' );
-INSERT INTO Stencils VALUES ( :'id4' );
+INSERT INTO Stencils VALUES ( :'id1', '{"type": "chinese", "chinese": "s1"}', false );
+INSERT INTO Stencils VALUES ( :'id2', '{"type": "chinese", "chinese": "s2"}', false );
+INSERT INTO Stencils VALUES ( :'id3', '{"type": "chinese", "chinese": "s3"}', false );
+INSERT INTO Stencils VALUES ( :'id4', '{"type": "chinese", "chinese": "s4"}', false );
 
-INSERT INTO Features VALUES ( :'id5', 'f1');
-INSERT INTO Features VALUES ( :'id6', 'f2');
+INSERT INTO Features VALUES ( :'id5', '{"type": "chinese", "word": "f1"}');
+INSERT INTO Features VALUES ( :'id6', '{"type": "chinese", "word": "f2"}');
 
 INSERT INTO StencilFeatures VALUES ( :'id1', :'id5' );
 INSERT INTO StencilFeatures VALUES ( :'id1', :'id6' );
@@ -277,15 +279,15 @@ INSERT INTO Users VALUES ( 'user2' );
 
 
 INSERT INTO Responses VALUES
-  ( :'id7', :'id1', 'user', 'type', 'content', '2010-10-20' );
+  ( :'id7', :'id1', 'user', '{}', '2010-10-20' );
 INSERT INTO Responses VALUES
-  ( :'id8', :'id1', 'user', 'type', 'content', '2014-09-14' );
+  ( :'id8', :'id1', 'user', '{}', '2014-09-14' );
 INSERT INTO Responses VALUES
-  ( :'id9', :'id2', 'user', 'type', 'content', '2014-09-15' );
+  ( :'id9', :'id2', 'user', '{}', '2014-09-15' );
 
 
-INSERT INTO Models VALUES ( 'user', :'id5', '', '', now() );
-INSERT INTO Models VALUES ( 'user', :'id6', '', '', now() );
+INSERT INTO Models VALUES ( 'user', :'id5', '{"type": "chinese"}', now() );
+-- INSERT INTO Models VALUES ( 'user', :'id6', '{"type": "chinese"}', now() );
 
 -- INSERT INTO Schedule VALUES ( 'user', :'id1', now() );
 -- INSERT INTO Schedule VALUES ( 'user', :'id3', now() );
@@ -307,7 +309,7 @@ CREATE OR REPLACE VIEW CourseFeatures AS
     Units.id = UnitMembers.unit_id AND
     UnitMembers.stencil_id = StencilFeatures.stencil_id;
 
-CREATE OR REPLACE VIEW Review AS
+CREATE OR REPLACE VIEW ReviewStencils AS
   SELECT DISTINCT ON (user_id, course_id, stencil_id)
     Users.id as user_id, course_id,
     CourseFeatures.stencil_id, seen_at,
@@ -321,8 +323,67 @@ CREATE OR REPLACE VIEW Review AS
     Users.id = Models.user_id AND
     CourseFeatures.feature_id = Models.feature_id AND
     StencilLastSeen.stencil_id = CourseFeatures.stencil_id
+    -- AND stencil review at = Models.at
   ORDER BY
     user_id, course_id, stencil_id, feature_id, seen_at ASC;
+
+CREATE OR REPLACE VIEW Review AS
+  SELECT
+    ReviewStencils.user_id, course_id, ReviewStencils.stencil_id,
+    Stencils.content as stencil, seen_at,
+    ReviewStencils.feature_id, review_at,
+    array_agg(Features.content) as Features,
+    array_agg(Models.content) as models
+  FROM
+    ReviewStencils,
+    StencilFeatures,
+    Features,
+    Models,
+    Stencils
+  WHERE
+    ReviewStencils.stencil_id = StencilFeatures.stencil_id AND
+    StencilFeatures.feature_id = Models.feature_id AND
+    ReviewStencils.user_id = Models.user_id AND
+    Features.id = StencilFeatures.feature_id AND
+    ReviewStencils.stencil_id = Stencils.id
+  GROUP BY
+    ReviewStencils.user_id, course_id, ReviewStencils.stencil_id,
+    Stencils.content, seen_at,
+    ReviewStencils.feature_id, review_at;
+
+CREATE VIEW Study AS
+  WITH tmp AS (SELECT
+    Courses.user_id,
+    course_id, unit_id, UnitIndex,
+    StencilIndex, Courses.stencil_id,
+    Stencils.content as stencil,
+    Courses.at,
+    Features.id as feature_id,
+    Features.content
+  FROM
+    Courses, Stencils, StencilFeatures, Features
+  WHERE
+    Courses.stencil_id = Stencils.id AND
+    StencilFeatures.stencil_id = Courses.stencil_id AND
+    StencilFeatures.feature_id = Features.id)
+  SELECT
+    tmp.user_id,
+    course_id, unit_id, UnitIndex,
+    StencilIndex, stencil_id,
+    stencil,
+    tmp.at,
+    array_agg(tmp.content) as Features,
+    array_agg(Models.content) as Models
+  FROM
+    tmp
+  LEFT JOIN Models
+  ON Models.user_id = tmp.user_id AND Models.feature_id = tmp.feature_id
+  GROUP BY
+    tmp.user_id,
+    course_id, unit_id, UnitIndex,
+    StencilIndex, stencil_id,
+    stencil,
+    tmp.at;
 
 /*
 Introduce new material:
