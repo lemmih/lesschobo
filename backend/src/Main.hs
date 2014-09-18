@@ -33,6 +33,8 @@ import           Network.URI              (URI (..), URIAuth (..), parseURI,
 import           System.Environment
 import           System.IO.Error
 
+import qualified Worker
+
 instance ToMessage Aeson.Value where
   toContentType _ = "text/json"
   toMessage       = Aeson.encode
@@ -63,14 +65,24 @@ mkDatabasePool = do
     (60*60) -- Keep connections open for an hour.
     5 -- Max five connections per stripe.
 
+oneSecond :: Int
+oneSecond = 10^6
+
 main :: IO ()
 main = do
+  group <- Worker.new
   pool <- mkDatabasePool
   (mongoHost, database) <- getMongoAddr
   pipe <- connect mongoHost
   --global <- openChobo
 
-  --forkIO $ forever $ do
+
+  Worker.forkIO group $ forever $ do
+    catch (runDB pool $ updDirtyStencils)
+      (\e ->
+        putStrLn $ "Worker error: " ++ show (e::SomeException))
+    threadDelay oneSecond
+  --ThreadGroup.forkIO group $ forever $ do
   --  updCourseStats global pipe database `catch` \e -> do
   --    putStrLn $ "Caught exception: " ++ show (e :: SomeException)
   --  threadDelay (round (1e6 :: Double))
@@ -126,7 +138,7 @@ main = do
       liftIO $ runDB pool $ \conn ->
         postUnit conn unitId stencils
       ok $ toResponse ()
-    ])
+    ]) `finally` Worker.killAll group
   where
     jsonBody :: Aeson.FromJSON a => ServerPart a
     jsonBody = do

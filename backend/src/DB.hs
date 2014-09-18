@@ -12,6 +12,8 @@ module DB
     , postModels
     , fetchReviewStencils
     , fetchStudyStencils
+    , fetchDirtyStencils
+    , postFeatures
     , FeatureId
     , Model
     , UserId
@@ -25,11 +27,13 @@ import           LessChobo.Stencils                   (Stencil (..))
 
 import qualified Data.Vector as V
 import           Control.Monad
+import           Control.Exception
 import           Data.Aeson
 import           Data.Pool
 import           Data.Text                            (Text)
 import           Data.UUID                            (UUID)
 import           Database.PostgreSQL.Simple
+import           Database.PostgreSQL.Simple.Transaction
 import           Database.PostgreSQL.Simple.FromField
 import           Database.PostgreSQL.Simple.ToField
 
@@ -45,6 +49,10 @@ type Model = Rep
 instance FromField Feature where
     fromField = fromJSONField
 
+instance ToField Feature where
+    toField = toJSONField
+
+
 instance ToField ResponseContent where
     toField = toJSONField
 
@@ -56,6 +64,7 @@ instance ToField Stencil where
     toField = toJSONField
 
 
+
 instance FromField Rep where
     fromField = fromJSONField
 
@@ -63,11 +72,16 @@ instance ToField Rep where
     toField = toJSONField
 
 
+logErrors :: IO a -> IO a
+logErrors action = action `catch` \e -> do
+    putStrLn $ "Error: " ++ show (e::SomeException)
+    throwIO e
 
 runDB :: Pool Connection -> (Connection -> IO a) -> IO a
 runDB pool action =
+    logErrors $
     withResource pool $ \conn ->
-    withTransaction conn (action conn)
+    withTransactionSerializable conn (action conn)
 
 ensureUser :: Connection -> UserId -> IO ()
 ensureUser conn userId = do
@@ -78,14 +92,19 @@ ensureUser conn userId = do
 
 postCourse :: Connection -> CourseId -> [UnitId] -> IO ()
 postCourse conn courseId units = do
-    _ <- executeMany conn
-        "DELETE FROM Units WHERE id = ? AND course_id = ?"
-        [ (unitId, courseId)
-        | unitId <- units ]
+    void $ execute conn
+        "DELETE FROM Units WHERE course_id = ?"
+        (Only courseId)
     _ <- executeMany conn
         "INSERT INTO Units (id, course_id, index) VALUES (?, ?, ?)"
         [ (unitId, courseId, n::Int)
         | (unitId, n) <- zip units [0..] ]
+    void $ execute conn
+        "DELETE FROM Inherit WHERE receiver = ? AND receiver = ?"
+        (courseId, courseId)
+    void $ execute conn
+        "INSERT INTO Inherit (receiver, giver) VALUES (?,?)"
+        (courseId, courseId)
     return ()
 
 postStencils :: Connection -> [Stencil] -> IO [StencilId]
@@ -124,23 +143,22 @@ addResponse conn Response{..} = do
     return responseId
 
 fetchStencilModels :: Connection -> UserId -> StencilId ->
-    IO [(FeatureId, Feature, Model)]
+    IO [(FeatureId, Feature, Maybe Model)]
 fetchStencilModels conn userId stencilId =
     query conn
-        "SELECT feature_id, Features.content, Models.content \
-        \FROM Features, StencilFeatures, Models \
+        "SELECT id, Features.content, \
+        \  (SELECT content FROM Models WHERE user_id = ? AND \
+        \     feature_id = Features.id) \
+        \FROM Features, StencilFeatures \
         \WHERE StencilFeatures.stencil_id = ? AND \
-        \      Features.id = StencilFeatures.feature_id AND \
-        \      Models.feature_id = Features.id AND\
-        \      Models.user_id = ?"
-        (stencilId, userId)
+        \      Features.id = StencilFeatures.feature_id"
+        (userId, stencilId)
 
 postModels :: Connection -> UserId -> [(FeatureId, Model)] -> IO ()
 postModels conn userId models = do
-    void $ executeMany conn
-        "DELETE FROM Models WHERE user_id = ? AND feature_id = ?"
-        [ (userId, featureId)
-        | (featureId, _) <- models ]
+    void $ execute conn
+        "DELETE FROM Models WHERE user_id = ? AND feature_id IN ?"
+        (userId, In (map fst models))
     void $ executeMany conn
         "INSERT INTO Models (user_id, feature_id, content, at)\
         \ VALUES (?, ?, ?, ?)"
@@ -148,7 +166,7 @@ postModels conn userId models = do
         | (featureId, model) <- models ]
 
 fetchReviewStencils :: Connection -> UserId -> CourseId ->
-    IO [(StencilId, Stencil, [(Feature, Model)])]
+    IO [(StencilId, Stencil, [(Feature, Maybe Model)])]
 fetchReviewStencils conn userId courseId = do
     rows <- query conn
         "SELECT stencil_id, stencil, features, models \
@@ -162,13 +180,13 @@ fetchReviewStencils conn userId courseId = do
         | (stencilId, stencil, features, models) <- rows]
 
 fetchStudyStencils :: Connection -> UserId -> CourseId -> Int ->
-    IO [(StencilId, Stencil, [(Feature, Model)])]
+    IO [(StencilId, Stencil, [(Feature, Maybe Model)])]
 fetchStudyStencils conn userId courseId unitIdx = do
     rows <- query conn
         "SELECT stencil_id, stencil, features, models \
         \FROM Study \
         \WHERE user_id = ? AND course_id = ? AND unitindex <= ? AND\
-        \      at IS NULL\
+        \      at IS NULL \
         \ORDER BY stencilindex \
         \LIMIT 10"
         (userId, courseId, unitIdx)
@@ -176,4 +194,26 @@ fetchStudyStencils conn userId courseId unitIdx = do
         [ (stencilId, stencil, V.toList (V.zip features models))
         | (stencilId, stencil, features, models) <- rows]
 
+fetchDirtyStencils :: Connection -> IO [(StencilId, Stencil)]
+fetchDirtyStencils conn =
+    query conn
+        "SELECT id, content \
+        \FROM Stencils \
+        \WHERE dirty"
+        ()
+
+postFeatures :: Connection -> StencilId -> [Feature] -> IO ()
+postFeatures conn stencilId features = do
+    featureIds <- returning conn
+        "INSERT INTO FeaturesView (content) VALUES (?) RETURNING id"
+        [ Only feature | feature <- features ]
+    void $ execute conn "DELETE FROM StencilFeatures WHERE stencil_id = ?"
+        (Only stencilId)
+    void $ executeMany conn
+        "INSERT INTO StencilFeatures (stencil_id, feature_id) VALUES (?,?)"
+        [ (stencilId, featureId :: FeatureId)
+        | Only featureId <- featureIds ]
+    void $ execute conn
+        "UPDATE Stencils SET dirty = false WHERE id = ?"
+        (Only stencilId)
 

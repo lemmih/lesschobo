@@ -238,55 +238,55 @@ CREATE VIEW CourseIssues AS
 -- ( user_id, course_id, unit_id, stencil_id, last_seen, feature_id, at )
 
 
-\set id1 58ab0355-8d73-4034-bfd6-97631b1af133
-\set id2 da613059-25f0-4df7-bffa-2cf465a22c34
-\set id3 833f76f2-4f7e-435e-89dc-f67587b612b4
-\set id4 e38c1d26-ddc3-49d8-a38e-ef193e743678
-\set id5 abc14fb7-66d9-45ff-8093-a3340b0817d7
-\set id6 206a9700-83dd-422a-ae40-5509ebbeac6f
-\set id7 8cca20b8-9f9c-46e0-a16a-bbd727f3fa7b
-\set id8 7e502817-fcb8-44d8-bd79-04b8e2557af8
-\set id9 e331a3b0-8d54-4bbb-8034-4a1ec7dae4ae
+-- \set id1 58ab0355-8d73-4034-bfd6-97631b1af133
+-- \set id2 da613059-25f0-4df7-bffa-2cf465a22c34
+-- \set id3 833f76f2-4f7e-435e-89dc-f67587b612b4
+-- \set id4 e38c1d26-ddc3-49d8-a38e-ef193e743678
+-- \set id5 abc14fb7-66d9-45ff-8093-a3340b0817d7
+-- \set id6 206a9700-83dd-422a-ae40-5509ebbeac6f
+-- \set id7 8cca20b8-9f9c-46e0-a16a-bbd727f3fa7b
+-- \set id8 7e502817-fcb8-44d8-bd79-04b8e2557af8
+-- \set id9 e331a3b0-8d54-4bbb-8034-4a1ec7dae4ae
 
-INSERT INTO Stencils VALUES ( :'id1', '{"type": "chinese", "chinese": "s1"}', false );
-INSERT INTO Stencils VALUES ( :'id2', '{"type": "chinese", "chinese": "s2"}', false );
-INSERT INTO Stencils VALUES ( :'id3', '{"type": "chinese", "chinese": "s3"}', false );
-INSERT INTO Stencils VALUES ( :'id4', '{"type": "chinese", "chinese": "s4"}', false );
+-- INSERT INTO Stencils VALUES ( :'id1', '{"type": "chinese", "chinese": "s1"}', false );
+-- INSERT INTO Stencils VALUES ( :'id2', '{"type": "chinese", "chinese": "s2"}', false );
+-- INSERT INTO Stencils VALUES ( :'id3', '{"type": "chinese", "chinese": "s3"}', false );
+-- INSERT INTO Stencils VALUES ( :'id4', '{"type": "chinese", "chinese": "s4"}', false );
 
-INSERT INTO Features VALUES ( :'id5', '{"type": "chinese", "word": "f1"}');
-INSERT INTO Features VALUES ( :'id6', '{"type": "chinese", "word": "f2"}');
+-- INSERT INTO Features VALUES ( :'id5', '{"type": "chinese", "word": "f1"}');
+-- INSERT INTO Features VALUES ( :'id6', '{"type": "chinese", "word": "f2"}');
 
-INSERT INTO StencilFeatures VALUES ( :'id1', :'id5' );
-INSERT INTO StencilFeatures VALUES ( :'id1', :'id6' );
-INSERT INTO StencilFeatures VALUES ( :'id2', :'id5' );
+-- INSERT INTO StencilFeatures VALUES ( :'id1', :'id5' );
+-- INSERT INTO StencilFeatures VALUES ( :'id1', :'id6' );
+-- INSERT INTO StencilFeatures VALUES ( :'id2', :'id5' );
 
-INSERT INTO Units VALUES ( 'Unit 1' , 'Course 1', 1 );
-INSERT INTO Units VALUES ( 'Unit 2' , 'Course 1', 2 );
-INSERT INTO Units VALUES ( 'Unit A' , 'Course 2', 1 );
+-- INSERT INTO Units VALUES ( 'Unit 1' , 'Course 1', 1 );
+-- INSERT INTO Units VALUES ( 'Unit 2' , 'Course 1', 2 );
+-- INSERT INTO Units VALUES ( 'Unit A' , 'Course 2', 1 );
 
-INSERT INTO Inherit VALUES ( 'Course 1', 'Course 1' );
-INSERT INTO Inherit VALUES ( 'Course 2', 'Course 2' );
-INSERT INTO Inherit VALUES ( 'Course 2', 'Course 1' );
+-- INSERT INTO Inherit VALUES ( 'Course 1', 'Course 1' );
+-- INSERT INTO Inherit VALUES ( 'Course 2', 'Course 2' );
+-- INSERT INTO Inherit VALUES ( 'Course 2', 'Course 1' );
 
-INSERT INTO UnitMembers VALUES ( 'Unit 1', :'id1', 1 );
-INSERT INTO UnitMembers VALUES ( 'Unit 1', :'id2', 2 );
-INSERT INTO UnitMembers VALUES ( 'Unit 2', :'id3', 1 );
-INSERT INTO UnitMembers VALUES ( 'Unit A', :'id1', 1 );
-INSERT INTO UnitMembers VALUES ( 'Unit A', :'id4', 1 );
+-- INSERT INTO UnitMembers VALUES ( 'Unit 1', :'id1', 1 );
+-- INSERT INTO UnitMembers VALUES ( 'Unit 1', :'id2', 2 );
+-- INSERT INTO UnitMembers VALUES ( 'Unit 2', :'id3', 1 );
+-- INSERT INTO UnitMembers VALUES ( 'Unit A', :'id1', 1 );
+-- INSERT INTO UnitMembers VALUES ( 'Unit A', :'id4', 1 );
 
-INSERT INTO Users VALUES ( 'user' );
-INSERT INTO Users VALUES ( 'user2' );
-
-
-INSERT INTO Responses VALUES
-  ( :'id7', :'id1', 'user', '{}', '2010-10-20' );
-INSERT INTO Responses VALUES
-  ( :'id8', :'id1', 'user', '{}', '2014-09-14' );
-INSERT INTO Responses VALUES
-  ( :'id9', :'id2', 'user', '{}', '2014-09-15' );
+-- INSERT INTO Users VALUES ( 'user' );
+-- INSERT INTO Users VALUES ( 'user2' );
 
 
-INSERT INTO Models VALUES ( 'user', :'id5', '{"type": "chinese"}', now() );
+-- INSERT INTO Responses VALUES
+--   ( :'id7', :'id1', 'user', '{}', '2010-10-20' );
+-- INSERT INTO Responses VALUES
+--   ( :'id8', :'id1', 'user', '{}', '2014-09-14' );
+-- INSERT INTO Responses VALUES
+--   ( :'id9', :'id2', 'user', '{}', '2014-09-15' );
+
+
+-- INSERT INTO Models VALUES ( 'user', :'id5', '{"type": "chinese"}', now() );
 -- INSERT INTO Models VALUES ( 'user', :'id6', '{"type": "chinese"}', now() );
 
 -- INSERT INTO Schedule VALUES ( 'user', :'id1', now() );
@@ -294,7 +294,7 @@ INSERT INTO Models VALUES ( 'user', :'id5', '{"type": "chinese"}', now() );
 
 -- INSERT INTO Schedule VALUES ( 'user2', :'id1', now() );
 
-INSERT INTO StencilIssues VALUES ( :'id1', 'user', now(), 'issue!' );
+-- INSERT INTO StencilIssues VALUES ( :'id1', 'user', now(), 'issue!' );
 
 CREATE OR REPLACE VIEW CourseFeatures AS
   SELECT DISTINCT

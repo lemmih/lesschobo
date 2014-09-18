@@ -69,3 +69,11 @@ cardContentPairs (ChineseCard sentences) =
   [ "type"      .=. ("chinese" :: String)
   , "sentences" .=. sentences ]
 
+complexity :: Card -> Int
+complexity card =
+  case cardContent card of
+    ChineseCard sentences -> sum
+      [ 1
+      | MandarinGapSentence blocks _ <- sentences
+      , MandarinWord _ _ True <- blocks ]
+

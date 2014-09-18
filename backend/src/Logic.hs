@@ -9,6 +9,7 @@ import           Data.List
 import           Data.Map                   (Map)
 import qualified Data.Map                   as Map
 import           Data.Maybe
+import qualified Data.Set                   as Set
 import qualified Data.Text                  as T
 import           Data.Time
 import           Database.PostgreSQL.Simple
@@ -16,7 +17,7 @@ import           Database.PostgreSQL.Simple
 import           DB
 import           LessChobo.Cards
 import           LessChobo.Features         (Feature (..), applyResponse,
-                                             bumpRep, repSchedule, defaultRep)
+                                             bumpRep, defaultRep, repSchedule)
 import           LessChobo.Responses
 import           LessChobo.Stencils
 
@@ -28,8 +29,10 @@ getModel feat = gets (Map.findWithDefault (defaultRep feat) feat)
 setModel :: Feature -> Model -> Instantiate ()
 setModel feat model = modify $ Map.insert feat model
 
-runInstantiate :: Instantiate a -> [(Feature,Model)] -> a
-runInstantiate action st = evalState action (Map.fromList st)
+runInstantiate :: Instantiate a -> [(Feature,Maybe Model)] -> a
+runInstantiate action st = evalState action m
+  where
+    m = Map.fromList [ (feat, model) | (feat, Just model) <- st ]
 
 instantiateStencils :: UTCTime -> UserId ->
     [(StencilId, Stencil)] -> Instantiate [Card]
@@ -73,7 +76,14 @@ instantiateContent (Chinese chinese english _comment) now = do
 
 
 
-
+limitComplexity :: [Card] -> [Card]
+limitComplexity = worker 0
+  where
+    worker c [] = []
+    worker c (card:cards)
+      | c >= maxComplexity = []
+      | otherwise          = card : worker (c+complexity card) cards
+    maxComplexity = 10
 
 drawReviewCards :: Connection -> UserId -> CourseId -> IO [Card]
 drawReviewCards conn userId courseId = do
@@ -82,17 +92,20 @@ drawReviewCards conn userId courseId = do
     let (stencils, brains) = unzip
             [ ((stencilId, stencil), models)
             | (stencilId, stencil, models) <- tasks ]
-    return $ runInstantiate (instantiateStencils now userId stencils)
+    return $ limitComplexity $
+      runInstantiate (instantiateStencils now userId stencils)
         (concat brains)
 
 drawStudyCards :: Connection -> UserId -> CourseId -> Int -> IO [Card]
 drawStudyCards conn userId courseId unitIdx = do
-    tasks <- fetchStudyStencils conn userId courseId unitIdx
+    review <- fetchReviewStencils conn userId courseId
+    study <- fetchStudyStencils conn userId courseId unitIdx
     now <- getCurrentTime
     let (stencils, brains) = unzip
             [ ((stencilId, stencil), models)
-            | (stencilId, stencil, models) <- tasks ]
-    return $ runInstantiate (instantiateStencils now userId stencils)
+            | (stencilId, stencil, models) <- review ++ study ]
+    return $ limitComplexity $
+      runInstantiate (instantiateStencils now userId stencils)
         (concat brains)
 
 
@@ -108,11 +121,26 @@ addResponse conn response = do
     let newBrains = updateBrain response brains
     DB.postModels conn (responseUserId response) newBrains
 
-updateBrain :: Response -> [(FeatureId, Feature, Model)] -> [(FeatureId, Model)]
+updateBrain :: Response -> [(FeatureId, Feature, Maybe Model)]
+  -> [(FeatureId, Model)]
 updateBrain response = mapMaybe worker
   where
-    worker (featureId, feature, model) =
-        let model' = applyResponse response feature model in
-        if model' == model
+    worker (featureId, feature, mbModel) =
+        let model = fromMaybe (defaultRep feature) mbModel
+            newModel = applyResponse response feature model in
+        if newModel == model
             then Nothing
-            else Just (featureId, model')
+            else Just (featureId, newModel)
+
+
+
+
+updDirtyStencils :: Connection -> IO ()
+updDirtyStencils conn = do
+  stencils <- fetchDirtyStencils conn
+  forM_ stencils $ \(stencilId, stencil) ->
+    postFeatures conn stencilId (Set.toList $ features stencil)
+
+
+
+

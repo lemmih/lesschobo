@@ -29,6 +29,12 @@ instance FromJSON Feature where
           <$> o .: "word"
       _ -> fail $ "Unknown feature type: " ++ ty
 
+instance ToJSON Feature where
+  toJSON feature =
+    case feature of
+      MandarinWordFeature chinese -> typed "chinese"
+        [ "word" .= chinese ]
+
 defaultRep :: Feature -> Rep
 defaultRep MandarinWordFeature{} = MandarinWordRep Nothing
 
