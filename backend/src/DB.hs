@@ -14,28 +14,37 @@ module DB
     , fetchStudyStencils
     , fetchDirtyStencils
     , postFeatures
+    , fetchPermaResponses
+    , postPermaResponses
+    , fetchFeatureResponses
+    , fetchTouchedFeatures
+    , fetchUserList
+    , deleteDuplicateResponses
     , FeatureId
     , Model
     , UserId
     , CourseId
     ) where
 
-import           LessChobo.Features                   (Feature (..), Rep,
-                                                       repSchedule)
+import           LessChobo.Features                     (Feature (..), Rep,
+                                                         repSchedule)
 import           LessChobo.Responses
-import           LessChobo.Stencils                   (Stencil (..))
+import           LessChobo.Stencils                     (PermaResponse (..),
+                                                         Stencil (..))
 
-import qualified Data.Vector as V
-import           Control.Monad
 import           Control.Exception
+import           Control.Applicative
+import           Control.Monad
+import           Control.Monad.Trans
 import           Data.Aeson
 import           Data.Pool
-import           Data.Text                            (Text)
-import           Data.UUID                            (UUID)
+import           Data.Text                              (Text)
+import           Data.UUID                              (UUID)
+import qualified Data.Vector                            as V
 import           Database.PostgreSQL.Simple
-import           Database.PostgreSQL.Simple.Transaction
 import           Database.PostgreSQL.Simple.FromField
 import           Database.PostgreSQL.Simple.ToField
+import           Database.PostgreSQL.Simple.Transaction
 
 type CourseId   = Text
 type UnitId     = Text
@@ -52,6 +61,9 @@ instance FromField Feature where
 instance ToField Feature where
     toField = toJSONField
 
+
+instance FromField ResponseContent where
+    fromField = fromJSONField
 
 instance ToField ResponseContent where
     toField = toJSONField
@@ -77,8 +89,9 @@ logErrors action = action `catch` \e -> do
     putStrLn $ "Error: " ++ show (e::SomeException)
     throwIO e
 
-runDB :: Pool Connection -> (Connection -> IO a) -> IO a
+runDB :: MonadIO m => Pool Connection -> (Connection -> IO a) -> m a
 runDB pool action =
+    liftIO $
     logErrors $
     withResource pool $ \conn ->
     withTransactionSerializable conn (action conn)
@@ -217,3 +230,73 @@ postFeatures conn stencilId features = do
         "UPDATE Stencils SET dirty = false WHERE id = ?"
         (Only stencilId)
 
+
+fetchPermaResponses :: Connection -> IO [PermaResponse]
+fetchPermaResponses conn = do
+    rows <- query conn
+        "SELECT Stencils.content, user_id, Responses.content, at \
+        \FROM Responses, Stencils \
+        \WHERE Responses.stencil_id = Stencils.id"
+        ()
+    return
+        [ PermaResponse
+            { permaResponseAt = at
+            , permaContent    = content
+            , permaStencil    = stencil
+            , permaUserId     = userId }
+        | (stencil, userId, content, at) <- rows ]
+
+-- XXX: Would be faster to filter out duplicate stencils before we
+--      insert them in the database.
+postPermaResponses :: Connection -> [PermaResponse] -> IO ()
+postPermaResponses conn responses = do
+    rows <- returning conn
+        "INSERT INTO StencilsView (content) VALUES (?) RETURNING id"
+        [ Only (permaStencil response)
+        | response <- responses ]
+    void $ executeMany conn
+        "INSERT INTO Responses (stencil_id, user_id, content, at)\
+        \ VALUES (?,?,?,?)"
+        [ (stencilId :: StencilId, permaUserId, permaContent, permaResponseAt)
+        | (Only stencilId, PermaResponse{..}) <- zip rows responses ]
+    return ()
+
+
+fetchFeatureResponses :: Connection -> UserId -> FeatureId -> IO [Response]
+fetchFeatureResponses conn userId featureId = do
+    rows <- query conn
+        "SELECT DISTINCT ON (at, id) \
+        \       Responses.stencil_id, content, at \
+        \FROM Responses, StencilFeatures \
+        \WHERE Responses.stencil_id = StencilFeatures.stencil_id AND\
+        \      Responses.user_id = ? AND\
+        \      StencilFeatures.feature_id = ? \
+        \ORDER BY at ASC, id"
+        (userId, featureId)
+    return
+        [ Response at content stencilId userId
+        | (stencilId, content, at) <- rows ]
+
+fetchTouchedFeatures :: Connection -> UserId -> IO [(FeatureId, Feature)]
+fetchTouchedFeatures conn userId =
+    query conn
+        "SELECT DISTINCT ON (id) Features.id, Features.content \
+        \FROM Features, StencilFeatures, Responses \
+        \WHERE Responses.user_id = ? AND\
+        \      Responses.stencil_id = StencilFeatures.stencil_id AND\
+        \      StencilFeatures.feature_id = Features.id \
+        \ORDER BY Features.id"
+        (Only userId)
+
+fetchUserList :: Connection -> IO [UserId]
+fetchUserList conn = map fromOnly <$> query conn "SELECT id FROM Users" ()
+
+deleteDuplicateResponses :: Connection -> IO ()
+deleteDuplicateResponses conn = void $
+    execute conn
+        "DELETE FROM Responses USING Responses r \
+        \WHERE Responses.at = r.at AND\
+        \      Responses.content = r.content AND\
+        \      Responses.user_id = r.user_id AND\
+        \      Responses.id < r.id"
+        ()

@@ -67,7 +67,7 @@ CREATE TRIGGER stencil_trigger
 CREATE TABLE StencilIssues
   ( stencil_id uuid REFERENCES Stencils(id)
   , created_by text REFERENCES Users(id)
-  , created_at timestamp
+  , created_at timestamptz
   , issue      text
   );
 
@@ -123,11 +123,11 @@ CREATE TABLE StencilFeatures
   );
 
 CREATE TABLE Responses
-  ( id         uuid PRIMARY KEY
+  ( id         uuid PRIMARY KEY DEFAULT uuid_generate_v4()
   , stencil_id uuid REFERENCES Stencils(id)
   , user_id    text REFERENCES Users(id)
   , content    jsonb NOT NULL
-  , at         timestamp NOT NULL
+  , at         timestamptz NOT NULL
   ); 
 
 CREATE OR REPLACE VIEW StencilLastSeen AS
@@ -139,7 +139,7 @@ CREATE TABLE Models
   ( user_id    text REFERENCES Users(id)
   , feature_id uuid REFERENCES Features(id)
   , content    jsonb NOT NULL
-  , at         timestamp
+  , at         timestamptz
   , UNIQUE (user_id, feature_id)
   );
 
@@ -310,22 +310,30 @@ CREATE OR REPLACE VIEW CourseFeatures AS
     UnitMembers.stencil_id = StencilFeatures.stencil_id;
 
 CREATE OR REPLACE VIEW ReviewStencils AS
-  SELECT DISTINCT ON (user_id, course_id, stencil_id)
+  SELECT DISTINCT ON (user_id, course_id, feature_id)
     Users.id as user_id, course_id,
-    CourseFeatures.stencil_id, seen_at,
-    CourseFeatures.feature_id, at as review_at
+    CourseFeatures.stencil_id,
+    (SELECT seen_at
+      FROM StencilLastSeen
+      WHERE StencilLastSeen.user_id = Users.id AND
+            StencilLastSeen.stencil_id = CourseFeatures.stencil_id
+    ) seen_at,
+    CourseFeatures.feature_id,
+    Models.at as review_at,
+    Schedule.at as stencil_at
   FROM
     Users,
     CourseFeatures,
     Models,
-    StencilLastSeen
+    Schedule
   WHERE
     Users.id = Models.user_id AND
     CourseFeatures.feature_id = Models.feature_id AND
-    StencilLastSeen.stencil_id = CourseFeatures.stencil_id
-    -- AND stencil review at = Models.at
+    Schedule.user_id = Users.id AND
+    Schedule.stencil_id = CourseFeatures.stencil_id AND
+    Schedule.at = Models.at
   ORDER BY
-    user_id, course_id, stencil_id, feature_id, seen_at ASC;
+    user_id, course_id, feature_id, seen_at ASC NULLS FIRST;
 
 CREATE OR REPLACE VIEW Review AS
   SELECT
@@ -349,7 +357,9 @@ CREATE OR REPLACE VIEW Review AS
   GROUP BY
     ReviewStencils.user_id, course_id, ReviewStencils.stencil_id,
     Stencils.content, seen_at,
-    ReviewStencils.feature_id, review_at;
+    ReviewStencils.feature_id, review_at
+  ORDER BY
+    review_at;
 
 CREATE VIEW Study AS
   WITH tmp AS (SELECT

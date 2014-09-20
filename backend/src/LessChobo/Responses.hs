@@ -47,7 +47,7 @@ data ResponseContent
   | MandarinTextAnswer       Bool Text Text
   | MandarinSelect           Text
   | MathComplementAnswer     Int Int Int
-    deriving ( Read, Show, Eq, Ord )
+    deriving ( Read, Show, Eq, Ord, Typeable )
 
 instance ToJSON Response where
   toJSON Response{..} = object

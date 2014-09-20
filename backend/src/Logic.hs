@@ -13,6 +13,7 @@ import qualified Data.Set                   as Set
 import qualified Data.Text                  as T
 import           Data.Time
 import           Database.PostgreSQL.Simple
+import Text.Printf
 
 import           DB
 import           LessChobo.Cards
@@ -132,6 +133,12 @@ updateBrain response = mapMaybe worker
             then Nothing
             else Just (featureId, newModel)
 
+recalcBrain :: Feature -> [Response] -> Model
+recalcBrain feat = worker (defaultRep feat)
+  where
+    worker model [] = model
+    worker model (response:responses) =
+      worker (applyResponse response feat model) responses
 
 
 
@@ -140,6 +147,47 @@ updDirtyStencils conn = do
   stencils <- fetchDirtyStencils conn
   forM_ stencils $ \(stencilId, stencil) ->
     postFeatures conn stencilId (Set.toList $ features stencil)
+
+
+recalcAllBrains :: Connection -> IO ()
+recalcAllBrains conn = do
+  -- Commit the initial transaction. We manage our own transaction since
+  -- recalculating can take a while.
+  commit conn
+  putStrLn "Recalc all"
+  users <- withTransaction conn $ fetchUserList conn
+  
+  let n = length users
+      buffer = length (show n)
+  forM_ (zip [1::Int ..] users) $ \(nth, user) -> do
+    printf "Recalc user: (%*d/%d) %s\n" buffer nth n (show user)
+    recalcUserBrain conn user
+  
+  -- Begin a new transaction to suppress the warning when our caller
+  -- tries to commit.
+  begin conn
+
+recalcUserBrain :: Connection -> UserId -> IO ()
+recalcUserBrain conn userId = do
+  features <- fetchTouchedFeatures conn userId
+  let n = length features
+      buffer = length (show n)
+  forM_ (zip [1::Int ..] features) $ \(nth, (featureId, feature)) -> do
+    printf "Recalc feature: (%*d/%d) %s\n" buffer nth n (show featureId)
+    recalcUserModel conn userId featureId feature
+
+recalcUserModel :: Connection -> UserId -> FeatureId -> Feature -> IO ()
+recalcUserModel conn userId featureId feature = do
+  -- get all responses for stencils that refer the feature.
+  -- Sort them by date oldest first.
+  responses <- fetchFeatureResponses conn userId featureId
+  
+  -- Apply all the responses to an empty model.
+  let newModel = recalcBrain feature responses
+  unless (newModel == defaultRep feature) $
+    -- Write model back to DB.
+    withTransaction conn $ postModels conn userId [(featureId, newModel)]
+
 
 
 

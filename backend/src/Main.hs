@@ -4,11 +4,12 @@
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module Main ( main ) where
 
+import           DB
 import           LessChobo.Common
 import           LessChobo.Responses
-import           LessChobo.State
-import DB
-import Logic
+import           LessChobo.Stencils (permaUserId)
+--import           LessChobo.State
+import           Logic
 
 import           Control.Applicative
 import           Control.Concurrent
@@ -16,20 +17,22 @@ import           Control.Exception
 import           Control.Monad
 import           Control.Monad.Fix
 import           Control.Monad.Trans
+import Data.List.Split
 import           Data.Acid
 import           Data.Acid.Advanced
-import qualified Data.Aeson               as Aeson
+import qualified Data.Aeson                 as Aeson
+import qualified Data.ByteString.Char8      as B
+import qualified Data.Set as Set
 import           Data.Maybe
-import qualified Data.Text                as T
-import qualified Data.ByteString.Char8 as B
+import           Data.Pool
+import qualified Data.Text                  as T
 import           Data.Time
-import qualified Database.PostgreSQL.Simple as PSQL
 import           Database.MongoDB
-import Data.Pool
+import qualified Database.PostgreSQL.Simple as PSQL
 import           Debug.Trace
-import           Happstack.Server         hiding (Host, Response)
-import           Network.URI              (URI (..), URIAuth (..), parseURI,
-                                           uriAuthority)
+import           Happstack.Server           hiding (Host, Response)
+import           Network.URI                (URI (..), URIAuth (..), parseURI,
+                                             uriAuthority)
 import           System.Environment
 import           System.IO.Error
 
@@ -38,11 +41,6 @@ import qualified Worker
 instance ToMessage Aeson.Value where
   toContentType _ = "text/json"
   toMessage       = Aeson.encode
-
-instance FromData Response where
-  fromData = do
-    pairs <- lookPairs
-    trace ("pairs: " ++ show pairs) $ return undefined
 
 --maxSize :: Int
 --maxSize = 1024*1024*10
@@ -101,11 +99,15 @@ main = do
           [ path $ \courseId -> msum
             [ dir "review" $ do
               liftIO $ putStrLn "review"
-              cards <- liftIO $ runDB pool $ \conn -> drawReviewCards conn userId courseId
+              cards <- runDB pool $ \conn -> do
+                ensureUser conn userId
+                drawReviewCards conn userId courseId
               ok $ toResponse $ Aeson.toJSON cards
             , path $ \unitIdx -> do
               liftIO $ putStrLn "study"
-              cards <- liftIO $ runDB pool $ \conn -> drawStudyCards conn userId courseId unitIdx
+              cards <- runDB pool $ \conn -> do
+                ensureUser conn userId
+                drawStudyCards conn userId courseId unitIdx
               ok $ toResponse $ Aeson.toJSON cards
             ]
           ]
@@ -113,20 +115,29 @@ main = do
     , dir "responses" $ do
       method POST
       response <- jsonBody
-      liftIO $ runDB pool $ \conn ->
+      runDB pool $ \conn ->
         Logic.addResponse conn response
       ok $ toResponse ()
-    , dir "responses" $ do
+    
+    , dir "perma" $ do
       method GET
-      --lst <- query' global ExportPermaResponses
-      lst <- error "ExportPermaResponses"
-      ok $ toResponse $ Aeson.toJSON (lst :: [()])
-
+      lst <- runDB pool $ fetchPermaResponses
+      ok $ toResponse $ Aeson.toJSON lst
+    , dir "perma" $ do
+      method POST
+      responses <- jsonBody
+      let userIds = Set.toList $ Set.fromList (map permaUserId responses)
+      runDB pool $ \conn ->
+        mapM_ (ensureUser conn) userIds
+      forM_ (chunksOf 1000 responses) $ \chunk ->
+        runDB pool $ \conn -> postPermaResponses conn chunk
+      runDB pool $ deleteDuplicateResponses
+      ok $ toResponse ()
+    
     , dir "courses" $ path $ \courseId -> do
       method PUT
       unitList <- jsonBody
-      --() <- update' global $ PutCourse courseId unitList
-      liftIO $ runDB pool $ \conn ->
+      runDB pool $ \conn ->
         postCourse conn courseId unitList
       ok $ toResponse ()
 
@@ -134,9 +145,12 @@ main = do
       liftIO $ putStrLn "units"
       method PUT
       stencils <- jsonBody
-      --() <- update' global $ PutUnit unitId stencils
-      liftIO $ runDB pool $ \conn ->
+      runDB pool $ \conn ->
         postUnit conn unitId stencils
+      ok $ toResponse ()
+
+    , dir "recalc" $ do
+      runDB pool $ recalcAllBrains
       ok $ toResponse ()
     ]) `finally` Worker.killAll group
   where
@@ -157,8 +171,8 @@ main = do
 
 
 
-openChobo :: IO (AcidState Global)
-openChobo = openLocalState emptyGlobal
+--openChobo :: IO (AcidState Global)
+--openChobo = openLocalState emptyGlobal
 
 
 

@@ -116,4 +116,11 @@ instance ToJSON PermaResponse where
     , "stencil" .=. permaStencil
     , "userId"  .=. permaUserId ]
 
+instance FromJSON PermaResponse where
+  parseJSON = withObject "PermaResponse" $ \o ->
+    PermaResponse
+      <$> o .: "at"
+      <*> o .: "content"
+      <*> o .: "stencil"
+      <*> o .: "userId"
 
