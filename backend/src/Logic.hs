@@ -6,6 +6,7 @@ import           Control.Monad
 import           Control.Monad.State
 import           Data.Chinese.CCDict
 import           Data.List
+import           Data.List.Split
 import           Data.Map                   (Map)
 import qualified Data.Map                   as Map
 import           Data.Maybe
@@ -13,7 +14,7 @@ import qualified Data.Set                   as Set
 import qualified Data.Text                  as T
 import           Data.Time
 import           Database.PostgreSQL.Simple
-import Text.Printf
+import           Text.Printf
 
 import           DB
 import           LessChobo.Cards
@@ -30,10 +31,10 @@ getModel feat = gets (Map.findWithDefault (defaultRep feat) feat)
 setModel :: Feature -> Model -> Instantiate ()
 setModel feat model = modify $ Map.insert feat model
 
-runInstantiate :: Instantiate a -> [(Feature,Maybe Model)] -> a
+runInstantiate :: Instantiate a -> [(Feature,Model)] -> a
 runInstantiate action st = evalState action m
   where
-    m = Map.fromList [ (feat, model) | (feat, Just model) <- st ]
+    m = Map.fromList st
 
 instantiateStencils :: UTCTime -> UserId ->
     [(StencilId, Stencil)] -> Instantiate [Card]
@@ -144,9 +145,18 @@ recalcBrain feat = worker (defaultRep feat)
 
 updDirtyStencils :: Connection -> IO ()
 updDirtyStencils conn = do
+  commit conn
+
   stencils <- fetchDirtyStencils conn
-  forM_ stencils $ \(stencilId, stencil) ->
-    postFeatures conn stencilId (Set.toList $ features stencil)
+  forM_ (chunksOf 1000 stencils) $ \chunk -> do
+    let n = length chunk
+        buffer = length (show n)
+    withTransaction conn $
+      forM_ (zip [1::Int ..] chunk) $ \(nth, (stencilId, stencil)) -> do
+        printf "Dirty: (%*d/%d) %s\n" buffer nth n (show stencilId)
+        postFeatures conn stencilId (Set.toList $ features stencil)
+
+  begin conn
 
 
 recalcAllBrains :: Connection -> IO ()
@@ -156,13 +166,13 @@ recalcAllBrains conn = do
   commit conn
   putStrLn "Recalc all"
   users <- withTransaction conn $ fetchUserList conn
-  
+
   let n = length users
       buffer = length (show n)
   forM_ (zip [1::Int ..] users) $ \(nth, user) -> do
     printf "Recalc user: (%*d/%d) %s\n" buffer nth n (show user)
     recalcUserBrain conn user
-  
+
   -- Begin a new transaction to suppress the warning when our caller
   -- tries to commit.
   begin conn
@@ -181,7 +191,7 @@ recalcUserModel conn userId featureId feature = do
   -- get all responses for stencils that refer the feature.
   -- Sort them by date oldest first.
   responses <- fetchFeatureResponses conn userId featureId
-  
+
   -- Apply all the responses to an empty model.
   let newModel = recalcBrain feature responses
   unless (newModel == defaultRep feature) $

@@ -52,7 +52,10 @@ executable lesschobo
                        mongoDB,
                        network,
                        postgresql-simple,
-                       resource-pool
+                       resource-pool,
+                       cereal,
+                       split,
+                       uuid
 
   hs-source-dirs:      src
   ghc-options:         -Wall -rtsopts
@@ -80,6 +83,9 @@ executable lesschobo-cli
                        filepath,
                        cmdtheline,
                        bytestring,
-                       directory
+                       directory,
+                       cereal,
+                       split,
+                       uuid
 
 

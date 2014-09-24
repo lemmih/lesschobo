@@ -1,6 +1,7 @@
-DROP EXTENSION IF EXISTS "uuid-ossp";
+DROP EXTENSION IF EXISTS "uuid-ossp" CASCADE;
 CREATE EXTENSION "uuid-ossp";
 
+DROP TYPE IF EXISTS Brain CASCADE;
 DROP TABLE IF EXISTS Stencils CASCADE;
 DROP TABLE IF EXISTS StencilIssues CASCADE;
 DROP TABLE IF EXISTS Features CASCADE;
@@ -135,6 +136,11 @@ CREATE OR REPLACE VIEW StencilLastSeen AS
   FROM Responses
   GROUP BY user_id, stencil_id;
 
+CREATE MATERIALIZED VIEW StencilLastSeenM AS
+  SELECT * FROM StencilLastSeen;
+
+CREATE INDEX ON StencilLastSeenM (user_id, stencil_id);
+
 CREATE TABLE Models
   ( user_id    text REFERENCES Users(id)
   , feature_id uuid REFERENCES Features(id)
@@ -142,6 +148,8 @@ CREATE TABLE Models
   , at         timestamptz
   , UNIQUE (user_id, feature_id)
   );
+
+CREATE INDEX ON Models (user_id);
 
 -- CREATE TABLE Schedule
 --   ( user_id    text REFERENCES Users(id)
@@ -165,6 +173,29 @@ CREATE OR REPLACE VIEW Schedule AS
   LEFT JOIN Models m
   ON m.user_id = uf.user_id AND m.feature_id = uf.feature_id
   GROUP by uf.user_id, stencil_id;
+
+-- CREATE OR REPLACE VIEW ScheduleF AS
+--   SELECT id as user_id, stencil_id, models
+--   FROM ScheduleHelper
+--   WHERE features = array_length(models,1);
+
+-- CREATE OR REPLACE VIEW ScheduleHelper AS
+--   SELECT id, stencil_id, array_length(t.features,1) as features,
+--     (
+--       SELECT min(at)
+--       FROM Models,
+--         (SELECT unnest(t.features)) tmp
+--       WHERE Models.user_id = id AND Models.feature_id = ANY (t.features))
+--     as models
+--   FROM
+--     Users,
+--     (select stencil_id, array_agg(feature_id) as features
+--       from stencilfeatures group by stencil_id) t;
+
+CREATE MATERIALIZED VIEW ScheduleM AS
+  SELECT * FROM Schedule WHERE at <> :'nullDate';
+
+create index on ScheduleM (user_id);
 
 -- Unit id and course id are 'text' becaue they're managed by meteor/mongo.
 -- They are guaranteed to be unique.
@@ -201,21 +232,35 @@ CREATE VIEW UserCourses AS
   WHERE
     Units.id = UnitMembers.unit_id;
 
-CREATE VIEW Courses AS
+CREATE OR REPLACE VIEW UserBrains AS
+  SELECT
+    Users.id as user_id, Stencils.id as stencil_id,
+    ARRAY(
+      SELECT to_json(row(Features.content,Models.content))
+      FROM StencilFeatures, Features, Models
+      WHERE
+        StencilFeatures.stencil_id = Stencils.id AND
+        StencilFeatures.feature_id = Features.id AND
+        StencilFeatures.feature_id = Models.feature_id
+    ) as brain
+  FROM
+    Users,
+    Stencils;
+
+CREATE OR REPLACE VIEW Courses AS
   SELECT
     UserCourses.user_id,
     course_id, unit_id, UnitIndex,
     StencilIndex, UserCourses.stencil_id,
-    CASE
-      WHEN at = :'nullDate' THEN NULL
-      ELSE at
-    END
+    seen_at as at
   FROM
     UserCourses
-  LEFT JOIN Schedule
-  ON
-    Schedule.user_id = UserCourses.user_id AND
-    Schedule.stencil_id = UserCourses.stencil_id;
+  LEFT JOIN
+    StencilLastSeenM StencilLastSeen
+  ON StencilLastSeen.user_id = UserCourses.user_id AND
+     StencilLastSeen.stencil_id = UserCourses.stencil_id
+  ORDER BY
+    user_id, course_id, unitindex, stencilindex;
 
 CREATE VIEW CourseIssues AS
   SELECT
@@ -297,103 +342,139 @@ CREATE VIEW CourseIssues AS
 -- INSERT INTO StencilIssues VALUES ( :'id1', 'user', now(), 'issue!' );
 
 CREATE OR REPLACE VIEW CourseFeatures AS
-  SELECT DISTINCT
-    Inherit.receiver as course_id, StencilFeatures.stencil_id, feature_id
+  SELECT
+    -- Units.course_id as course_id, StencilFeatures.stencil_id, feature_id
+    Units.course_id as course_id, feature_id
   FROM 
     Units,
     UnitMembers,
-    Inherit,
     StencilFeatures
   WHERE
-    Inherit.giver = Units.course_id AND
     Units.id = UnitMembers.unit_id AND
     UnitMembers.stencil_id = StencilFeatures.stencil_id;
 
+CREATE MATERIALIZED VIEW CourseFeaturesM AS
+  SELECT DISTINCT * FROM CourseFeatures
+  ORDER BY course_id, feature_id;
+
+CREATE INDEX ON CourseFeaturesM (feature_id);
+
+CREATE OR REPLACE VIEW CourseStencils AS
+  SELECT DISTINCT
+    Inherit.receiver as course_id, UnitMembers.stencil_id
+  FROM 
+    Units,
+    UnitMembers,
+    Inherit
+  WHERE
+    Inherit.giver = Units.course_id AND
+    Units.id = UnitMembers.unit_id
+  ORDER BY
+    course_id, stencil_id;
+
+CREATE MATERIALIZED VIEW CourseStencilsM AS
+  SELECT * FROM CourseStencils;
+
+CREATE INDEX ON CourseStencilsM ( course_id );
+CREATE INDEX ON CourseStencilsM ( stencil_id );
+
 CREATE OR REPLACE VIEW ReviewStencils AS
   SELECT DISTINCT ON (user_id, course_id, feature_id)
-    Users.id as user_id, course_id,
-    CourseFeatures.stencil_id,
+    Users.id as user_id, CourseFeatures.course_id,
+    CourseStencils.stencil_id,
+    -- null :: timestamptz as seen_at,
+    -- cost of StencilLastSeen is 45ms. Too expensive.
     (SELECT seen_at
-      FROM StencilLastSeen
+      FROM StencilLastSeenM StencilLastSeen
       WHERE StencilLastSeen.user_id = Users.id AND
-            StencilLastSeen.stencil_id = CourseFeatures.stencil_id
+            StencilLastSeen.stencil_id = CourseStencils.stencil_id
     ) seen_at,
     CourseFeatures.feature_id,
     Models.at as review_at,
     Schedule.at as stencil_at
   FROM
     Users,
-    CourseFeatures,
+    CourseFeaturesM CourseFeatures,
+    CourseStencilsM CourseStencils,
     Models,
-    Schedule
+    ScheduleM Schedule
   WHERE
     Users.id = Models.user_id AND
     CourseFeatures.feature_id = Models.feature_id AND
+    CourseStencils.course_id = CourseFeatures.course_id AND
     Schedule.user_id = Users.id AND
-    Schedule.stencil_id = CourseFeatures.stencil_id AND
+    Schedule.stencil_id = CourseStencils.stencil_id AND
     Schedule.at = Models.at
   ORDER BY
     user_id, course_id, feature_id, seen_at ASC NULLS FIRST;
 
 CREATE OR REPLACE VIEW Review AS
   SELECT
-    ReviewStencils.user_id, course_id, ReviewStencils.stencil_id,
-    Stencils.content as stencil, seen_at,
+    ReviewStencils.user_id, ReviewStencils.course_id, ReviewStencils.stencil_id,
+    Stencils.content as stencil,
+    seen_at,
     ReviewStencils.feature_id, review_at,
-    array_agg(Features.content) as Features,
-    array_agg(Models.content) as models
+    (SELECT brain FROM UserBrains
+      WHERE user_id = ReviewStencils.user_id AND stencil_id = ReviewStencils.stencil_id)
+      as brain
   FROM
     ReviewStencils,
-    StencilFeatures,
-    Features,
-    Models,
     Stencils
   WHERE
-    ReviewStencils.stencil_id = StencilFeatures.stencil_id AND
-    StencilFeatures.feature_id = Models.feature_id AND
-    ReviewStencils.user_id = Models.user_id AND
-    Features.id = StencilFeatures.feature_id AND
     ReviewStencils.stencil_id = Stencils.id
-  GROUP BY
-    ReviewStencils.user_id, course_id, ReviewStencils.stencil_id,
-    Stencils.content, seen_at,
-    ReviewStencils.feature_id, review_at
   ORDER BY
-    review_at;
+    review_at desc;
 
-CREATE VIEW Study AS
-  WITH tmp AS (SELECT
+CREATE OR REPLACE VIEW Study AS
+  SELECT
     Courses.user_id,
     course_id, unit_id, UnitIndex,
     StencilIndex, Courses.stencil_id,
     Stencils.content as stencil,
-    Courses.at,
-    Features.id as feature_id,
-    Features.content
+    at,
+    (SELECT brain FROM UserBrains
+      WHERE user_id = Courses.user_id AND stencil_id = Courses.stencil_id)
+      as brain
   FROM
-    Courses, Stencils, StencilFeatures, Features
+    Courses, Stencils
   WHERE
-    Courses.stencil_id = Stencils.id AND
-    StencilFeatures.stencil_id = Courses.stencil_id AND
-    StencilFeatures.feature_id = Features.id)
-  SELECT
-    tmp.user_id,
-    course_id, unit_id, UnitIndex,
-    StencilIndex, stencil_id,
-    stencil,
-    tmp.at,
-    array_agg(tmp.content) as Features,
-    array_agg(Models.content) as Models
-  FROM
-    tmp
-  LEFT JOIN Models
-  ON Models.user_id = tmp.user_id AND Models.feature_id = tmp.feature_id
-  GROUP BY
-    tmp.user_id,
-    course_id, unit_id, UnitIndex,
-    StencilIndex, stencil_id,
-    stencil,
-    tmp.at;
+    Courses.stencil_id = Stencils.id
+  ORDER BY
+    user_id, course_id, unitindex, stencilindex;
+
+-- CREATE VIEW Study AS
+--   WITH tmp AS (SELECT
+--     Courses.user_id,
+--     course_id, unit_id, UnitIndex,
+--     StencilIndex, Courses.stencil_id,
+--     Stencils.content as stencil,
+--     Courses.at,
+--     Features.id as feature_id,
+--     Features.content
+--   FROM
+--     Courses, Stencils, StencilFeatures, Features
+--   WHERE
+--     Courses.stencil_id = Stencils.id AND
+--     StencilFeatures.stencil_id = Courses.stencil_id AND
+--     StencilFeatures.feature_id = Features.id)
+--   SELECT
+--     tmp.user_id,
+--     course_id, unit_id, UnitIndex,
+--     StencilIndex, stencil_id,
+--     stencil,
+--     tmp.at,
+--     array_agg(tmp.content) as Features,
+--     array_agg(Models.content) as Models
+--   FROM
+--     tmp
+--   LEFT JOIN Models
+--   ON Models.user_id = tmp.user_id AND Models.feature_id = tmp.feature_id
+--   GROUP BY
+--     tmp.user_id,
+--     course_id, unit_id, UnitIndex,
+--     StencilIndex, stencil_id,
+--     stencil,
+--     tmp.at;
 
 /*
 Introduce new material:

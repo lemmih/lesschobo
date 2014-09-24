@@ -1,5 +1,6 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE RecordWildCards   #-}
+{-# LANGUAGE DeriveDataTypeable #-}
+{-# LANGUAGE OverloadedStrings  #-}
+{-# LANGUAGE RecordWildCards    #-}
 {-# OPTIONS_GHC -fno-warn-orphans #-}
 module DB
     ( runDB
@@ -32,13 +33,16 @@ import           LessChobo.Responses
 import           LessChobo.Stencils                     (PermaResponse (..),
                                                          Stencil (..))
 
-import           Control.Exception
+import Data.Maybe
 import           Control.Applicative
+import           Control.Exception
 import           Control.Monad
 import           Control.Monad.Trans
 import           Data.Aeson
+import qualified Data.ByteString.Char8                  as B
 import           Data.Pool
 import           Data.Text                              (Text)
+import           Data.Typeable
 import           Data.UUID                              (UUID)
 import qualified Data.Vector                            as V
 import           Database.PostgreSQL.Simple
@@ -82,6 +86,19 @@ instance FromField Rep where
 
 instance ToField Rep where
     toField = toJSONField
+
+newtype FeatureModel = FeatureModel { unFeatureModel :: (Feature, Model) }
+    deriving ( Typeable )
+instance FromField FeatureModel where
+    fromField = fromJSONField
+
+instance FromJSON FeatureModel where
+    parseJSON = withObject "FeatureModel" $ \o ->
+        FeatureModel <$>
+        ((,)
+            <$> o .: "f1"
+            <*> o .: "f2")
+
 
 
 logErrors :: IO a -> IO a
@@ -178,34 +195,46 @@ postModels conn userId models = do
         [ (userId, featureId, model, repSchedule model)
         | (featureId, model) <- models ]
 
+
+
+
+
 fetchReviewStencils :: Connection -> UserId -> CourseId ->
-    IO [(StencilId, Stencil, [(Feature, Maybe Model)])]
+    IO [(StencilId, Stencil, [(Feature, Model)])]
 fetchReviewStencils conn userId courseId = do
     rows <- query conn
-        "SELECT stencil_id, stencil, features, models \
+        "SELECT stencil_id, stencil, brain \
         \FROM Review \
         \WHERE user_id = ? AND course_id = ? AND review_at < now() \
-        \ORDER BY review_at DESC \
         \LIMIT 10"
         (userId, courseId)
     return
-        [ (stencilId, stencil, V.toList (V.zip features models))
-        | (stencilId, stencil, features, models) <- rows]
+        [ (stencilId, stencil, V.toList $ V.map unFeatureModel brain)
+        | (stencilId, stencil, brain) <- rows]
+    --return
+    --    [ (stencilId, stencil, V.toList (V.zip features models))
+    --    | (stencilId, stencil, features, models) <- rows]
 
 fetchStudyStencils :: Connection -> UserId -> CourseId -> Int ->
-    IO [(StencilId, Stencil, [(Feature, Maybe Model)])]
+    IO [(StencilId, Stencil, [(Feature, Model)])]
 fetchStudyStencils conn userId courseId unitIdx = do
     rows <- query conn
-        "SELECT stencil_id, stencil, features, models \
+        "SELECT stencil_id, stencil, brain \
         \FROM Study \
         \WHERE user_id = ? AND course_id = ? AND unitindex <= ? AND\
         \      at IS NULL \
-        \ORDER BY stencilindex \
         \LIMIT 10"
         (userId, courseId, unitIdx)
     return
-        [ (stencilId, stencil, V.toList (V.zip features models))
-        | (stencilId, stencil, features, models) <- rows]
+        [ (stencilId, stencil, V.toList $ V.map unFeatureModel brain)
+        | (stencilId, stencil, brain) <- rows]
+    -- return
+    --     [ (stencilId, stencil, filterNothing $ V.toList (V.zip features models))
+    --     | (stencilId, stencil, features, models) <- rows]
+  -- where
+  --   filterNothing = mapMaybe fn
+  --   fn (x, Nothing) = Nothing
+  --   fn (x, Just y)  = Just (x,y)
 
 fetchDirtyStencils :: Connection -> IO [(StencilId, Stencil)]
 fetchDirtyStencils conn =
