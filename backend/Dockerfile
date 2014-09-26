@@ -3,6 +3,7 @@ FROM zsol/haskell-platform-2013.2.0.0
 
 MAINTAINER lemmih@gmail.com
 
+RUN sudo apt-get update && sudo apt-get install -y libpq-dev
 RUN cabal update
 ADD lesschobo.cabal /home/haskell/lesschobo.cabal
 RUN cabal install . --only-dependencies  --jobs=1
