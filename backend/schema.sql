@@ -32,6 +32,8 @@ CREATE TABLE Stencils
   , UNIQUE (content)
   );
 
+CREATE INDEX ON Stencils USING gin (content);
+
 CREATE OR REPLACE VIEW StencilsView AS
   SELECT id, content
   FROM Stencils;
@@ -78,6 +80,8 @@ CREATE TABLE Features
   ( id      uuid PRIMARY KEY
   , content jsonb NOT NULL
   );
+
+CREATE INDEX ON Features USING gin (content);
 
 CREATE OR REPLACE VIEW FeaturesView AS
   SELECT id, content
@@ -133,6 +137,8 @@ CREATE TABLE Responses
   , at         timestamptz NOT NULL
   ); 
 
+CREATE INDEX ON Responses USING gin (content);
+
 CREATE OR REPLACE VIEW StencilLastSeenGen AS
   SELECT user_id, stencil_id, max(at) as seen_at
   FROM Responses
@@ -157,19 +163,9 @@ CREATE TABLE Models
   , UNIQUE (user_id, feature_id)
   );
 
-CREATE INDEX ON Models (user_id);
--- CREATE INDEX ON Models (user_id, created_at ASC) WHERE dirty;
+CREATE INDEX ON Models USING gin (content);
 
--- CREATE OR REPLACE VIEW DirtyStencils AS
---   SELECT DISTINCT user_id, created_at, stencil_id
---   FROM
---     (SELECT *
---       FROM Models
---       WHERE dirty
---       ORDER BY user_id, created_at ASC
---       LIMIT 10) Models,
---     StencilFeatures
---   WHERE Models.dirty AND Models.feature_id = StencilFeatures.feature_id;
+CREATE INDEX ON Models (user_id);
 
 CREATE OR REPLACE VIEW UserStencils AS
   SELECT Users.id as user_id, Stencils.id as stencil_id
