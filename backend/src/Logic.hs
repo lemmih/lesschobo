@@ -19,7 +19,8 @@ import           Text.Printf
 import           DB
 import           LessChobo.Cards
 import           LessChobo.Features         (Feature (..), applyResponse,
-                                             bumpRep, defaultRep, repSchedule)
+                                             bumpRep, defaultRep, repSchedule,
+                                             scheduleByReps)
 import           LessChobo.Responses
 import           LessChobo.Stencils
 
@@ -122,6 +123,14 @@ addResponse conn response = do
         (responseStencil response)
     let newBrains = updateBrain response brains
     DB.postModels conn (responseUserId response) newBrains
+    case scheduleByReps (map snd newBrains) of
+      Just newSchedule | length newBrains == length brains ->
+        postNewStencilSchedule
+          conn
+          (responseUserId response)
+          (responseStencil response)
+          newSchedule
+      _Nothing -> return ()
 
 updateBrain :: Response -> [(FeatureId, Feature, Maybe Model)]
   -> [(FeatureId, Model)]
@@ -200,5 +209,21 @@ recalcUserModel conn userId featureId feature = do
 
 
 
+
+updDirtySchedule :: Connection -> IO ()
+updDirtySchedule conn = do
+  commit conn
+
+  users <- fetchDirtyUsers conn
+  let n = length users
+      buffer = length (show n)
+  forM_ (zip [1::Int ..] users) $ \(nth, userId) -> do
+    dirty <- fetchDirtySchedule conn userId
+    printf "Dirty stencils: (%*d/%d) %d\n" buffer nth n (length dirty)
+    forM_ (chunksOf 10 dirty) $ \lst ->
+      withTransaction conn $ forM_ lst $ \(stencilId, at) ->
+        postNewStencilSchedule conn userId stencilId at
+
+  begin conn
 
 

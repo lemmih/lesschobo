@@ -78,7 +78,13 @@ main = do
   Worker.forkIO group $ forever $ do
     catch (runDB pool $ updDirtyStencils)
       (\e ->
-        putStrLn $ "Worker error: " ++ show (e::SomeException))
+        putStrLn $ "updDirtyStencils error: " ++ show (e::SomeException))
+    threadDelay oneSecond
+
+  Worker.forkIO group $ forever $ do
+    catch (runDB pool $ updDirtySchedule)
+      (\e ->
+        putStrLn $ "updDirtySchedule error: " ++ show (e::SomeException))
     threadDelay oneSecond
   --ThreadGroup.forkIO group $ forever $ do
   --  updCourseStats global pipe database `catch` \e -> do

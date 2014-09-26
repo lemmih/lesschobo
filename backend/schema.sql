@@ -16,11 +16,13 @@ DROP TABLE IF EXISTS Inherit CASCADE;
 DROP FUNCTION IF EXISTS post_stencil();
 DROP VIEW IF EXISTS UserCourses CASCADE;
 DROP VIEW IF EXISTS Courses CASCADE;
+DROP TABLE IF EXISTS StencilLastSeen CASCADE;
 
 \set nullDate 1/1/0001
 
 CREATE TABLE Users
   ( id text PRIMARY KEY
+  , dirty boolean NOT NULL DEFAULT true
   );
 
 CREATE TABLE Stencils
@@ -131,32 +133,43 @@ CREATE TABLE Responses
   , at         timestamptz NOT NULL
   ); 
 
-CREATE OR REPLACE VIEW StencilLastSeen AS
+CREATE OR REPLACE VIEW StencilLastSeenGen AS
   SELECT user_id, stencil_id, max(at) as seen_at
   FROM Responses
   GROUP BY user_id, stencil_id;
 
-CREATE MATERIALIZED VIEW StencilLastSeenM AS
-  SELECT * FROM StencilLastSeen;
+CREATE TABLE StencilLastSeen
+  ( user_id    text REFERENCES Users(id)
+  , stencil_id uuid REFERENCES Stencils(id)
+  , seen_at    timestamptz NOT NULL
+  );
 
-CREATE INDEX ON StencilLastSeenM (user_id, stencil_id);
+CREATE INDEX ON StencilLastSeen (user_id, stencil_id);
 
 CREATE TABLE Models
   ( user_id    text REFERENCES Users(id)
   , feature_id uuid REFERENCES Features(id)
   , content    jsonb NOT NULL
   , at         timestamptz
+  , created_at timestamptz
+  -- , dirty      boolean NOT NULL DEFAULT true
+  -- , created_at timestamptz
   , UNIQUE (user_id, feature_id)
   );
 
 CREATE INDEX ON Models (user_id);
+-- CREATE INDEX ON Models (user_id, created_at ASC) WHERE dirty;
 
--- CREATE TABLE Schedule
---   ( user_id    text REFERENCES Users(id)
---   , stencil_id uuid REFERENCES Stencils(id)
---   , at         timestamp NULL
---   , UNIQUE ( user_id, stencil_id )
---   );
+-- CREATE OR REPLACE VIEW DirtyStencils AS
+--   SELECT DISTINCT user_id, created_at, stencil_id
+--   FROM
+--     (SELECT *
+--       FROM Models
+--       WHERE dirty
+--       ORDER BY user_id, created_at ASC
+--       LIMIT 10) Models,
+--     StencilFeatures
+--   WHERE Models.dirty AND Models.feature_id = StencilFeatures.feature_id;
 
 CREATE OR REPLACE VIEW UserStencils AS
   SELECT Users.id as user_id, Stencils.id as stencil_id
@@ -167,35 +180,35 @@ CREATE OR REPLACE VIEW UserFeatures AS
   FROM UserStencils us, StencilFeatures sf
   WHERE us.stencil_id = sf.stencil_id;
 
-CREATE OR REPLACE VIEW Schedule AS
+CREATE TABLE Schedule
+  ( user_id    text REFERENCES Users(id)
+  , stencil_id uuid REFERENCES Stencils(id)
+  , at         timestamptz NOT NULL
+  );
+
+create index on Schedule (user_id);
+create index on Schedule (user_id, at);
+create index on Schedule (user_id, stencil_id);
+
+CREATE OR REPLACE VIEW ScheduleGen AS
   SELECT uf.user_id, stencil_id, min(coalesce(at, :'nullDate')) as at
   FROM UserFeatures uf
   LEFT JOIN Models m
   ON m.user_id = uf.user_id AND m.feature_id = uf.feature_id
   GROUP by uf.user_id, stencil_id;
 
--- CREATE OR REPLACE VIEW ScheduleF AS
---   SELECT id as user_id, stencil_id, models
---   FROM ScheduleHelper
---   WHERE features = array_length(models,1);
-
--- CREATE OR REPLACE VIEW ScheduleHelper AS
---   SELECT id, stencil_id, array_length(t.features,1) as features,
---     (
---       SELECT min(at)
---       FROM Models,
---         (SELECT unnest(t.features)) tmp
---       WHERE Models.user_id = id AND Models.feature_id = ANY (t.features))
---     as models
---   FROM
---     Users,
---     (select stencil_id, array_agg(feature_id) as features
---       from stencilfeatures group by stencil_id) t;
-
-CREATE MATERIALIZED VIEW ScheduleM AS
-  SELECT * FROM Schedule WHERE at <> :'nullDate';
-
-create index on ScheduleM (user_id);
+CREATE OR REPLACE VIEW DirtySchedule AS
+  SELECT
+    ScheduleGen.user_id, ScheduleGen.stencil_id, ScheduleGen.at
+  FROM
+    ScheduleGen
+  LEFT JOIN Schedule
+  ON
+    ScheduleGen.user_id = Schedule.user_id AND
+    ScheduleGen.stencil_id = Schedule.stencil_id
+  WHERE
+    ScheduleGen.at <> :'nullDate' AND
+    (ScheduleGen.at <> Schedule.at OR Schedule.at IS NULL);
 
 -- Unit id and course id are 'text' becaue they're managed by meteor/mongo.
 -- They are guaranteed to be unique.
@@ -241,7 +254,8 @@ CREATE OR REPLACE VIEW UserBrains AS
       WHERE
         StencilFeatures.stencil_id = Stencils.id AND
         StencilFeatures.feature_id = Features.id AND
-        StencilFeatures.feature_id = Models.feature_id
+        StencilFeatures.feature_id = Models.feature_id AND
+        Models.user_id = Users.id
     ) as brain
   FROM
     Users,
@@ -252,13 +266,13 @@ CREATE OR REPLACE VIEW Courses AS
     UserCourses.user_id,
     course_id, unit_id, UnitIndex,
     StencilIndex, UserCourses.stencil_id,
-    seen_at as at
+    at as at
   FROM
     UserCourses
   LEFT JOIN
-    StencilLastSeenM StencilLastSeen
-  ON StencilLastSeen.user_id = UserCourses.user_id AND
-     StencilLastSeen.stencil_id = UserCourses.stencil_id
+    Schedule
+  ON Schedule.user_id = UserCourses.user_id AND
+     Schedule.stencil_id = UserCourses.stencil_id
   ORDER BY
     user_id, course_id, unitindex, stencilindex;
 
@@ -275,71 +289,9 @@ CREATE VIEW CourseIssues AS
     Units.id = UnitMembers.unit_id AND
     UnitMembers.stencil_id = StencilIssues.stencil_id;
 
--- CREATE OR REPLACE VIEW ReviewItems AS
---   SELECT user_id, course_id, unit_id, stencil_id, feature_id
---   FROM UserCourses u, Schedule s
---   WHERE u.user_id = s.user_id AND u.stencil_id = s.stencil_id
--- ReviewItems
--- ( user_id, course_id, unit_id, stencil_id, last_seen, feature_id, at )
 
 
--- \set id1 58ab0355-8d73-4034-bfd6-97631b1af133
--- \set id2 da613059-25f0-4df7-bffa-2cf465a22c34
--- \set id3 833f76f2-4f7e-435e-89dc-f67587b612b4
--- \set id4 e38c1d26-ddc3-49d8-a38e-ef193e743678
--- \set id5 abc14fb7-66d9-45ff-8093-a3340b0817d7
--- \set id6 206a9700-83dd-422a-ae40-5509ebbeac6f
--- \set id7 8cca20b8-9f9c-46e0-a16a-bbd727f3fa7b
--- \set id8 7e502817-fcb8-44d8-bd79-04b8e2557af8
--- \set id9 e331a3b0-8d54-4bbb-8034-4a1ec7dae4ae
 
--- INSERT INTO Stencils VALUES ( :'id1', '{"type": "chinese", "chinese": "s1"}', false );
--- INSERT INTO Stencils VALUES ( :'id2', '{"type": "chinese", "chinese": "s2"}', false );
--- INSERT INTO Stencils VALUES ( :'id3', '{"type": "chinese", "chinese": "s3"}', false );
--- INSERT INTO Stencils VALUES ( :'id4', '{"type": "chinese", "chinese": "s4"}', false );
-
--- INSERT INTO Features VALUES ( :'id5', '{"type": "chinese", "word": "f1"}');
--- INSERT INTO Features VALUES ( :'id6', '{"type": "chinese", "word": "f2"}');
-
--- INSERT INTO StencilFeatures VALUES ( :'id1', :'id5' );
--- INSERT INTO StencilFeatures VALUES ( :'id1', :'id6' );
--- INSERT INTO StencilFeatures VALUES ( :'id2', :'id5' );
-
--- INSERT INTO Units VALUES ( 'Unit 1' , 'Course 1', 1 );
--- INSERT INTO Units VALUES ( 'Unit 2' , 'Course 1', 2 );
--- INSERT INTO Units VALUES ( 'Unit A' , 'Course 2', 1 );
-
--- INSERT INTO Inherit VALUES ( 'Course 1', 'Course 1' );
--- INSERT INTO Inherit VALUES ( 'Course 2', 'Course 2' );
--- INSERT INTO Inherit VALUES ( 'Course 2', 'Course 1' );
-
--- INSERT INTO UnitMembers VALUES ( 'Unit 1', :'id1', 1 );
--- INSERT INTO UnitMembers VALUES ( 'Unit 1', :'id2', 2 );
--- INSERT INTO UnitMembers VALUES ( 'Unit 2', :'id3', 1 );
--- INSERT INTO UnitMembers VALUES ( 'Unit A', :'id1', 1 );
--- INSERT INTO UnitMembers VALUES ( 'Unit A', :'id4', 1 );
-
--- INSERT INTO Users VALUES ( 'user' );
--- INSERT INTO Users VALUES ( 'user2' );
-
-
--- INSERT INTO Responses VALUES
---   ( :'id7', :'id1', 'user', '{}', '2010-10-20' );
--- INSERT INTO Responses VALUES
---   ( :'id8', :'id1', 'user', '{}', '2014-09-14' );
--- INSERT INTO Responses VALUES
---   ( :'id9', :'id2', 'user', '{}', '2014-09-15' );
-
-
--- INSERT INTO Models VALUES ( 'user', :'id5', '{"type": "chinese"}', now() );
--- INSERT INTO Models VALUES ( 'user', :'id6', '{"type": "chinese"}', now() );
-
--- INSERT INTO Schedule VALUES ( 'user', :'id1', now() );
--- INSERT INTO Schedule VALUES ( 'user', :'id3', now() );
-
--- INSERT INTO Schedule VALUES ( 'user2', :'id1', now() );
-
--- INSERT INTO StencilIssues VALUES ( :'id1', 'user', now(), 'issue!' );
 
 CREATE OR REPLACE VIEW CourseFeatures AS
   SELECT
@@ -382,10 +334,9 @@ CREATE OR REPLACE VIEW ReviewStencils AS
   SELECT DISTINCT ON (user_id, course_id, feature_id)
     Users.id as user_id, CourseFeatures.course_id,
     CourseStencils.stencil_id,
-    -- null :: timestamptz as seen_at,
     -- cost of StencilLastSeen is 45ms. Too expensive.
     (SELECT seen_at
-      FROM StencilLastSeenM StencilLastSeen
+      FROM StencilLastSeen
       WHERE StencilLastSeen.user_id = Users.id AND
             StencilLastSeen.stencil_id = CourseStencils.stencil_id
     ) seen_at,
@@ -397,7 +348,7 @@ CREATE OR REPLACE VIEW ReviewStencils AS
     CourseFeaturesM CourseFeatures,
     CourseStencilsM CourseStencils,
     Models,
-    ScheduleM Schedule
+    Schedule
   WHERE
     Users.id = Models.user_id AND
     CourseFeatures.feature_id = Models.feature_id AND
@@ -442,39 +393,6 @@ CREATE OR REPLACE VIEW Study AS
   ORDER BY
     user_id, course_id, unitindex, stencilindex;
 
--- CREATE VIEW Study AS
---   WITH tmp AS (SELECT
---     Courses.user_id,
---     course_id, unit_id, UnitIndex,
---     StencilIndex, Courses.stencil_id,
---     Stencils.content as stencil,
---     Courses.at,
---     Features.id as feature_id,
---     Features.content
---   FROM
---     Courses, Stencils, StencilFeatures, Features
---   WHERE
---     Courses.stencil_id = Stencils.id AND
---     StencilFeatures.stencil_id = Courses.stencil_id AND
---     StencilFeatures.feature_id = Features.id)
---   SELECT
---     tmp.user_id,
---     course_id, unit_id, UnitIndex,
---     StencilIndex, stencil_id,
---     stencil,
---     tmp.at,
---     array_agg(tmp.content) as Features,
---     array_agg(Models.content) as Models
---   FROM
---     tmp
---   LEFT JOIN Models
---   ON Models.user_id = tmp.user_id AND Models.feature_id = tmp.feature_id
---   GROUP BY
---     tmp.user_id,
---     course_id, unit_id, UnitIndex,
---     StencilIndex, stencil_id,
---     stencil,
---     tmp.at;
 
 /*
 Introduce new material:
@@ -495,3 +413,85 @@ Metrics:
     How many stencils have review date in the past?
     How many stencils have review date in the future?
 */
+
+
+
+
+
+
+
+
+
+
+
+/* Trigger to keep StencilLastSeen up-to-date. */
+CREATE OR REPLACE FUNCTION upd_lastseen() RETURNS trigger AS
+$$
+BEGIN
+  LOOP
+    UPDATE StencilLastSeen
+    SET seen_at = GREATEST( seen_at, NEW.at)
+    WHERE stencil_id = NEW.stencil_id AND user_id = NEW.user_id;
+    IF FOUND THEN
+      RETURN NEW;
+    ELSE
+      BEGIN
+        INSERT INTO StencilLastSeen (user_id, stencil_id, seen_at)
+          VALUES (NEW.user_id, NEW.stencil_id, NEW.at);
+        RETURN NEW;
+      EXCEPTION
+        WHEN unique_violation THEN
+          NULL;
+      END;
+    END IF;
+  END LOOP;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER upd_lastseen_trigger
+  AFTER INSERT ON Responses
+  FOR EACH ROW
+  EXECUTE PROCEDURE upd_lastseen();
+
+
+
+/* Hm, this trigger isn't be run. We do delete+insert instead of update */
+/* Trigger to keep Schedule reasonably up-to-date */
+CREATE OR REPLACE FUNCTION upd_schedule() RETURNS trigger AS
+$$
+BEGIN
+  UPDATE Schedule
+  SET at = NEW.at
+  WHERE
+    user_id = NEW.user_id AND
+    at = OLD.at;
+  RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER upd_schedule_trigger
+  AFTER UPDATE ON Models
+  FOR EACH ROW
+  EXECUTE PROCEDURE upd_schedule();
+
+
+
+
+CREATE OR REPLACE FUNCTION mark_dirty_user() RETURNS trigger AS
+$$
+BEGIN
+  UPDATE Users
+  SET dirty = true
+  WHERE id = NEW.user_id;
+  RETURN NEW;
+END;
+$$
+LANGUAGE plpgsql;
+
+CREATE TRIGGER mark_user_trigger
+  AFTER INSERT ON Responses
+  FOR EACH ROW
+  EXECUTE PROCEDURE mark_dirty_user();
+

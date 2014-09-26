@@ -11,9 +11,12 @@ module DB
     , addResponse
     , fetchStencilModels
     , postModels
+    , postNewStencilSchedule
     , fetchReviewStencils
     , fetchStudyStencils
     , fetchDirtyStencils
+    , fetchDirtyUsers
+    , fetchDirtySchedule
     , postFeatures
     , fetchPermaResponses
     , postPermaResponses
@@ -33,15 +36,14 @@ import           LessChobo.Responses
 import           LessChobo.Stencils                     (PermaResponse (..),
                                                          Stencil (..))
 
-import Data.Maybe
 import           Control.Applicative
 import           Control.Exception
 import           Control.Monad
 import           Control.Monad.Trans
 import           Data.Aeson
-import qualified Data.ByteString.Char8                  as B
 import           Data.Pool
 import           Data.Text                              (Text)
+import           Data.Time
 import           Data.Typeable
 import           Data.UUID                              (UUID)
 import qualified Data.Vector                            as V
@@ -195,7 +197,15 @@ postModels conn userId models = do
         [ (userId, featureId, model, repSchedule model)
         | (featureId, model) <- models ]
 
-
+postNewStencilSchedule :: Connection -> UserId -> StencilId -> UTCTime -> IO ()
+postNewStencilSchedule conn userId stencilId at = do
+    void $ execute conn
+        "DELETE FROM Schedule WHERE user_id = ? AND stencil_id = ?"
+        (userId, stencilId)
+    void $ execute conn
+        "INSERT INTO Schedule (user_id, stencil_id, at) \
+        \VALUES (?,?,?)"
+        (userId, stencilId, at)
 
 
 
@@ -243,6 +253,21 @@ fetchDirtyStencils conn =
         \FROM Stencils \
         \WHERE dirty"
         ()
+
+fetchDirtyUsers :: Connection -> IO [UserId]
+fetchDirtyUsers conn = do
+    rows <- query conn "SELECT id FROM Users WHERE dirty" ()
+    void $ execute conn "UPDATE Users SET dirty = false" ()
+    return $ map fromOnly rows
+
+fetchDirtySchedule :: Connection -> UserId -> IO [(StencilId, UTCTime)]
+fetchDirtySchedule conn userId = query conn
+    "SELECT stencil_id, at \
+    \FROM DirtySchedule \
+    \WHERE user_id = ?"
+    (Only userId)
+
+-- rewriteStencilSchedule :: Connection -> IO
 
 postFeatures :: Connection -> StencilId -> [Feature] -> IO ()
 postFeatures conn stencilId features = do
@@ -329,3 +354,6 @@ deleteDuplicateResponses conn = void $
         \      Responses.user_id = r.user_id AND\
         \      Responses.id < r.id"
         ()
+
+
+
