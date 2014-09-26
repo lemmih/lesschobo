@@ -81,6 +81,7 @@ CREATE TABLE Features
   , content jsonb NOT NULL
   );
 
+CREATE INDEX ON Features (content);
 CREATE INDEX ON Features USING gin (content);
 
 CREATE OR REPLACE VIEW FeaturesView AS
