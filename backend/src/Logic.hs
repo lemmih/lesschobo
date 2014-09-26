@@ -227,3 +227,16 @@ updDirtySchedule conn = do
   begin conn
 
 
+
+
+
+
+sanitizeStencils :: [Stencil] -> [Stencil]
+sanitizeStencils = nubStencils Set.empty . map stripComments
+  where
+    stripComments stencil = stencil{stencilComment = ""}
+    nubStencils seen lst =
+      case lst of
+        [] -> []
+        (x:xs) | x `Set.member` seen -> nubStencils seen xs
+               | otherwise           -> x : nubStencils (Set.insert x seen) xs

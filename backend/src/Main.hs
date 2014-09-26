@@ -152,7 +152,7 @@ main = do
       method PUT
       stencils <- jsonBody
       runDB pool $ \conn ->
-        postUnit conn unitId stencils
+        postUnit conn unitId (sanitizeStencils stencils)
       ok $ toResponse ()
 
     , dir "recalc" $ do
