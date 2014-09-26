@@ -3,7 +3,6 @@ module Logic where
 
 import           Control.Applicative
 import           Control.Monad
-import           Control.Exception
 import           Control.Monad.State
 import           Data.Chinese.CCDict
 import           Data.List

@@ -1,6 +1,5 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE OverloadedStrings  #-}
-{-# LANGUAGE TemplateHaskell    #-}
 {-# LANGUAGE RecordWildCards    #-}
 module LessChobo.Stencils
     ( PermaResponse(..)
@@ -26,7 +25,6 @@ import           Data.Aeson           (FromJSON (..), ToJSON (..), Value,
 import qualified Data.Aeson           as Aeson
 import           Data.Aeson.Types     (Pair)
 import           Data.Chinese.CCDict  as CCDict
-import           Data.SafeCopy
 import           Data.Set             (Set)
 import qualified Data.Set             as Set
 import           Data.Text
@@ -90,7 +88,7 @@ instance FromJSON Stencil where
       _other    -> fail $ "Unknown stencil type: " ++ ty
 
 
-deriveSafeCopy 0 'base ''Stencil
+-- deriveSafeCopy 0 'base ''Stencil
 
 
 

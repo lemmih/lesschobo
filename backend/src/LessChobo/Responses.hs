@@ -1,7 +1,6 @@
 {-# LANGUAGE DeriveDataTypeable #-}
 {-# LANGUAGE OverloadedStrings  #-}
 {-# LANGUAGE RecordWildCards    #-}
-{-# LANGUAGE TemplateHaskell    #-}
 {-# LANGUAGE TypeFamilies       #-}
 module LessChobo.Responses where
 
@@ -10,7 +9,6 @@ import           LessChobo.Utilities
 
 import           Control.Applicative
 import           Data.Aeson
-import           Data.SafeCopy
 import           Data.Text
 import           Data.Time
 import           Data.Typeable
@@ -23,23 +21,23 @@ data Response = Response
   , responseUserId  :: UserId
   } deriving ( Read, Show, Eq, Ord, Typeable )
 
-data ResponseContent_v0
-  = V0_MandarinLookupDefinition Chinese
-  | V0_MandarinTextAnswer       Text Text
-  | V0_MandarinSelect           Text
-  | V0_MathComplementAnswer     Int Int Int
-    deriving ( Read, Show, Eq, Ord )
+-- data ResponseContent_v0
+--   = V0_MandarinLookupDefinition Chinese
+--   | V0_MandarinTextAnswer       Text Text
+--   | V0_MandarinSelect           Text
+--   | V0_MathComplementAnswer     Int Int Int
+--     deriving ( Read, Show, Eq, Ord )
 
 
 
-instance Migrate ResponseContent where
-  type MigrateFrom ResponseContent = ResponseContent_v0
-  migrate v0 =
-    case v0 of
-      V0_MandarinLookupDefinition chinese -> MandarinLookupDefinition chinese
-      V0_MandarinTextAnswer key val       -> MandarinTextAnswer False key val
-      V0_MandarinSelect txt               -> MandarinSelect txt
-      V0_MathComplementAnswer a b c       -> MathComplementAnswer a b c
+-- instance Migrate ResponseContent where
+--   type MigrateFrom ResponseContent = ResponseContent_v0
+--   migrate v0 =
+--     case v0 of
+--       V0_MandarinLookupDefinition chinese -> MandarinLookupDefinition chinese
+--       V0_MandarinTextAnswer key val       -> MandarinTextAnswer False key val
+--       V0_MandarinSelect txt               -> MandarinSelect txt
+--       V0_MathComplementAnswer a b c       -> MathComplementAnswer a b c
 
 
 data ResponseContent
@@ -81,4 +79,4 @@ instance FromJSON ResponseContent where
       _ -> error $ "LessChobo.State.parseJSON.ResponseContent: Unknown type: " ++ ty
 
 
-deriveSafeCopy 0 'base ''ResponseContent_v0
+-- deriveSafeCopy 0 'base ''ResponseContent_v0
