@@ -350,7 +350,7 @@ fetchMandarinWordResponses conn userId word = do
         "SELECT DISTINCT ON (at, id) \
         \       Responses.stencil_id, content, at \
         \FROM Responses \
-        \WHERE Responses.content = ? AND\
+        \WHERE Responses.content @> ? AND\
         \      Responses.user_id = ? \
         \ORDER BY at ASC, id"
         (q, userId)
