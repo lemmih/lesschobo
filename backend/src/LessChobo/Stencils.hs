@@ -42,7 +42,7 @@ data Stencil
 
 features :: Stencil -> Set Feature
 features Chinese{stencilChinese=chinese} = Set.fromList
-  [ MandarinWordFeature (entryChinese entry) | KnownWord entry <- tokenizer ccDict chinese ]
+  [ MandarinWordFeature (entryChinese entry) | KnownWord entry <- tokenizer' ccDict chinese ]
 
 schedule :: Stencil -> Reader User (Maybe UTCTime)
 schedule stencil@Chinese{} = fmap scheduleByReps $ mapM lookupRep (Set.toList $ features stencil)
