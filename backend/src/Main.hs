@@ -5,8 +5,6 @@
 module Main ( main ) where
 
 import           DB
-import           LessChobo.Common
-import           LessChobo.Responses
 import           LessChobo.Stencils (permaUserId)
 --import           LessChobo.State
 import           Logic
@@ -15,21 +13,16 @@ import           Control.Applicative
 import           Control.Concurrent
 import           Control.Exception
 import           Control.Monad
-import           Control.Monad.Fix
 import           Control.Monad.Trans
 import Data.List.Split
-import           Data.Acid
-import           Data.Acid.Advanced
 import qualified Data.Aeson                 as Aeson
 import qualified Data.ByteString.Char8      as B
 import qualified Data.Set as Set
 import           Data.Maybe
 import           Data.Pool
 import qualified Data.Text                  as T
-import           Data.Time
 import           Database.MongoDB
 import qualified Database.PostgreSQL.Simple as PSQL
-import           Debug.Trace
 import           Happstack.Server           hiding (Host, Response)
 import           Network.URI                (URI (..), URIAuth (..), parseURI,
                                              uriAuthority)
