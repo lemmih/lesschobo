@@ -4,6 +4,11 @@
 var cardsPrefetched = new Meteor.Collection(null);
 cards = new Meteor.Collection(null);
 
+clearStudyCards = function() {
+  cardsPrefetched.remove({});
+  cards.remove({});
+}
+
 // Fetch cards from either the review queue or the
 // practice queue, depending on context.
 // context.action must be set.
@@ -22,6 +27,7 @@ fetchMoreCards = function (context) {
     }
   } else {
     console.log('Cards already in prefetch queue.');
+    activateNextCardSet();
   }
 }
 

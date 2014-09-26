@@ -2,7 +2,10 @@ Template.review.created = function () {
   console.log('studyCourse', this.data);
   cards.remove({});
   fetchMoreCards(this.data);
-}
+};
+Template.review.destroyed = function () {
+  clearStudyCards();
+};
 Template.review.studyTemplate = function () {
   if ( !cards.empty() )
     return 'study';
@@ -17,6 +20,9 @@ Template.studyCourse.created = function () {
   cards.remove({});
   fetchMoreCards(this.data);
 }
+Template.studyCourse.destroyed = function () {
+  clearStudyCards();
+};
 Template.studyCourse.studyTemplate = function () {
   if ( !cards.empty() )
     return 'study';
