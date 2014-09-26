@@ -30,6 +30,7 @@ module DB
     , CourseId
     ) where
 
+import           LessChobo.Common                       (Chinese)
 import           LessChobo.Features                     (Feature (..), Rep,
                                                          repSchedule)
 import           LessChobo.Responses
@@ -315,9 +316,17 @@ postPermaResponses conn responses = do
         | (Only stencilId, PermaResponse{..}) <- zip rows responses ]
     return ()
 
+fetchFeatureResponses
+    :: Connection -> UserId
+    -> FeatureId -> Feature -> IO [Response]
+fetchFeatureResponses conn userId featureId feature =
+    case feature of
+        MandarinWordFeature word ->
+            fetchMandarinWordResponses conn userId word
+        _ -> fetchFeatureResponsesById conn userId featureId
 
-fetchFeatureResponses :: Connection -> UserId -> FeatureId -> IO [Response]
-fetchFeatureResponses conn userId featureId = do
+fetchFeatureResponsesById :: Connection -> UserId -> FeatureId -> IO [Response]
+fetchFeatureResponsesById conn userId featureId = do
     rows <- query conn
         "SELECT DISTINCT ON (at, id) \
         \       Responses.stencil_id, content, at \
@@ -330,6 +339,29 @@ fetchFeatureResponses conn userId featureId = do
     return
         [ Response at content stencilId userId
         | (stencilId, content, at) <- rows ]
+
+-- FIXME: We should make sure to only return responses for stencils
+--        that refer to our feature. Right now we rely on the fact
+--        that all responses with {key: word} refers to the feature
+--        for that word.
+fetchMandarinWordResponses :: Connection -> UserId -> Chinese -> IO [Response]
+fetchMandarinWordResponses conn userId word = do
+    rows <- query conn
+        "SELECT DISTINCT ON (at, id) \
+        \       Responses.stencil_id, content, at \
+        \FROM Responses \
+        \WHERE Responses.content = ? AND\
+        \      Responses.user_id = ? \
+        \ORDER BY at ASC, id"
+        (q, userId)
+    return
+        [ Response at content stencilId userId
+        | (stencilId, content, at) <- rows ]
+  where
+    q = object
+            [ "key" .= word
+            , "type" .= ("MandarinTextAnswer"::String) ]
+
 
 fetchTouchedFeatures :: Connection -> UserId -> IO [(FeatureId, Feature)]
 fetchTouchedFeatures conn userId =

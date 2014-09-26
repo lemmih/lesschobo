@@ -3,6 +3,7 @@ module Logic where
 
 import           Control.Applicative
 import           Control.Monad
+import           Control.Exception
 import           Control.Monad.State
 import           Data.Chinese.CCDict
 import           Data.List
@@ -199,7 +200,7 @@ recalcUserModel :: Connection -> UserId -> FeatureId -> Feature -> IO ()
 recalcUserModel conn userId featureId feature = do
   -- get all responses for stencils that refer the feature.
   -- Sort them by date oldest first.
-  responses <- fetchFeatureResponses conn userId featureId
+  responses <- fetchFeatureResponses conn userId featureId feature
 
   -- Apply all the responses to an empty model.
   let newModel = recalcBrain feature responses

@@ -156,7 +156,7 @@ main = do
       ok $ toResponse ()
 
     , dir "recalc" $ do
-      runDB pool $ recalcAllBrains
+      liftIO $ forkIO $ runDB pool $ recalcAllBrains
       ok $ toResponse ()
     ]) `finally` Worker.killAll group
   where
