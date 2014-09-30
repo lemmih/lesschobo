@@ -5,22 +5,24 @@
 module Main ( main ) where
 
 import           DB
-import           LessChobo.Stencils (permaUserId)
---import           LessChobo.State
+import           LessChobo.Stencils         (permaUserId)
+import           LessChobo.Responses (Response(..))
 import           Logic
 
 import           Control.Applicative
 import           Control.Concurrent
 import           Control.Exception
 import           Control.Monad
+import           Control.Monad.Fix
 import           Control.Monad.Trans
-import Data.List.Split
 import qualified Data.Aeson                 as Aeson
 import qualified Data.ByteString.Char8      as B
-import qualified Data.Set as Set
+import           Data.List.Split
 import           Data.Maybe
 import           Data.Pool
+import qualified Data.Set                   as Set
 import qualified Data.Text                  as T
+import           Data.Time
 import           Database.MongoDB
 import qualified Database.PostgreSQL.Simple as PSQL
 import           Happstack.Server           hiding (Host, Response)
@@ -59,30 +61,34 @@ mkDatabasePool = do
 oneSecond :: Int
 oneSecond = 10^6
 
+logExceptions :: String -> IO () -> IO ()
+logExceptions name action =
+  catch action $ \e -> do
+    putStrLn $ name ++ ": " ++ show e
+    case asyncExceptionFromException e of
+      Nothing -> return ()
+      Just e  -> throwIO (e::AsyncException)
+
 main :: IO ()
 main = do
   group <- Worker.new
   pool <- mkDatabasePool
   (mongoHost, database) <- getMongoAddr
   pipe <- connect mongoHost
-  --global <- openChobo
 
 
   Worker.forkIO group $ forever $ do
-    catch (runDB pool $ updDirtyStencils)
-      (\e ->
-        putStrLn $ "updDirtyStencils error: " ++ show (e::SomeException))
+    logExceptions "updDirtyStencils" $ runDB pool $ updDirtyStencils
     threadDelay oneSecond
 
   Worker.forkIO group $ forever $ do
-    catch (runDB pool $ updDirtySchedule)
-      (\e ->
-        putStrLn $ "updDirtySchedule error: " ++ show (e::SomeException))
+    logExceptions "updDirtySchedule" $ runDB pool $ updDirtySchedule
     threadDelay oneSecond
-  --ThreadGroup.forkIO group $ forever $ do
-  --  updCourseStats global pipe database `catch` \e -> do
-  --    putStrLn $ "Caught exception: " ++ show (e :: SomeException)
-  --  threadDelay (round (1e6 :: Double))
+
+  Worker.forkIO group $ forever $ do
+    logExceptions "updCourseStats" $ runDB pool $ \conn ->
+      updCourseStats conn pipe database
+    threadDelay oneSecond
 
   simpleHTTP nullConf (msum
     [ do -- decodeBody (defaultBodyPolicy "/tmp/" maxSize maxSize maxSize)
@@ -111,13 +117,21 @@ main = do
             ]
           ]
         ]
+    , dir "responses" $ path $ \courseId -> do
+      method POST
+      response <- jsonBody
+      liftIO $ 
+        triggerStatsUpdate pipe database (responseUserId response) courseId
+      runDB pool $ \conn ->
+        Logic.addResponse conn response
+      ok $ toResponse ()
     , dir "responses" $ do
       method POST
       response <- jsonBody
       runDB pool $ \conn ->
         Logic.addResponse conn response
       ok $ toResponse ()
-    
+
     , dir "perma" $ do
       method GET
       lst <- runDB pool $ fetchPermaResponses
@@ -132,7 +146,7 @@ main = do
         runDB pool $ \conn -> postPermaResponses conn chunk
       runDB pool $ deleteDuplicateResponses
       ok $ toResponse ()
-    
+
     , dir "courses" $ path $ \courseId -> do
       method PUT
       unitList <- jsonBody
@@ -183,64 +197,90 @@ CourseStats
 , seen:     int
 , mastered: int
 , total:    int
-}
-CourseStatsTimes
-{ userId:    id
-, courseId:  id
 , updatedAt: date
 , expiresAt: date
 }
 -}
---updCourseStats :: AcidState Global -> Pipe -> Database -> IO ()
---updCourseStats global pipe database = do
---  -- fetch expired or old userId/courseId pairs
---  now <- liftIO getCurrentTime
---  let expires = addUTCTime 80000 now
---  access pipe slaveOk database $ do
---    cursor <- find (select ["expiresAt" =: ["$lt" =: now]] "CourseStatsTimes")
---    fix $ \loop -> do
---      objs <- nextBatch cursor
---      unless (null objs) $ do
---        forM_ objs $ \obj -> do
---          liftIO $ putStrLn $ "Got object: " ++ show obj
---          let userId = at "userId" obj
---              courseId = at "courseId" obj
---          doc <- liftIO $ mkUserStats global now userId courseId
---          liftIO $ putStrLn $ "Made doc: " ++ show doc
---          upsert
---            (select [ "userId" =: userId
---                    , "courseId" =: courseId] "CourseStats")
---            doc
---          upsert
---            (select [ "userId" =: userId
---                    , "courseId" =: courseId] "CourseStatsTimes")
---            [ "userId" =: userId
---            , "courseId" =: courseId
---            , "updatedAt" =: now
---            , "expiresAt" =: expires ]
---        loop
---    closeCursor cursor
---    return ()
---  -- recalculate review/seen/mastered for each one of them.
---  return ()
+updCourseStats :: PSQL.Connection -> Pipe -> Database -> IO ()
+updCourseStats conn pipe database = do
+ -- fetch expired or old userId/courseId pairs
+  now <- getCurrentTime
+  access pipe slaveOk database $ do
+    cursor <- find (select ["expiresAt" =: ["$lt" =: now]] "CourseStats")
+    fix $ \loop -> do
+      objs <- nextBatch cursor
+      unless (null objs) $ do
+        forM_ objs $ \obj -> do
+          liftIO $ putStrLn $ "Got object: " ++ show obj
+          let userId = at "userId" obj
+              courseId = at "courseId" obj
+          doc <- liftIO $ mkUserStats conn now userId courseId
+          liftIO $ putStrLn $ "Made doc: " ++ show doc
+          upsert
+            (select [ "userId" =: userId
+                    , "courseId" =: courseId] "CourseStats")
+            doc
+        loop
+    closeCursor cursor
+    return ()
+  -- recalculate review/seen/mastered for each one of them.
+  return ()
 
 {-
-{ userId:   id
-, courseId: id
-, review:   boolean
-, seen:     int
-, mastered: int
-, total:    int
+{ userId:    id
+, courseId:  id
+, review:    int
+, seen:      int
+, mastered:  int
+, total:     int
+, expiresAt: at
+, updatedAt: at
 }
 -}
---mkUserStats :: AcidState Global -> UTCTime -> UserId -> CourseId -> IO Document
---mkUserStats global now userId courseId = do
---  (review, seen, mastered, total) <-
---    query global $ GenCourseStats now userId courseId
---  return
---    [ "userId"   =: userId
---    , "courseId" =: courseId
---    , "review"   =: review
---    , "seen"     =: seen
---    , "mastered" =: mastered
---    , "total"    =: total ]
+mkUserStats :: PSQL.Connection -> UTCTime -> UserId -> CourseId -> IO Document
+mkUserStats conn now userId courseId = do
+ (review, seen, total, expires) <- fetchUserMetrics conn userId courseId
+ let longExpire = addUTCTime 200000 now
+     expires' = fromMaybe longExpire expires
+     nearest = addUTCTime 10 now
+     expires'' = max nearest expires'
+ return
+   [ "userId"   =: userId
+   , "courseId" =: courseId
+   , "review"   =: review
+   , "seen"     =: seen
+   , "mastered" =: (0::Int)
+   , "total"    =: total
+   , "expiresAt" =: expires''
+   , "updatedAt" =: now ]
+
+triggerStatsUpdate :: Pipe -> Database -> UserId -> CourseId -> IO ()
+triggerStatsUpdate pipe database userId courseId = do
+  now <- getCurrentTime
+  let expire = addUTCTime 10 now
+  access pipe slaveOk database $ do
+    mbObj <- findOne (select ["userId" =: userId, "courseId" =: courseId]
+                        "CourseStats")
+    case mbObj of
+      Just doc | at "expiresAt" doc < expire -> do
+        liftIO $ putStrLn "Found young expire date"
+        return ()
+      -- Just doc -> do
+      --   liftIO $ putStrLn "Old expire date, replacing."
+      --   modify
+      --       (select [ "userId" =: userId
+      --               , "courseId" =: courseId] "CourseStats")
+      --       [ "$set" =: [ "userId"   =: userId
+      --       , "courseId" =: courseId
+      --       , "expiresAt" =: expire
+      --       , "updatedAt" =: now ]]
+      _Nothing -> do
+        liftIO $ putStrLn "Missing expire date, replacing."
+        upsert
+            (select [ "userId" =: userId
+                    , "courseId" =: courseId] "CourseStats")
+            [ "$set" =: ["userId"   =: userId
+            , "courseId" =: courseId
+            , "expiresAt" =: expire
+            , "updatedAt" =: now ]]
+    

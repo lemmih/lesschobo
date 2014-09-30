@@ -24,6 +24,7 @@ module DB
     , fetchTouchedFeatures
     , fetchUserList
     , deleteDuplicateResponses
+    , fetchUserMetrics
     , FeatureId
     , Model
     , UserId
@@ -387,5 +388,14 @@ deleteDuplicateResponses conn = void $
         \      Responses.id < r.id"
         ()
 
+
+fetchUserMetrics :: Connection -> UserId -> CourseId
+                 -> IO (Int,Int,Int,Maybe UTCTime)
+fetchUserMetrics conn userId courseId =
+    querySingle conn
+        "SELECT review, seen, total, change \
+        \FROM CourseMetrics \
+        \WHERE user_id = ? AND course_id = ?"
+        (userId, courseId)
 
 

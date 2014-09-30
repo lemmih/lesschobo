@@ -52,8 +52,7 @@ executable lesschobo
                        postgresql-simple,
                        resource-pool,
                        cereal,
-                       split,
-                       uuid
+                       split
 
   hs-source-dirs:      src
   ghc-options:         -Wall -rtsopts
