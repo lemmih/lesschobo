@@ -13,8 +13,6 @@ import           Data.Maybe
 import           Data.Time
 import           Data.Typeable
 
-type FeatureId = UniqueId
-
 -- Eigenvector? Even more esoteric. Brainbug? Seedling? Dimension?
 data Feature
   = MandarinWordFeature Chinese

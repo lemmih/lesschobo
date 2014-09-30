@@ -31,7 +31,7 @@ module DB
     , CourseId
     ) where
 
-import           LessChobo.Common                       (Chinese)
+import           LessChobo.Common               
 import           LessChobo.Features                     (Feature (..), Rep,
                                                          repSchedule)
 import           LessChobo.Responses
@@ -53,13 +53,6 @@ import           Database.PostgreSQL.Simple
 import           Database.PostgreSQL.Simple.FromField
 import           Database.PostgreSQL.Simple.ToField
 import           Database.PostgreSQL.Simple.Transaction
-
-type CourseId   = Text
-type UnitId     = Text
-type UserId     = Text
-type StencilId  = UUID
-type ResponseId = UUID
-type FeatureId  = UUID
 
 type Model = Rep
 

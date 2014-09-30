@@ -14,12 +14,12 @@ instance FromJSON UUID where
             [(uuid,"")] -> return uuid
             _           -> fail "invalid uuid"
 
-type UniqueId   = Int
 type UnitId     = Text
 type CourseId   = Text
 type UserId     = Text
 type StencilId  = UUID -- UniqueId
-type ResponseId = UniqueId
+type ResponseId = UUID
+type FeatureId  = UUID
 
 type Chinese = Text
 type Pinyin  = Text
