@@ -217,6 +217,12 @@ Template.learnLayout.created = function() {
   Session.set('json-upload', undefined);
   Session.set('json-error', undefined);
 }
+Template.learnLayout.nReviewConcepts = function () {
+  var courseId = Router.current().data().courseId;
+  var stats = CourseMetrics.findOne({courseId: courseId});
+  if( stats && typeof stats.review !== 'undefined' ) return stats.review;
+  return 'N/A';
+};
 Template.learnLayout.activeWhenEq = function (a, b) {
   return a == b ? "active" : "";
 };

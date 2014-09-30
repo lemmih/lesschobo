@@ -46,3 +46,5 @@ Units Status JSON
 , }
 
 */
+
+CourseMetrics = new Meteor.Collection('CourseStats');

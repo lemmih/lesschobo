@@ -61,3 +61,22 @@ Meteor.startup(function () {
   Cookie.set('temp-userid', thisId);
 });
 
+
+
+
+Template.dotdotdot.rendered = function () {
+  this.$(".dotdotdot").dotdotdot({watch: true});
+};
+Template.dotdotdot.destroyed = function () {
+}
+Template.dotdotdot.events({
+  'click .dotdotdot': function (evt) {
+    if( $(evt.target).hasClass('clicked') ) {
+      $(evt.target).removeClass('clicked');
+      $(evt.target).dotdotdot({watch: true});
+    } else {
+      $(evt.target).addClass('clicked');
+      $(evt.target).trigger('destroy.dot');
+    }
+  }
+});

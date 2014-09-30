@@ -55,7 +55,12 @@
           title="Review of previously studied material."
           href="{{pathFor 'review' id=courseId slug=slug}}"
           class="list-group-item list-group-item-success">
-          <center>Review</center>
+          <center>
+            Review
+            <span class="badge pull-right">
+              {{nReviewConcepts}}
+            </span>
+          </center>
         </a>
       </div>
 

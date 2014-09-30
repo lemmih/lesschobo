@@ -23,14 +23,14 @@ Meteor.methods({
   //   var ret = HTTP.call('GET', 'http://localhost:8000/users/' + Meteor.userId() + '/units/' + courseId + '/stencils/');
   //   return JSON.parse(ret.content);
   // },
-  postResponse: function(tmpUserId, response) {
+  postResponse: function(tmpUserId, courseId, response) {
     
     response.userId = Meteor.userId() || tmpUserId;
     console.log('userId', response.userId);
 
     return HTTP.call(
       'POST',
-      path + '/responses',
+      path + '/responses/' + courseId,
       {data: response, params: {key: 'value'}});
   },
 
