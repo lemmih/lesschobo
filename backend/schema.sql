@@ -503,7 +503,7 @@ CREATE TRIGGER mark_user_trigger
 
 
 /* Metrics */
-CREATE OR REPLACE VIEW CourseStencilMetrics AS
+CREATE OR REPLACE VIEW CourseMetrics AS
   SELECT
     Users.id as user_id, Courses.course_id,
     (SELECT COUNT(*)
