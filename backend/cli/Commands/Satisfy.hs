@@ -60,10 +60,10 @@ mkStoryStencils assumedFiles inputFile = do
     assumedTexts <- mapM T.readFile assumedFiles
     let assumedWords = Set.fromList
           [ entry
-          | KnownWord entry <- tokenizer' ccDict (T.concat assumedTexts)]
+          | KnownWord entry <- tokenizer ccDict (T.concat assumedTexts)]
         textWords = nub
           [ entry
-          | KnownWord entry <- tokenizer' ccDict text
+          | KnownWord entry <- tokenizer ccDict text
           , entry `Set.notMember` assumedWords ]
         textWordsN = length textWords
 
@@ -77,7 +77,7 @@ mkStoryStencils assumedFiles inputFile = do
         
         stencilWords = nub
           [ entry | Chinese{stencilChinese} <- rights cover
-          , KnownWord entry <- tokenizer' ccDict stencilChinese ]
+          , KnownWord entry <- tokenizer ccDict stencilChinese ]
         superfluousWords = length (stencilWords \\ textWords)
         superfluousWordsP =
           ((superfluousWords)*100) `div` textWordsN
@@ -97,7 +97,7 @@ satisfyWithStencils entries stencils =
         Nothing       -> Left (entryChinese entry)
         Just covers ->
           let cheapest = selectCheapest $ Set.toList covers in
-          let cost = phraseFreqCost seen (tokenizer' ccDict (stencilChinese cheapest)) in
+          let cost = phraseFreqCost seen (tokenizer ccDict (stencilChinese cheapest)) in
           Right cheapest
           { stencilComment = "Covers: " `append` entryChinese entry `append`
             ". Cost: " `append` T.pack (show cost) }
@@ -109,7 +109,7 @@ satisfyWithStencils entries stencils =
     keyMap = Map.fromListWith Set.union
       [ (entry, Set.singleton stencil)
       | stencil <- stencils
-      , KnownWord entry <- tokenizer' ccDict (stencilChinese stencil) ]
+      , KnownWord entry <- tokenizer ccDict (stencilChinese stencil) ]
 
 
 
@@ -158,7 +158,7 @@ sortStencilsByCost stencils =
     worker (0::Int) Set.empty Set.empty Set.empty initCostMap
   where
     allStencilKeys =
-      [ (stencil, tokenizer' ccDict stencilChinese)
+      [ (stencil, tokenizer ccDict stencilChinese)
       | stencil@Chinese{stencilChinese} <- stencils ]
     initCostMap = Map.fromList
       [ (key, phraseCost Set.empty Set.empty token)
@@ -202,7 +202,7 @@ sortStencilsByCost stencils =
 sortStencilsByFrequency :: Set Text -> [Stencil] -> [(Stencil, Double)]
 sortStencilsByFrequency seen0 stencils =
   worker seen0
-    [ (stencil, tokenizer' ccDict stencilChinese)
+    [ (stencil, tokenizer ccDict stencilChinese)
     | stencil@Chinese{stencilChinese} <- stencils ]
   where
     worker seen lst =
