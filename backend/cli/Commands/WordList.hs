@@ -26,10 +26,10 @@ cmdWordList :: WordListOutput -> FilePath -> IO ()
 cmdWordList output path = do
   text <- T.readFile path
   let entries = nub [ entry | KnownWord entry <- tokenizer ccDict text ]
-  forM_ entries $ \e@Entry{..} ->
+  forM_ entries $ \Entry{..} ->
     case output of
       WordListTable ->
-        forM_ (zip (entryPinyin e) entryDefinition) $ \(pinyin, english) ->
+        forM_ (zip entryPinyin entryDefinition) $ \(pinyin, english) ->
           printf "%s\t%-10s %s\n"
             (T.unpack entryChinese)
             (T.unpack pinyin)

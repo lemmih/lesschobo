@@ -44,10 +44,8 @@ import           Control.Monad
 import           Control.Monad.Trans
 import           Data.Aeson
 import           Data.Pool
-import           Data.Text                              (Text)
 import           Data.Time
 import           Data.Typeable
-import           Data.UUID                              (UUID)
 import qualified Data.Vector                            as V
 import           Database.PostgreSQL.Simple
 import           Database.PostgreSQL.Simple.FromField
@@ -313,11 +311,11 @@ postPermaResponses conn responses = do
 fetchFeatureResponses
     :: Connection -> UserId
     -> FeatureId -> Feature -> IO [Response]
-fetchFeatureResponses conn userId featureId feature =
+fetchFeatureResponses conn userId _featureId feature =
     case feature of
         MandarinWordFeature word ->
             fetchMandarinWordResponses conn userId word
-        _ -> fetchFeatureResponsesById conn userId featureId
+        -- _ -> fetchFeatureResponsesById conn userId featureId
 
 fetchFeatureResponsesById :: Connection -> UserId -> FeatureId -> IO [Response]
 fetchFeatureResponsesById conn userId featureId = do

@@ -21,10 +21,14 @@ Meteor.Collection.prototype.copy = function (c) {
 // well with the HTML5 autofocus tag. Instead, we use jquery
 // to focus the element when the template is rendered.
 Template.autofocus.rendered = function () {
-  $(".autofocus").focus();
-  if( $('.autofocus').attr('data-content') ) {
-    $('.autofocus').popover({trigger: 'focus'});
-    $('.autofocus').popover('show');
+  var elt = this.$(".autofocus");
+  elt.focus();
+  if( elt.attr('data-content') ) {
+    elt.popover({trigger: 'focus'});
+    elt.popover('show');
+  }
+  if( elt.hasClass('mandarin-input') ) {
+    elt.pinyin();
   }
 };
 Template.autofocus.destroyed = function () {
@@ -80,3 +84,33 @@ Template.dotdotdot.events({
     }
   }
 });
+
+
+
+
+
+
+
+
+
+if(typeof(String.prototype.trimTones) === 'undefined') {
+  String.prototype.trimTones = function() {
+    return String(this)
+      .replace(/ā|á|ǎ|à/g, 'a')
+      .replace(/ō|ó|ǒ|ò/g, 'o')
+      .replace(/ē|é|ě|è/g, 'e')
+      .replace(/ī|í|ǐ|ì/g, 'i')
+      .replace(/ū|ú|ǔ|ù/g, 'u');
+  };
+}
+if(typeof(String.prototype.trimSpaces) === 'undefined') {
+  String.prototype.trimSpaces = function() {
+    return String(this).replace(/\s+/g, '');
+  };
+}
+
+
+
+
+
+

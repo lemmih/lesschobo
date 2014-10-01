@@ -9,7 +9,13 @@ import           LessChobo.Utilities
 
 import           Control.Applicative
 import           Data.Aeson
+import           Data.Char           (isSpace)
+import           Data.Chinese.CCDict (Entry (..), ccDict)
+import qualified Data.Chinese.CCDict as CCDict
+import           Data.Chinese.Pinyin (clearToneMarks)
 import           Data.Maybe
+import           Data.Text           (Text)
+import qualified Data.Text           as T
 import           Data.Time
 import           Data.Typeable
 
@@ -81,6 +87,23 @@ bumpRep now rep =
       MandarinWordRep $ Just curve{rcSuccessfulRecall = now}
 
 
+-- There are three ways to correctly answer a Mandarin question:
+checkMandarinAnswer :: Chinese -> Text -> Bool
+checkMandarinAnswer target answerOrig
+  -- 1. Answer with the Chinese charaters
+  | answer == target            = True
+  -- 2. Answer with pinyin with correct tone marks
+  | answer `elem` pinyinAnswers = True
+  -- 3. Answer with pinyin /without/ tone marks
+  | answer == answerNoTones &&
+    answer `elem` pinyinAnswersNoTones
+                                = True
+  | otherwise                   = False
+  where
+    answer = T.filter (not . isSpace) answerOrig
+    answerNoTones = clearToneMarks answer
+    pinyinAnswers = fromMaybe [] (fmap entryPinyin (CCDict.lookup target ccDict))
+    pinyinAnswersNoTones = []
 
 applyResponse :: Response -> Feature -> Rep -> Rep
 applyResponse Response{..} feature rep =
@@ -89,7 +112,7 @@ applyResponse Response{..} feature rep =
       | key == chinese ->
       let curve = fromMaybe (RecallCurve responseAt 100) mbCurve in
       MandarinWordRep $ Just $
-      if answer == chinese
+      if checkMandarinAnswer chinese answer
         then if shownAnswer
                 then (markSuccess responseAt .
                       bumpStability (recip factor)) curve

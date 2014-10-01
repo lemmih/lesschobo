@@ -34,13 +34,16 @@
                 <input
                         type="text"
                         data-placement="top"
-                        data-content="word"
+                        data-content="字 zì, word"
 
                         class="mandarin-input mandarin-help"
                         style="width: 5em;"/>
                 is missing.
               </blockquote>
-              In the above example, you have to type in 'word'.
+              In the above example, you have to type in
+              <code>word</code>, <code>字</code>, <code>zi</code>
+              (without tone mark) or <code>zì</code> (with tone mark).
+              The four answers are all considered correct.
             </dd>
 
             <dt>Why is the English translation hidden?</dt>
@@ -121,7 +124,9 @@
                         data-answer-content="{{chinese}} {{selectedPinyin}}"
 
                         class="mandarin-input active-input autofocus"
-                        style="width: {{len}}em;"/>
+                        style="width: {{len}}em;"
+                        />
+                      <span style="display: none; white-space: pre;"></span>
                       {{/autofocus}}
                   {{else}}
                     {{chinese}}

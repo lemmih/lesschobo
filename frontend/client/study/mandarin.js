@@ -13,6 +13,9 @@ instantiateChineseCard = function(card) {
         if( !block.isEscaped ) {
           // XXX: Use pinyin from stencil notes.
           block.selectedPinyin = _.uniq(_.pluck(block.definitions, 'pinyin'));
+          _.each(block.selectedPinyin, function(str) {
+            block.len = Math.max(block.len, str.length/2);
+          });
         }
       }
     }
@@ -108,6 +111,28 @@ Template.studyMandarinCard.answer = function () {
 
 
 
+function isCorrectAnswer(userAnswerOrig) {
+  var card = activeCard('submit');
+  var block = activeBlock(card);
+  var userAnswer = userAnswerOrig.trimSpaces();
+
+  var pinyinAnswers =
+          _.invoke( _.uniq(_.pluck(block.definitions, 'pinyin'))
+                  , 'trimSpaces');
+  var pinyinAnswersNoTones = _.invoke(pinyinAnswers, 'trimTones');
+
+  if (userAnswer === block.chinese)
+    return true;
+  if (_.contains(pinyinAnswers, userAnswer))
+    return true;
+  if (userAnswer === userAnswer.trimTones()) {
+    if (_.contains(pinyinAnswersNoTones, userAnswer))
+      return true;
+  } else if (_.contains(pinyinAnswersNoTones, userAnswer.trimTones())) {
+    console.log('tone error')
+  }
+  return false;
+};
 
 Template.studyMandarinCard.events({
   'click .mandarin-translation': function (evt) {
@@ -170,7 +195,7 @@ Template.studyMandarinCard.events({
         Router.current().data().courseId,
         response);
 
-      if (userAnswer === block.chinese) {
+      if (isCorrectAnswer(userAnswer)) {
         $(evt.target).popover('destroy');
         markNextActiveBlock(card);
         card.shownAnswer = false;
@@ -178,6 +203,15 @@ Template.studyMandarinCard.events({
       } else {
         console.log('incorrect', userAnswer, block.chinese);
         $(evt.currentTarget).select();
+      }
+    } else if(evt.keyCode === 32) {
+      var card = activeCard('submit');
+      var block = activeBlock(card);
+      var userAnswer = evt.currentTarget.value;
+      if(isCorrectAnswer(userAnswer)) {
+        var e = $.Event('keydown');
+        e.keyCode=13;
+        $(evt.target).trigger(e);
       }
     }
   }
