@@ -65,7 +65,7 @@ logExceptions :: String -> IO () -> IO ()
 logExceptions name action =
   catch action $ \e -> do
     putStrLn $ name ++ ": " ++ show e
-    case asyncExceptionFromException e of
+    case fromException e of
       Nothing -> return ()
       Just e  -> throwIO (e::AsyncException)
 
