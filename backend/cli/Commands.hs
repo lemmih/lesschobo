@@ -38,7 +38,8 @@ satisfyInfo = defTI
                \words in the input text as possible." }
 
 satisfyTerm :: Term (IO ())
-satisfyTerm = cmdSatisfy <$> verbose <*> assumedFiles <*> inputFile
+satisfyTerm =
+    cmdSatisfy <$> verbose <*> costLimit <*> assumedFiles <*> inputFile
   where
     inputFile = fileExists $ required $ pos 0 Nothing posInfo
       { posName = "FILE"
@@ -47,6 +48,9 @@ satisfyTerm = cmdSatisfy <$> verbose <*> assumedFiles <*> inputFile
       { optName = "FILE"
       , optDoc  = "Stencils files covering concepts the \
                   \user has already been shown." }
+    costLimit = value $ opt 10 (optInfo ["cost-limit","c"])
+      { optName = "MAX-COST"
+      , optDoc  = "Limit the word cost (recip of word frequency)" }
 
 
 

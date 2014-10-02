@@ -1,19 +1,22 @@
-{-# LANGUAGE NamedFieldPuns, OverloadedStrings #-}
+{-# LANGUAGE NamedFieldPuns    #-}
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE RecordWildCards   #-}
 module Commands.Satisfy
   ( cmdSatisfy ) where
 
+import           Control.Monad                (forM_)
 import           Data.Chinese.CCDict          as CCDict
 import           Data.Chinese.Frequency
 import           Data.Either
+import           Data.Function
 import           Data.List
 import qualified Data.Map                     as Map
 import           Data.Maybe
 import           Data.Ord
-import           Data.Function
 import           Data.Set                     (Set)
 import qualified Data.Set                     as Set
+import           Data.Text                    (Text, append)
 import qualified Data.Text                    as T
-import Data.Text (Text, append)
 import qualified Data.Text.IO                 as T
 import qualified Data.Yaml                    as Yaml
 import           LessChobo.SimulatedAnnealing
@@ -26,9 +29,9 @@ import           Text.Printf
 
 import           Commands.Load                (readStencilDB)
 
-cmdSatisfy :: Bool -> [FilePath] -> FilePath -> IO ()
-cmdSatisfy _verbose basePaths path =
-  mkStoryStencils basePaths path
+cmdSatisfy :: Bool -> Double -> [FilePath] -> FilePath -> IO ()
+cmdSatisfy _verbose costLimit basePaths path =
+  mkStoryStencils costLimit basePaths path
 
 
 
@@ -52,8 +55,8 @@ cmdSatisfy _verbose basePaths path =
 
 -- Create Chinese stencils covering the concepts in a short story or poem.
 -- The stencils are written in YAML to {input-file}.yaml
-mkStoryStencils :: [FilePath] -> FilePath -> IO ()
-mkStoryStencils assumedFiles inputFile = do
+mkStoryStencils :: Double -> [FilePath] -> FilePath -> IO ()
+mkStoryStencils costLimit assumedFiles inputFile = do
     putStrLn "Loading Chinese stencils..."
     stencils <- readStencilDB
     text <- T.readFile inputFile
@@ -67,14 +70,14 @@ mkStoryStencils assumedFiles inputFile = do
           , entry `Set.notMember` assumedWords ]
         textWordsN = length textWords
 
-        cover = nub $ satisfyWithStencils textWords stencils
+        cover = nub $ satisfyWithStencils costLimit textWords stencils
         coverStencils = nubBy ((==) `on` stencilChinese) $ rights cover
         totalWords = length cover
         coveredWords = length $ rights cover
         coveredWordsP = (coveredWords*100) `div` totalWords
         missingWords = length $ lefts cover
-        
-        
+
+
         stencilWords = nub
           [ entry | Chinese{stencilChinese} <- rights cover
           , KnownWord entry <- tokenizer ccDict stencilChinese ]
@@ -83,6 +86,12 @@ mkStoryStencils assumedFiles inputFile = do
           ((superfluousWords)*100) `div` textWordsN
     printf "Word coverage:     %3d%% (missing %d)\n" coveredWordsP missingWords
     printf "Superfluous words: %3d%% (%d)\n" superfluousWordsP superfluousWords
+    forM_ (lefts cover) $ \Entry{..} -> do
+      let chinese = T.unpack entryChinese
+          buffer = 8 - T.length entryChinese
+      forM_ entryDefinition $ \def -> do
+        let english = T.unpack (T.intercalate "/" def)
+        printf "Missing:           %-*s%s\n" buffer chinese english
     putStrLn "Sorting stencils..."
     let sorted = map fst $ sortStencilsByCost $ coverStencils
     Yaml.encodeFile outputFile sorted
@@ -91,13 +100,15 @@ mkStoryStencils assumedFiles inputFile = do
     outputFile = inputFile <.> "yaml"
 
 
-satisfyWithStencils :: [Entry] -> [Stencil] -> [Either Chinese Stencil]
-satisfyWithStencils entries stencils =
+satisfyWithStencils :: Double -> [Entry] -> [Stencil] -> [Either Entry Stencil]
+satisfyWithStencils costLimit entries stencils =
     [ case Map.lookup entry keyMap of
-        Nothing       -> Left (entryChinese entry)
+        Nothing       -> Left entry
         Just covers ->
           let cheapest = selectCheapest $ Set.toList covers in
           let cost = phraseFreqCost seen (tokenizer ccDict (stencilChinese cheapest)) in
+          if costLimit < cost then
+          Left entry else
           Right cheapest
           { stencilComment = "Covers: " `append` entryChinese entry `append`
             ". Cost: " `append` T.pack (show cost) }
@@ -248,6 +259,6 @@ wordFrequency :: T.Text -> Double
 wordFrequency txt =
   case Map.lookup txt subtlex of
     Just entry -> subtlexWMillion entry
-    Nothing -> foldr max 1 $ catMaybes
+    Nothing -> foldr min 1 $ catMaybes
       [ fmap subtlexWMillion (Map.lookup chunk subtlex)
       | chunk <- T.chunksOf 1 txt ]

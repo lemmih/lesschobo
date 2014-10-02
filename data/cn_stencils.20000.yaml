@@ -14082,7 +14082,7 @@
   english:
   - The logs floated down the river.
   type: chinese
-- chinese: 我登记住进了旅馆。
+- chinese: 我登记|住进了旅馆。
   english:
   - I checked in at the hotel.
   type: chinese
