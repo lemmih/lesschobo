@@ -103,7 +103,7 @@ checkMandarinAnswer target answerOrig
     answer = T.filter (not . isSpace) answerOrig
     answerNoTones = clearToneMarks answer
     pinyinAnswers = fromMaybe [] (fmap entryPinyin (CCDict.lookup target ccDict))
-    pinyinAnswersNoTones = []
+    pinyinAnswersNoTones = map clearToneMarks pinyinAnswers
 
 applyResponse :: Response -> Feature -> Rep -> Rep
 applyResponse Response{..} feature rep =
