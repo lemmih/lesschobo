@@ -9,7 +9,7 @@ import           LessChobo.Utilities
 
 import           Control.Applicative
 import           Data.Aeson
-import           Data.Char           (isSpace)
+import           Data.Char           (isSpace, toLower)
 import           Data.Chinese.CCDict (Entry (..), ccDict)
 import qualified Data.Chinese.CCDict as CCDict
 import           Data.Chinese.Pinyin (clearToneMarks)
@@ -100,10 +100,10 @@ checkMandarinAnswer target answerOrig
                                 = True
   | otherwise                   = False
   where
-    answer = T.filter (not . isSpace) answerOrig
+    answer = T.map toLower (T.filter (not . isSpace) answerOrig)
     answerNoTones = clearToneMarks answer
     pinyinAnswers =
-      map (T.filter (not . isSpace)) $
+      map (T.map toLower . T.filter (not . isSpace)) $
       fromMaybe [] (fmap entryPinyin (CCDict.lookup target ccDict))
     pinyinAnswersNoTones = map clearToneMarks pinyinAnswers
 

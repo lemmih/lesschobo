@@ -103,9 +103,10 @@ if(typeof(String.prototype.trimTones) === 'undefined') {
       .replace(/ū|ú|ǔ|ù/g, 'u');
   };
 }
+// FIXME: Rename this function to 'normalize' or something like that.
 if(typeof(String.prototype.trimSpaces) === 'undefined') {
   String.prototype.trimSpaces = function() {
-    return String(this).replace(/\s+/g, '');
+    return String(this).replace(/\s+/g, '').toLowerCase();
   };
 }
 
