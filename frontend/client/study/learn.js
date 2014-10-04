@@ -193,6 +193,10 @@ Template.learnToolbar.events({
   },
   'click #continueBtn': function () {
     var activeId = Session.get('activeCard');
+    if( activeId === 'final' ) {
+      activateNextCardSet(this.courseId);
+    }
+    
     var newCard = cards.findOne({status: "active"});
     if( !newCard )
       Session.set('activeCard', 'final');
