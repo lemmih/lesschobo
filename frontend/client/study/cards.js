@@ -26,17 +26,17 @@ fetchMoreCards = function (context) {
         return;
     }
   } else {
-    console.log('Cards already in prefetch queue.');
+    // console.log('Cards already in prefetch queue.');
     activateNextCardSet();
   }
 }
 
 function processCards(newCards) {
-  console.log('Processing cards', newCards);
+  // console.log('Processing cards', newCards);
   instantiateCards(newCards);
 
   cardsPrefetched.remove({});
-  console.log('Cards stored in prefetch cache.');
+  // console.log('Cards stored in prefetch cache.');
   cardsPrefetched.insertMany(newCards);
 
   // If we don't have any active cards, switch to the
@@ -67,10 +67,10 @@ activateNextCardSet = function () {
   if ( Session.equals('loading', true) ) {
     // Cards are being loaded. Remove the cards we have now so that
     // when the new cards are fetched, they'll be used immediately.
-    console.log('Cards are being loaded.');
+    // console.log('Cards are being loaded.');
   } else {
     // Cards have been prefetched. Move them to the active collection.
-    console.log('Cards available. Switching immediately.');
+    // console.log('Cards available. Switching immediately.');
     cards.copy(cardsPrefetched);
     cardsPrefetched.remove({});
     if( !cards.empty() )
@@ -96,7 +96,7 @@ function instantiateCards(cards) {
 }
 
 activeCard = function(origin) {
-  console.log('activeCard', origin);
+  // console.log('activeCard', origin);
   var activeId = Session.get('activeCard');
   return cards.findOne({_id: activeId});
 }

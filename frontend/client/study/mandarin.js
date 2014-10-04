@@ -28,7 +28,7 @@ instantiateChineseCard = function(card) {
     var card = this;
     if( card.showEnglish ) {
       card.shownAnswer = true;
-      console.log('show answer')
+      // console.log('show answer')
       var elt = $('.autofocus');
       elt.attr('data-content', elt.attr('data-answer-content'));
       $('.autofocus').focus();
