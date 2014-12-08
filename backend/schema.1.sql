@@ -13,12 +13,11 @@ CREATE OR REPLACE VIEW CourseMetrics AS
   SELECT
     Users.id as user_id, Courses.course_id,
     (SELECT COUNT(*)
-      FROM CourseFeaturesM CourseFeatures, Models
+      FROM Study
       WHERE
-        CourseFeatures.course_id = Courses.course_id AND
-        CourseFeatures.feature_id = Models.feature_id AND
-        Models.user_id = Users.id AND
-        Models.at < now()) as review,
+        Study.course_id = Courses.course_id AND
+        Study.user_id = Users.id AND
+        Study.at < now()) as review,
     (SELECT at
       FROM CourseFeaturesM CourseFeatures, Models
       WHERE
@@ -29,11 +28,11 @@ CREATE OR REPLACE VIEW CourseMetrics AS
       ORDER BY at ASC
       LIMIT 1) as change,
     (SELECT COUNT(*)
-      FROM CourseSelfStencils CourseStencils, StencilLastSeen
+      FROM Study
       WHERE
-        CourseStencils.course_id = Courses.course_id AND
-        CourseStencils.stencil_id = StencilLastSeen.stencil_id AND
-        StencilLastSeen.user_id = Users.id) as seen,
+        Study.course_id = Courses.course_id AND
+        Study.user_id = Users.id AND
+        Study.at IS NOT NULL) as seen,
     (SELECT COUNT(*)
       FROM CourseSelfStencils CourseStencils
       WHERE
