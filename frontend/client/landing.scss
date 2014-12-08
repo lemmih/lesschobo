@@ -1,3 +1,54 @@
+article.sectioned {
+  width: 100%;
+  height: 100%;
+  background: lightgrey;
+  padding-top: 1em;
+  padding-bottom: 1em;
+  padding-left: 1ex;
+  padding-right: 1ex;
+  section {
+    &:not(:first-child) {
+      margin-top: 1em;
+    }
+    // padding: 5px;
+    max-width: 768px;
+    max-width: 1024px;
+    margin-left: auto;
+    margin-right: auto;
+    border: 1px solid #999;
+    background: white;
+    h1 {
+      text-align: center;
+      margin-top: 0;
+      padding: 5px;
+      
+
+      // border-bottom: 1px solid #999;
+      background: #0074d9;
+      color: white;
+    }
+    .body {
+      padding: 10px;
+      .screenshot {
+        float: left;
+        display: inline-block;
+        img {
+          width: 300px;
+          // height: 200px;
+        }
+      }
+      .txt {
+        h2 {
+          margin-top: 0;
+        }
+        padding-left: 1ex;
+        margin-left: 300px;
+      }
+    }
+  }
+}
+
+
 article {
   width: 100%;
   height: 100%;

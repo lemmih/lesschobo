@@ -19,4 +19,10 @@ Template.landing.hskPath = function () {
     nth: 0
   });
 };
-
+Template.landing.courses = function () {
+  var initCourses = [
+        'XYQDY9dzoNYcfMoGn',
+        'T2B9nPPqdfJ4N8va3',
+        'evJkCP4KRroQyyRBX'];
+  return Courses.find({_id: {$in: initCourses}}).fetch();
+};

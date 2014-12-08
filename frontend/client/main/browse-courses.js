@@ -9,7 +9,7 @@ Template.browseCourses.rendered = function () {
 Template.browseCourses.courses = function () {
   return Courses.find({}).fetch();
 };
-Template.browseCourses.ofTotalPercent = function (field) {
+Template.courseLine.ofTotalPercent = function (field) {
   var obj = CourseMetrics.findOne({courseId: this._id});
   if( obj ) {
     return Math.round(obj[field] / obj.total * 100);

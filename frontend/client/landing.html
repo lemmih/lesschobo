@@ -1,7 +1,93 @@
 <template name="landing">
   {{> mainNav }}
 
-  <article>
+  <article class="sectioned">
+    <section>
+      <h1>
+        Learn Chinese by reading short-stories
+      </h1>
+      {{! List two or three courses. }}
+      <div class="new-browse body">
+        {{#each courses}}
+          <div class="row">
+            <div class="col-md-12">
+              {{> courseLine}}
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    </section>
+
+    <section>
+      <div class="body clearfix">
+        <div class="screenshot">
+          <img src="exam.jpg" />
+        </div>
+        <div class="txt">
+          <h2>Practise with context</h2>
+          <p>
+            Learn Chinese words by seeing how they're using in sentences and
+            example dialog.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="body clearfix">
+        <div class="screenshot">
+          <img src="exam.jpg" />
+        </div>
+        <div class="txt">
+          <h2>Goal-driven learning</h2>
+          <p>
+            Learning Chinese can be a daunting task. However, with small and concrete goals - such as reading a short-story or poem - learning Chinese becomes manageable and fun.
+          </p>
+        </div>
+      </div>
+    </section>
+    <section>
+      <div class="body clearfix">
+        <div class="screenshot">
+          <img src="exam.jpg" />
+        </div>
+        <div class="txt">
+          <h2>Built-in tools</h2>
+          <p>
+            Dictionary. Audio pronounciation. MGDB lookup.
+          </p>
+        </div>
+      </div>
+    </section>
+    <section>
+      <div class="body clearfix">
+        <div class="screenshot">
+          <img src="exam.jpg" />
+        </div>
+        <div class="txt">
+          <h2>Adaptive courses</h2>
+          <p>
+            Courses written in stone are a thing of the past. With 10,000s of exercises to draw on, the Talent<sup>srs</sup> learning system adapts to your strenghts and weaknessess. The flash cards you see and the exercises you complete are tailored to bridge the gap between your knowledge and the course objectives.
+          </p>
+        </div>
+      </div>
+    </section>
+    <section>
+      <div class="body clearfix">
+        <div class="screenshot">
+          <img src="exam.jpg" />
+        </div>
+        <div class="txt">
+          <h2>Mastery learning</h2>
+          <p>
+            
+          </p>
+        </div>
+      </div>
+    </section>
+  </article>
+
+  <!-- <article>
     <section class="call-to-action">
       <h1>Read a story, learn Chinese.</h1>
 
@@ -165,7 +251,8 @@
       </div>
     </section>
 
-  </article>
+  </article> -->
+  
   <footer class="jumbotron" style="margin-bottom: 0px;">
     <div class="row">
       <div class="col-xs-2 col-xs-offset-4">
