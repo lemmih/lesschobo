@@ -32,6 +32,7 @@ instantiateChineseCard = function(card) {
       var elt = $('.autofocus');
       elt.attr('data-content', elt.attr('data-answer-content'));
       $('.autofocus').focus();
+      $('.autofocus').popover('show');
     } else {
       card.showEnglish = true;
     }

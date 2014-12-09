@@ -38,6 +38,7 @@ div.mandarin-chinese {
   font-size: 150%;
 }
 div.mandarin-chinese div.popover-content {
+  font-size: 150%;
   padding-top: 0;
   padding-bottom: 0;
   -webkit-user-select: none;  /* Chrome all / Safari all */
@@ -109,4 +110,5 @@ ul.mandarin-dict li li:hover {
 .mandarin-help div.popover-content {
   padding-top: 0;
   padding-bottom: 0;
+  font-size: 150%;
 }
